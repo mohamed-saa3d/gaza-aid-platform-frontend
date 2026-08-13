@@ -42,9 +42,14 @@ export function TransferMethodCard({
 
   const handleCopy = async () => {
     try {
+      if (typeof navigator === "undefined" || !navigator.clipboard) {
+        setCopied(false)
+        return
+      }
+
       await navigator.clipboard.writeText(fieldValue)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      window.setTimeout(() => setCopied(false), 2000)
     } catch {
       setCopied(false)
     }
