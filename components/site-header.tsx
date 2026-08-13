@@ -75,10 +75,10 @@ export function SiteHeader() {
             <Languages className="size-3.5" data-icon="inline-start" />
             {locale === "ar" ? "EN" : "AR"}
           </Button>
-          <Button asChild size="sm" className="hidden rounded-full sm:flex">
-            <Link href="/donate">
-              <Heart className="size-3.5" data-icon="inline-start" />
-              {t.nav.donate}
+          <Button asChild size="sm" className="hidden rounded-md sm:flex">
+            <Link href="/donate" className="flex items-center justify-center gap-2">
+              <Heart className="size-3.5 shrink-0" data-icon="inline-start" />
+              <span>{t.nav.donate}</span>
             </Link>
           </Button>
 
@@ -108,10 +108,10 @@ export function SiteHeader() {
                   <Languages className="size-3.5" data-icon="inline-start" />
                   {locale === "ar" ? "English" : "العربية"}
                 </Button>
-                <Button asChild className="justify-center rounded-full">
-                  <Link href="/donate">
-                    <Heart className="size-3.5" data-icon="inline-start" />
-                    {t.nav.donate}
+                <Button asChild className="justify-center rounded-md">
+                  <Link href="/donate" className="flex items-center justify-center gap-2">
+                    <Heart className="size-3.5 shrink-0" data-icon="inline-start" />
+                    <span>{t.nav.donate}</span>
                   </Link>
                 </Button>
               </div>

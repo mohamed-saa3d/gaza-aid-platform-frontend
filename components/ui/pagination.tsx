@@ -1,7 +1,10 @@
+"use client"
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/locale-provider"
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
@@ -64,36 +67,46 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
-  text = "Previous",
+  text,
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+  const { dir, locale } = useLocale()
+  const isRTL = dir === "rtl"
+  const label = text ?? (locale === "ar" ? "السابق" : "Previous")
+
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={locale === "ar" ? "الصفحة السابقة" : "Go to previous page"}
       size="default"
-      className={cn("pl-1.5!", className)}
+      dir={dir}
+      className={cn(isRTL ? "pl-1.5!" : "pr-1.5!", className)}
       {...props}
     >
-      <ChevronLeftIcon data-icon="inline-start" />
-      <span className="hidden sm:block">{text}</span>
+      {isRTL ? <ChevronRightIcon data-icon="inline-start" /> : <ChevronLeftIcon data-icon="inline-start" />}
+      <span className="hidden sm:block">{label}</span>
     </PaginationLink>
   )
 }
 
 function PaginationNext({
   className,
-  text = "Next",
+  text,
   ...props
 }: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
+  const { dir, locale } = useLocale()
+  const isRTL = dir === "rtl"
+  const label = text ?? (locale === "ar" ? "التالي" : "Next")
+
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={locale === "ar" ? "الصفحة التالية" : "Go to next page"}
       size="default"
-      className={cn("pr-1.5!", className)}
+      dir={dir}
+      className={cn(isRTL ? "pr-1.5!" : "pl-1.5!", className)}
       {...props}
     >
-      <span className="hidden sm:block">{text}</span>
-      <ChevronRightIcon data-icon="inline-end" />
+      <span className="hidden sm:block">{label}</span>
+      {isRTL ? <ChevronLeftIcon data-icon="inline-end" /> : <ChevronRightIcon data-icon="inline-end" />}
     </PaginationLink>
   )
 }
