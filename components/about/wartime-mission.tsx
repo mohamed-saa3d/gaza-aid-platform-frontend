@@ -1,0 +1,35 @@
+import { Flower2 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { honorStats, wartimeMission } from "@/lib/mock-data"
+
+export function WartimeMission() {
+  return (
+    <section className="bg-secondary/40 py-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 flex items-center gap-3">
+          <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+          <h2 className="font-heading text-2xl font-bold text-foreground sm:text-3xl">{wartimeMission.title}</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr] lg:items-center">
+          <Card className="border-none bg-card">
+            <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+              <Flower2 className="size-8 text-destructive" aria-hidden="true" />
+              <span className="font-heading text-5xl font-bold text-destructive">{honorStats.count}</span>
+              <span className="font-heading text-xl font-bold text-foreground">{honorStats.label}</span>
+              <p className="text-pretty text-sm leading-relaxed text-muted-foreground">{honorStats.description}</p>
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-col gap-4">
+            {wartimeMission.paragraphs.map((paragraph, i) => (
+              <p key={i} className="text-pretty leading-relaxed text-foreground/90">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

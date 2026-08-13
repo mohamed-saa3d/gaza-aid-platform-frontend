@@ -383,3 +383,184 @@ export const platformRating = {
   score: 4.8,
   count: 12540,
 }
+
+export interface DonationHistoryItem {
+  id: string
+  title: string
+  amount: number
+  date: string
+  icon: "Droplets" | "Users" | "ShoppingBasket" | "Utensils"
+}
+
+export const donationHistory: DonationHistoryItem[] = [
+  { id: "d1", title: "بئر رقم (7) - خانيونس", amount: 5000, date: "2024-06-01", icon: "Droplets" },
+  { id: "d2", title: "كفالة يتيم", amount: 300, date: "2024-06-01", icon: "Users" },
+  { id: "d3", title: "السلة الغذائية", amount: 150, date: "2024-05-31", icon: "ShoppingBasket" },
+  { id: "d4", title: "المطبخ الخيري", amount: 1000, date: "2024-05-31", icon: "Utensils" },
+]
+
+export interface MyProject {
+  id: string
+  title: string
+  image: string
+  progress: number
+}
+
+export const myProjects: MyProject[] = [
+  { id: "m1", title: "السلة الغذائية", image: "/images/project-food-basket.png", progress: 75 },
+  { id: "m2", title: "كفالة يتيم", image: "/images/project-education.png", progress: 40 },
+  { id: "m3", title: "بئر رقم (7) - خانيونس", image: "/images/project-well.png", progress: 60 },
+]
+
+// About page
+export const foundationFocusAreas = categories.filter((c) => c.id !== "other")
+
+export const foundationInfo = {
+  name: "مؤسسة قدس للإغاثة",
+  license: "278/2012",
+  founded: "2012",
+  description:
+    "تأسّست مؤسسة قدس للإغاثة في غزة عام 2012 بموجب ترخيص رقم 278/2012. نلتزم بتقديم العون الإنساني والكرامة لمن هم في أمس الحاجة إليها. نسعى جاهدين لبناء مجتمع متكافل ومستدام.",
+}
+
+export const honorStats = {
+  count: 22,
+  label: "شهيداً",
+  description:
+    "نقف إجلالاً وإكباراً لأرواح زملائنا من الموظفين والمتطوعين الذين قدموا أرواحهم فداءً للواجب الإنساني أثناء تأديتهم لعملهم وعائلاتهم. تضحياتهم ستظل نبراساً يضيء طريقنا لمواصلة المسيرة.",
+}
+
+export const wartimeMission = {
+  title: "رسالتنا خلال الحرب",
+  paragraphs: [
+    "في ظل الظروف الاستثنائية القاسية، تضاعفت مسؤولياتنا. تعمل طواقمنا على مدار الساعة، متحدية الصعاب والمخاطر، لضمان وصول المساعدات الحيوية إلى الأسر النازحة والمتضررة.",
+    "لقد قمنا بتوسيع عملياتنا لتشمل إنشاء مراكز إيواء مؤقتة، وتوفير المياه الصالحة للشرب، وتوزيع وجبات ساخنة يومية، بالإضافة إلى تقديم الدعم النفسي الأول للأطفال وعائلاتهم. نؤمن بأن الاستمرار في تقديم العون هو شكل من أشكال الصمود والتحدي.",
+  ],
+}
+
+// News / Media page
+export interface NewsArticle {
+  id: string
+  slug: string
+  title: string
+  excerpt: string
+  image: string
+  date: string
+  urgent: boolean
+}
+
+export const featuredNewsArticle: NewsArticle = {
+  id: "n1",
+  slug: "hamlat-alshataa-aldafi-3",
+  title: "انطلاق المرحلة الثالثة من حملة الشتاء الدافئ في مراكز الإيواء بغزة",
+  excerpt:
+    "أطلقت مؤسسة قدس إغاثة المرحلة الثالثة من حملة الشتاء الدافئ لتوفير الملابس والبطانيات ومواد التدفئة للأسر النازحة في مراكز الإيواء بقطاع غزة، في ظل استمرار الأوضاع الإنسانية الصعبة والانخفاض الحاد في درجات الحرارة.",
+  image: "/images/news-featured-winter.png",
+  date: "15 أكتوبر 2026",
+  urgent: true,
+}
+
+export const newsArticles: NewsArticle[] = [
+  {
+    id: "n2",
+    slug: "tawzi-500-sala-khanyounis",
+    title: "توزيع 500 سلة غذائية في مواصي خانيونس",
+    excerpt: "بدعم من أهل الخير، تم توزيع 500 سلة غذائية على الأسر المتعففة والنازحة في مواصي خانيونس.",
+    image: "/images/news-food-distribution.png",
+    date: "10 أكتوبر 2026",
+    urgent: false,
+  },
+  {
+    id: "n3",
+    slug: "eiyada-mutanaqila-rafah",
+    title: "عيادة متنقلة تقدم خدماتها في رفح",
+    excerpt: "واصلت العيادة المتنقلة تقديم الخدمات الطبية المجانية للأسر النازحة في مدينة رفح والمناطق المجاورة.",
+    image: "/images/news-mobile-clinic.png",
+    date: "10 أكتوبر 2026",
+    urgent: false,
+  },
+  {
+    id: "n4",
+    slug: "iftitah-bir-mya-deir-albalah",
+    title: "افتتاح بئر مياه جديد في دير البلح",
+    excerpt: "تم بحمد الله افتتاح بئر مياه ارتوازي جديد في منطقة دير البلح، وسيخدم أكثر من 3,000 نسمة من الأهالي والنازحين.",
+    image: "/images/news-water-well.png",
+    date: "10 أكتوبر 2026",
+    urgent: false,
+  },
+]
+
+// FAQ page
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
+export interface FaqCategory {
+  id: string
+  title: string
+  items: FaqItem[]
+}
+
+export const faqCategories: FaqCategory[] = [
+  {
+    id: "donations",
+    title: "التبرعات",
+    items: [
+      {
+        question: "كيف يمكنني التبرع؟",
+        answer: "يمكنك التبرع عبر البطاقات الائتمانية أو Apple Pay من صفحة (تبرع الآن)، أو عبر التحويل المباشر بدون حساب بنكي من صفحة (تبرع بدون حساب بنكي).",
+      },
+      {
+        question: "هل يمكنني إلغاء التبرع الشهري؟",
+        answer: "نعم، يمكنك إيقاف أو تعديل تبرعك الشهري في أي وقت من صفحة الملف الشخصي وإعدادات التبرع الشهري.",
+      },
+      {
+        question: "هل هناك حد أدنى لمبلغ التبرع؟",
+        answer: "لا يوجد حد أدنى، ويمكنك التبرع بأي مبلغ يناسبك ويحقق أثراً حقيقياً في حياة المحتاجين.",
+      },
+    ],
+  },
+  {
+    id: "transparency",
+    title: "الشفافية والتقارير",
+    items: [
+      {
+        question: "كيف أتابع أثر تبرعي؟",
+        answer: "نرسل إشعارات فورية عند إنفاق تبرعك، ويمكنك متابعة تحديثات المشاريع من صفحة (تحديثات المشاريع).",
+      },
+      {
+        question: "هل تصدر المؤسسة تقارير مالية؟",
+        answer: "نعم، تصدر المؤسسة تقارير سنوية مفصلة حول أنشطتها وأوجه إنفاق التبرعات، ويمكن طلبها من فريق الدعم.",
+      },
+    ],
+  },
+  {
+    id: "account",
+    title: "الحساب الشخصي",
+    items: [
+      {
+        question: "كيف أنشئ حساباً جديداً؟",
+        answer: "يمكنك إنشاء حساب من صفحة (تسجيل جديد) بإدخال بياناتك ثم تأكيد رقم هاتفك عبر رمز التحقق.",
+      },
+      {
+        question: "نسيت رمز الدخول، ماذا أفعل؟",
+        answer: "اضغط على رابط (نسيت كلمة المرور) في صفحة تسجيل الدخول لإعادة تعيينها بسهولة.",
+      },
+    ],
+  },
+  {
+    id: "security",
+    title: "الأمان والخصوصية",
+    items: [
+      {
+        question: "هل بياناتي البنكية محفوظة بأمان؟",
+        answer: "جميع بيانات الدفع مشفرة ومحمية وفق أعلى معايير الأمان العالمية، ولا يتم تخزين بيانات بطاقتك على خوادمنا.",
+      },
+      {
+        question: "من يمكنه الوصول إلى معلوماتي الشخصية؟",
+        answer: "لا نشارك بياناتك مع أي طرف ثالث، وتُستخدم فقط لغرض إدارة تبرعاتك وتحسين تجربتك معنا.",
+      },
+    ],
+  },
+]
