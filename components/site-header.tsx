@@ -19,7 +19,7 @@ export function SiteHeader() {
     { href: "/live", label: t.nav.live },
     { href: "/news", label: t.nav.news },
     { href: "/updates", label: t.nav.updates },
-    { href: "/donate", label: t.nav.noBank },
+    { href: "/donate-no-bank", label: t.nav.noBank },
   ]
 
   return (

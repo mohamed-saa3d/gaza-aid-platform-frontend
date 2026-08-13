@@ -15,7 +15,7 @@ export function SiteFooter() {
     { href: "/about", label: t.footer.about },
     { href: "/contact", label: t.footer.contact },
     { href: "/projects", label: t.nav.projects },
-    { href: "/donate", label: t.nav.noBank },
+    { href: "/donate-no-bank", label: t.nav.noBank },
   ]
 
   const helpLinks = [
