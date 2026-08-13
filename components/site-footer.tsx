@@ -6,10 +6,13 @@ import { Mail, MapPin, Phone, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLocale } from "@/components/locale-provider"
+import { usePathname } from "next/navigation"
 import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "@/components/social-icons"
 
 export function SiteFooter() {
   const { t } = useLocale()
+  const pathname = usePathname()
+  if (pathname.startsWith('/admin')) return null
 
   const quickLinks = [
     { href: "/about", label: t.footer.about },

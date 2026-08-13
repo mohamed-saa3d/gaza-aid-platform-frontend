@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 export function SiteHeader() {
   const { t, locale, toggleLocale } = useLocale()
   const pathname = usePathname()
+  if (pathname.startsWith('/admin')) return null
 
   const navItems = [
     { href: "/", label: t.nav.home },
