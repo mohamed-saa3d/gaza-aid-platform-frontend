@@ -114,12 +114,32 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-primary-foreground/15 pt-6 text-xs text-primary-foreground/60 sm:flex-row">
-          <p>
-            © 2026 {t.footer.orgName}. {t.footer.rights}
-          </p>
-          <div className="flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1.5">
-            <span>مرخصة من المركز الوطني لتنمية القطاع غير الربحي (رقم 1234)</span>
+        <div className="mt-10 flex flex-col gap-4 border-t border-primary-foreground/15 pt-6 text-xs text-primary-foreground/60">
+          <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+            <p>
+              © 2026 {t.footer.orgName}. {t.footer.rights}
+            </p>
+            <div className="flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1.5">
+              <span>مرخصة من المركز الوطني لتنمية القطاع غير الربحي (رقم 1234)</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+            <Link href="/register" className="inline-flex items-center gap-1 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1.5 font-medium text-primary-foreground transition-colors hover:bg-primary-foreground/15">
+              {t.footer.createAccount}
+            </Link>
+
+            <p className="text-center text-[11px] leading-relaxed sm:text-left">
+              {t.footer.developerCredit} {" "}
+              <a
+                href="https://www.linkedin.com/in/mohamed-saad-dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary-foreground underline-offset-4 hover:underline"
+              >
+                {t.footer.developerName}
+              </a>
+            </p>
           </div>
         </div>
       </div>

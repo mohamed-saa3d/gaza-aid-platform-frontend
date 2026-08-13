@@ -70,12 +70,12 @@ export function SiteHeader() {
             variant="outline"
             size="sm"
             onClick={toggleLocale}
-            className="hidden items-center gap-1.5 rounded-full sm:flex"
+            className="hidden h-10 items-center gap-1.5 rounded-sm sm:flex"
           >
             <Languages className="size-3.5" data-icon="inline-start" />
             {locale === "ar" ? "EN" : "AR"}
           </Button>
-          <Button asChild size="sm" className="hidden rounded-md sm:flex">
+          <Button asChild size="sm" className="hidden h-10 rounded-sm px-4 sm:flex">
             <Link href="/donate" className="flex items-center justify-center gap-2">
               <Heart className="size-3.5 shrink-0" data-icon="inline-start" />
               <span>{t.nav.donate}</span>
@@ -104,11 +104,11 @@ export function SiteHeader() {
                 ))}
               </nav>
               <div className="mt-2 flex flex-col gap-2 px-4">
-                <Button variant="outline" onClick={toggleLocale} className="justify-center rounded-full">
+                <Button variant="outline" onClick={toggleLocale} className="justify-center rounded-sm">
                   <Languages className="size-3.5" data-icon="inline-start" />
                   {locale === "ar" ? "English" : "العربية"}
                 </Button>
-                <Button asChild className="justify-center rounded-md">
+                <Button asChild className="justify-center rounded-sm">
                   <Link href="/donate" className="flex items-center justify-center gap-2">
                     <Heart className="size-3.5 shrink-0" data-icon="inline-start" />
                     <span>{t.nav.donate}</span>

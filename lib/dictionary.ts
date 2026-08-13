@@ -32,6 +32,9 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       faq: "الأسئلة الشائعة",
       privacy: "سياسة الخصوصية",
       terms: "الشروط والأحكام",
+      createAccount: "أنشئ حساب الآن",
+      developerCredit: "تم التصميم والتطوير بواسطة",
+      developerName: "محمد سعد",
     },
   },
   en: {
@@ -58,6 +61,9 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       faq: "FAQ",
       privacy: "Privacy Policy",
       terms: "Terms & Conditions",
+      createAccount: "Create an account now",
+      developerCredit: "Designed and developed by",
+      developerName: "Mohamed Saad",
     },
   },
 }
