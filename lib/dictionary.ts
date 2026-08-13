@@ -1,0 +1,56 @@
+export type Locale = "ar" | "en"
+
+export const dictionary = {
+  ar: {
+    nav: {
+      home: "الرئيسية",
+      projects: "مشاريعنا",
+      live: "بث مباشر",
+      news: "الأخبار",
+      updates: "تحديثات المشاريع",
+      noBank: "تبرع بدون حساب بنكي",
+      donate: "تبرع الآن",
+    },
+    footer: {
+      about: "من نحن",
+      contact: "تواصل معنا",
+      quickLinks: "روابط سريعة",
+      help: "المساعدة",
+      contactInfo: "معلومات التواصل",
+      newsletter: "النشرة البريدية",
+      newsletterCopy: "اشترك ليصلك جديد مشاريعنا وأخبارنا",
+      subscribe: "اشترك",
+      rights: "جميع الحقوق محفوظة",
+      orgName: "مؤسسة قدس للإغاثة",
+      faq: "الأسئلة الشائعة",
+      privacy: "سياسة الخصوصية",
+      terms: "الشروط والأحكام",
+    },
+  },
+  en: {
+    nav: {
+      home: "Home",
+      projects: "Projects",
+      live: "Live",
+      news: "News",
+      updates: "Project Updates",
+      noBank: "Donate Without a Bank Account",
+      donate: "Donate Now",
+    },
+    footer: {
+      about: "About Us",
+      contact: "Contact Us",
+      quickLinks: "Quick Links",
+      help: "Help",
+      contactInfo: "Contact Info",
+      newsletter: "Newsletter",
+      newsletterCopy: "Subscribe to get updates on our projects and news",
+      subscribe: "Subscribe",
+      rights: "All rights reserved",
+      orgName: "Quds Relief Foundation",
+      faq: "FAQ",
+      privacy: "Privacy Policy",
+      terms: "Terms & Conditions",
+    },
+  },
+} as const
