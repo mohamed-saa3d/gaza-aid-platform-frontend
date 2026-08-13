@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { PartyPopper, Download, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -5,7 +8,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import type { DonationState } from "@/components/donate/donation-flow"
 
 export function ConfirmationStep({ state }: { state: DonationState }) {
-  const reference = `QR-${Math.floor(100000 + Math.random() * 900000)}`
+  const [reference, setReference] = useState("QR-000000")
+
+  useEffect(() => {
+    setReference(`QR-${Math.floor(100000 + Math.random() * 900000)}`)
+  }, [])
 
   return (
     <div className="flex flex-col items-center gap-6 py-6 text-center">

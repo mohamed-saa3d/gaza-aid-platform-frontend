@@ -1,6 +1,13 @@
 export type Locale = "ar" | "en"
 
-export const dictionary = {
+type DictionarySection = Record<string, string>
+
+export type LocaleDictionary = {
+  nav: DictionarySection
+  footer: DictionarySection
+}
+
+export const dictionary: Record<Locale, LocaleDictionary> = {
   ar: {
     nav: {
       home: "الرئيسية",
@@ -53,4 +60,4 @@ export const dictionary = {
       terms: "Terms & Conditions",
     },
   },
-} as const
+}

@@ -10,6 +10,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { useIsMounted } from "@/hooks/use-is-mounted"
 import { projectProgressSeries } from "@/lib/mock-data"
 
 const chartConfig: ChartConfig = {
@@ -30,6 +31,7 @@ const ranges = [
 ] as const
 
 export function ProgressOverTimeChart() {
+  const isMounted = useIsMounted()
   const [range, setRange] = useState<(typeof ranges)[number]["id"]>("12")
 
   const data = useMemo(() => {
@@ -41,6 +43,21 @@ export function ProgressOverTimeChart() {
     }))
   }, [range])
 
+  if (!isMounted) {
+    return (
+      <Card className="border-border/60">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">
+          <CardTitle className="font-heading text-lg font-bold">
+            نسبة تقدم المشاريع مع مرور الوقت
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[320px] w-full animate-pulse rounded-xl bg-muted" />
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="border-border/60">
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">
@@ -48,9 +65,11 @@ export function ProgressOverTimeChart() {
           نسبة تقدم المشاريع مع مرور الوقت
         </CardTitle>
         <ToggleGroup
-          type="single"
-          value={range}
-          onValueChange={(value) => value && setRange(value as typeof range)}
+          value={[range]}
+          onValueChange={(value) => {
+            const next = value[0]
+            if (next) setRange(next as typeof range)
+          }}
           variant="outline"
           size="sm"
         >

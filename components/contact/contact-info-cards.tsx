@@ -5,7 +5,7 @@ const infoItems = [
   {
     icon: MapPin,
     title: "المقر الرئيسي",
-    lines: ["المملكة العربية السعودية"],
+    lines: ["فلسطين"],
   },
   {
     icon: Phone,

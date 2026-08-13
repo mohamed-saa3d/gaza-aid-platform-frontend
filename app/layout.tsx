@@ -56,7 +56,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`bg-background ${notoKufiArabic.variable} ${notoSansArabic.variable}`}>
+    <html
+      lang="ar"
+      dir="rtl"
+      suppressHydrationWarning
+      className={`bg-background ${notoKufiArabic.variable} ${notoSansArabic.variable}`}
+    >
       <body className="min-h-screen font-sans antialiased">
         <LocaleProvider>
           <div className="flex min-h-screen flex-col">

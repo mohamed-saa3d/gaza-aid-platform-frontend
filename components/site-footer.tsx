@@ -82,7 +82,7 @@ export function SiteFooter() {
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="size-4 shrink-0" />
-                <span>المملكة العربية السعودية</span>
+                <span>فلسطين</span>
               </li>
               <li className="pt-1">
                 <ul className="flex flex-col gap-2">

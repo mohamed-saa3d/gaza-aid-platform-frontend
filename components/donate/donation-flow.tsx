@@ -15,8 +15,11 @@ export interface DonationState {
   amount: number
   donorName: string
   donorEmail: string
+  donorPhone: string
   method: string
 }
+
+export type QuickDonationState = DonationState
 
 export function DonationFlow() {
   const [step, setStep] = useState(1)
@@ -26,6 +29,7 @@ export function DonationFlow() {
     amount: featuredDonationProject.amount,
     donorName: "",
     donorEmail: "",
+    donorPhone: "",
     method: "cards",
   })
 

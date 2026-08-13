@@ -25,8 +25,10 @@ const iconMap: Record<string, LucideIcon> = {
   Droplets,
 }
 
+type DonationReasonId = (typeof donationReasons)[number]["id"]
+
 export function QuickDonateWidget() {
-  const [reason, setReason] = useState(donationReasons[0].id)
+  const [reason, setReason] = useState<DonationReasonId>(donationReasons[0].id)
   const [amount, setAmount] = useState<number | null>(quickAmounts[2])
   const [customAmount, setCustomAmount] = useState("")
 

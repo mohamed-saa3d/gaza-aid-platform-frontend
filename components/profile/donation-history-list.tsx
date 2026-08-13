@@ -4,6 +4,7 @@ import { Droplets, ShoppingBasket, Users, Utensils, Download } from "lucide-reac
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { donationHistory, type DonationHistoryItem } from "@/lib/mock-data"
+import { useIsMounted } from "@/hooks/use-is-mounted"
 
 const iconMap: Record<DonationHistoryItem["icon"], typeof Droplets> = {
   Droplets,
@@ -14,10 +15,34 @@ const iconMap: Record<DonationHistoryItem["icon"], typeof Droplets> = {
 
 function formatDate(iso: string) {
   const d = new Date(iso)
-  return d.toLocaleDateString("ar-EG", { year: "numeric", month: "2-digit", day: "2-digit" })
+  return new Intl.DateTimeFormat("ar-EG", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "UTC",
+  }).format(d)
 }
 
 export function DonationHistoryList() {
+  const isMounted = useIsMounted()
+
+  if (!isMounted) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="font-heading text-lg">سجل التبرعات</CardTitle>
+            <button className="text-sm font-medium text-primary hover:underline">عرض الكل</button>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <div className="h-16 animate-pulse rounded-xl bg-muted" />
+          <div className="h-16 animate-pulse rounded-xl bg-muted" />
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>

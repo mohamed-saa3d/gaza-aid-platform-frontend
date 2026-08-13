@@ -1,12 +1,12 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { dictionary, type Locale } from "@/lib/dictionary"
+import { dictionary, type Locale, type LocaleDictionary } from "@/lib/dictionary"
 
 interface LocaleContextValue {
   locale: Locale
   dir: "rtl" | "ltr"
-  t: typeof dictionary.ar
+  t: LocaleDictionary
   toggleLocale: () => void
 }
 
