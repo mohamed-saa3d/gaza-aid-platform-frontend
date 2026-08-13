@@ -433,7 +433,7 @@ export const honorStats = {
 export const wartimeMission = {
   title: "رسالتنا خلال الحرب",
   paragraphs: [
-    "في ظل الظروف الاستثنائية القاسية، تضاعفت مسؤولياتنا. تعمل طواقمنا على مدار الساعة، متحدية الصعاب والمخاطر، لضمان وصول المساعدات الحيوية إلى الأسر النازحة والمتضررة.",
+    "في ظل الظروف الاستثنائية القاسية، تضاعفت مسؤولياتنا. تعمل طواقمنا على مدار الساعة، متحدية الصعاب والمخاطر، لضمان وصول المساعدات ا��حيوية إلى الأسر النازحة والمتضررة.",
     "لقد قمنا بتوسيع عملياتنا لتشمل إنشاء مراكز إيواء مؤقتة، وتوفير المياه الصالحة للشرب، وتوزيع وجبات ساخنة يومية، بالإضافة إلى تقديم الدعم النفسي الأول للأطفال وعائلاتهم. نؤمن بأن الاستمرار في تقديم العون هو شكل من أشكال الصمود والتحدي.",
   ],
 }
@@ -489,6 +489,37 @@ export const newsArticles: NewsArticle[] = [
     urgent: false,
   },
 ]
+
+// Live stream page
+export interface LiveChatMessage {
+  id: string
+  name: string
+  message: string
+  time: string
+  highlight?: boolean
+}
+
+export const liveStreamData = {
+  title: "بث مباشر: حملة الإغاثة العاجلة وتوزيع المساعدات",
+  description:
+    "نقل حي ومباشر لجهودنا الإنسانية في تقديم المساعدات العاجلة لأهلنا المتضررين. كونوا معنا لحظة بلحظة وشاركوا وشاركوا الخير.",
+  image: "/images/live-stream-cover.png",
+  viewers: "1,250",
+  date: "25 مايو 2024",
+  location: "غزة - فلسطين",
+  goal: 500000,
+  funded: 375000,
+  progress: 75,
+}
+
+export const liveChatMessages: LiveChatMessage[] = [
+  { id: "c1", name: "أبو محمد", message: "بارك الله فيكم وجزاكم الله خيراً", time: "10:24" },
+  { id: "c2", name: "سارة العتيبي", message: "الله أكبر تم التبرع", time: "10:25", highlight: true },
+  { id: "c3", name: "نور العنزي", message: "استمروا، الله يعطيكم العافية", time: "10:26" },
+  { id: "c4", name: "أبو العربي", message: "تم التبرع، الله يبارك فيكم", time: "10:27", highlight: true },
+]
+
+export const liveQuickAmounts = [100, 200, 500] as const
 
 // FAQ page
 export interface FaqItem {
