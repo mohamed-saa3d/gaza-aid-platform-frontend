@@ -12,6 +12,7 @@ const navItems = [
   { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText },
   { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper },
   { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell },
+  { href: '/admin/admins', label: 'إدارة المديرين', icon: Users },
 ]
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
