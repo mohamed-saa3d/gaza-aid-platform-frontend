@@ -89,7 +89,7 @@ export function AmountStep({ state, onChange, onNext }: AmountStepProps) {
 
       <section>
         <h2 className="mb-4 font-heading text-lg font-bold">حدد المبلغ (ر.س)</h2>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {quickAmounts.map((amount) => (
             <button
               key={amount}

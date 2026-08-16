@@ -36,7 +36,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="flex flex-col gap-2 border-t p-4"><Link href="#" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:bg-muted"><CircleHelp className="size-5" />مركز المساعدة</Link><Link href="/" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:bg-muted"><LogOut className="size-5" />تسجيل الخروج</Link></div>
       </aside>
-      <div className="lg:mr-72">
+      <div className="lg:me-72">
         <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b bg-card/95 px-5 backdrop-blur md:px-10">
           <div className="flex items-center gap-3"><Avatar className="size-10"><AvatarFallback className="bg-muted text-muted-foreground">أ</AvatarFallback></Avatar><div className="hidden sm:block"><p className="text-sm font-bold">أمن المنصة</p><p className="text-xs text-muted-foreground">مسؤول النظام</p></div><ChevronDown className="size-4 text-muted-foreground" /></div>
           <div className="flex items-center gap-4"><div className="relative"><Bell className="size-5 text-primary" /><Badge className="absolute -right-2 -top-2 size-4 justify-center rounded-full p-0 text-[10px]">4</Badge></div><span className="hidden font-heading text-xl font-bold md:block">لوحة الإدارة</span></div>

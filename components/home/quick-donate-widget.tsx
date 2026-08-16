@@ -33,7 +33,7 @@ export function QuickDonateWidget() {
   const [customAmount, setCustomAmount] = useState("")
 
   return (
-    <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl">
+    <div className="w-full max-w-xs sm:max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl">
       <h3 className="text-center font-heading text-lg font-bold text-foreground">تبرع بسهولة وأمان</h3>
       <p className="mt-1 text-center text-xs text-muted-foreground">اختر سبب تبرعك</p>
 
