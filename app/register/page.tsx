@@ -9,18 +9,24 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { registerSchema } from "@/modules/auth/schemas/auth.schema"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
   const [agreed, setAgreed] = useState(false)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!agreed) return
-    router.push(`/verify-otp?phone=${encodeURIComponent(phone)}`)
+
+    const result = registerSchema.safeParse({ name, email, phone, password, agreed })
+
+    if (!result.success) return
+
+    router.push(`/verify-otp?email=${encodeURIComponent(result.data.email)}`)
   }
 
   return (
@@ -49,6 +55,19 @@ export default function RegisterPage() {
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            className="h-10"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="email">البريد الإلكتروني</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="name@example.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="h-10"
           />
         </div>
