@@ -43,15 +43,15 @@ export function SiteFooter() {
               <span className="font-heading text-lg font-bold">{t.footer.orgName}</span>
             </div>
             <p className="text-sm leading-relaxed text-primary-foreground/75">
-              مؤسسة خيرية تعمل على تقديم الإغاثة والدعم للمحتاجين في فلسطين وخارجها، وبناء مجتمعات مستدامة.
+              {t.footer.description}
             </p>
             <div className="flex items-center gap-2">
               {[YoutubeIcon, InstagramIcon, FacebookIcon, XIcon].map((Icon, i) => (
                 <Link
-                  key={i}
+                  key={`social-${i}`}
                   href="#"
                   className="flex size-9 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20"
-                  aria-label="رابط شبكة اجتماعية"
+                  aria-label={t.footer.socialMedia}
                 >
                   <Icon className="size-4" />
                 </Link>
@@ -85,7 +85,7 @@ export function SiteFooter() {
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="size-4 shrink-0" />
-                <span>فلسطين</span>
+                <span>{t.footer.location}</span>
               </li>
               <li className="pt-1">
                 <ul className="flex flex-col gap-2">

@@ -28,7 +28,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 md:px-8">
         {/* Right side (start): logo + avatar */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2" aria-label="الصفحة الرئيسية">
+          <Link href="/" className="flex items-center gap-2" aria-label={t.common.home}>
             <Image
               src="/images/logo-mark.png"
               alt="شعار المؤسسة"
@@ -40,14 +40,14 @@ export function SiteHeader() {
           <Link
             href="/profile"
             className="flex size-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
-            aria-label="الملف الشخصي"
+            aria-label={t.common.profile}
           >
             <User className="size-4" />
           </Link>
         </div>
 
         {/* Center: nav links */}
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="التنقل الرئيسي">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label={t.common.navigation}>
           {navItems.map((item) => {
             const active = pathname === item.href
             return (
@@ -85,15 +85,15 @@ export function SiteHeader() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="فتح القائمة">
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label={t.common.openMenu}>
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side={locale === "ar" ? "left" : "right"} className="w-72">
               <SheetHeader>
-                <SheetTitle className="text-start">القائمة</SheetTitle>
+                <SheetTitle className="text-start">{t.common.menu}</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4" aria-label="التنقل - جوال">
+              <nav className="flex flex-col gap-1 px-4" aria-label={t.common.mobileNavigation}>
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
@@ -107,7 +107,7 @@ export function SiteHeader() {
               <div className="mt-2 flex flex-col gap-2 px-4">
                 <Button variant="outline" onClick={toggleLocale} className="justify-center rounded-sm">
                   <Languages className="size-3.5" data-icon="inline-start" />
-                  {locale === "ar" ? "English" : "العربية"}
+                  {locale === "ar" ? "English" : t.common.language}
                 </Button>
                 <Button asChild className="justify-center rounded-sm">
                   <Link href="/donate" className="flex items-center justify-center gap-2">
