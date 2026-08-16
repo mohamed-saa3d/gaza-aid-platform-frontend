@@ -16,6 +16,7 @@ function Progress({
       data-slot="progress"
       className={cn("flex flex-wrap gap-3", className)}
       {...props}
+      suppressHydrationWarning
       aria-valuetext={typeof value === "number" ? `${value}%` : props["aria-valuetext"]}
     >
       {children}

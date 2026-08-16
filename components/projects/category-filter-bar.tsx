@@ -13,8 +13,8 @@ export function CategoryFilterBar({
   onChange: (value: FilterValue) => void
 }) {
   return (
-    <div className="-mx-4 overflow-x-auto px-4 pb-1 md:-mx-8 md:px-8">
-      <div className="flex w-max items-center gap-2.5">
+    <div className="-mx-4 px-4 md:-mx-8 md:px-8">
+      <div className="flex w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-2 pb-2 md:overflow-visible md:flex-wrap md:justify-center md:gap-3">
         {filterCategories.map((item) => {
           const isActive = active === item.id
           return (
@@ -23,7 +23,7 @@ export function CategoryFilterBar({
               type="button"
               onClick={() => onChange(item.id as FilterValue)}
               className={cn(
-                "whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors",
+                "shrink-0 whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors",
                 isActive
                   ? "border-primary bg-primary text-primary-foreground shadow-sm"
                   : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary",
