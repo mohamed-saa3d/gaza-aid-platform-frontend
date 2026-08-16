@@ -30,7 +30,41 @@ type DonationReasonId = (typeof donationReasons)[number]["id"]
 export function QuickDonateWidget() {
   const [reason, setReason] = useState<DonationReasonId>(donationReasons[0].id)
   const [amount, setAmount] = useState<number | null>(quickAmounts[2])
-  const [customAmount, setCustomAmount] = useState("")
+  const [customAmount, setCustomAmount] = useState<number | "">("")
+
+  const selectedAmount = amount ?? (customAmount === "" ? 0 : Number(customAmount))
+  const isDonateDisabled = !(selectedAmount > 0)
+
+  const handleCustomAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value
+
+    if (nextValue === "") {
+      setCustomAmount("")
+      setAmount(null)
+      return
+    }
+
+    if (nextValue.startsWith("0") || /[eE\-+]/.test(nextValue) || !/^\d+$/.test(nextValue)) {
+      return
+    }
+
+    const numericValue = Number(nextValue)
+
+    if (!Number.isFinite(numericValue) || numericValue <= 0) {
+      setCustomAmount("")
+      setAmount(null)
+      return
+    }
+
+    setCustomAmount(numericValue)
+    setAmount(null)
+  }
+
+  const handleDonate = () => {
+    if (selectedAmount <= 0) {
+      return
+    }
+  }
 
   return (
     <div className="w-full max-w-xs sm:max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl">
@@ -87,15 +121,16 @@ export function QuickDonateWidget() {
           inputMode="numeric"
           placeholder="اضف مبلغ للتبرع"
           value={customAmount}
-          onChange={(e) => {
-            setCustomAmount(e.target.value)
-            setAmount(null)
-          }}
+          onChange={handleCustomAmountChange}
           className="h-11 rounded-xl text-center"
         />
       </div>
 
-      <Button className="mt-4 h-12 w-full rounded-xl text-base">
+      <Button
+        className="mt-4 h-12 w-full rounded-xl text-base"
+        disabled={isDonateDisabled}
+        onClick={handleDonate}
+      >
         <Lock className="size-4" data-icon="inline-start" />
         تبرع الآن
       </Button>
