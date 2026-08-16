@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: 'مؤسسة قدس للإغاثة | معاً من أجل غزة',
   description:
     'مؤسسة خيرية تعمل على تقديم الإغاثة والدعم للمحتاجين في فلسطين، من خلال مشاريع المياه والغذاء والإيواء وكفالة الأيتام.',
-  generator: 'v0.app',
+  generator: 'mohamed-saad',
   icons: {
     icon: [
       {
