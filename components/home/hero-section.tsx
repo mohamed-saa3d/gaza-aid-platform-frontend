@@ -22,8 +22,8 @@ export function HeroSection() {
           />
           <div className="absolute inset-0 bg-gradient-to-l from-primary/85 via-primary/30 to-transparent" />
 
-          <div className="absolute end-4 top-4 flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground">
-            <MapPin className="size-3.5" />
+          <div className="absolute inset-x-4 top-4 mx-auto flex w-fit max-w-[calc(100%-2rem)] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground sm:end-4 sm:start-auto sm:mx-0 sm:px-4">
+            <MapPin className="size-3.5 shrink-0" />
             غزة تحتاجنا
           </div>
 

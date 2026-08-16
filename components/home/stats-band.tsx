@@ -38,7 +38,7 @@ export function StatsBand() {
         <div className="flex items-center gap-4 lg:flex-row-reverse">
           <h2 className="text-center font-heading text-xl font-bold md:text-2xl">أثر عطائكم في أرقام</h2>
           <Link
-            href="/project-updates"
+            href="/updates"
             className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary-foreground/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-foreground/20"
           >
             عرض المزيد
