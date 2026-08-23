@@ -1,7 +1,6 @@
-import Image from "next/image"
-import Link from "next/link"
 import { CreditCard, Landmark, Smartphone, type LucideIcon } from "lucide-react"
-import { paymentMethodIcons, projects } from "@/lib/mock-data"
+import { paymentMethodIcons } from "@/lib/mock-data"
+import { TrackDonationWidget } from "@/components/home/track-donation-widget"
 
 const iconMap: Record<string, LucideIcon> = {
   CreditCard,
@@ -10,8 +9,6 @@ const iconMap: Record<string, LucideIcon> = {
 }
 
 export function DonationWaysCard() {
-  const myProjects = projects.slice(0, 3)
-
   return (
     <div className="flex flex-col gap-6">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
@@ -32,29 +29,8 @@ export function DonationWaysCard() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-        <h3 className="font-heading text-base font-bold text-foreground">مشاريعي</h3>
-        <ul className="mt-4 flex flex-col gap-4">
-          {myProjects.map((project) => (
-            <li key={project.id}>
-              <Link href={`/donate?project=${project.slug}`} className="flex items-center gap-3 group">
-                <div className="relative size-14 shrink-0 overflow-hidden rounded-xl">
-                  <Image src={project.image || "/placeholder.svg"} alt={project.title} fill className="object-cover" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground group-hover:text-primary">{project.title}</p>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
-                      <div className="h-full rounded-full bg-primary" style={{ width: `${project.progress}%` }} />
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">{project.progress}%</span>
-                  </div>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <TrackDonationWidget />
     </div>
   )
 }
+
