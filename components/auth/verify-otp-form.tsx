@@ -22,11 +22,12 @@ export function VerifyOtpForm() {
   const isAr = locale === "ar"
 
   const [apiError, setApiError] = useState<string | null>(null)
+  const [isResending, setIsResending] = useState(false)
+  const [resendStatus, setResendStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
   const {
     control,
     handleSubmit,
-    setValue,
     watch,
     formState: { isSubmitting, errors },
   } = useForm<OtpInput>({
@@ -41,6 +42,7 @@ export function VerifyOtpForm() {
 
   async function onSubmit(data: OtpInput) {
     setApiError(null)
+    setResendStatus(null)
     try {
       await apiClient.post("/auth/verify-email", data)
       router.push("/profile")
@@ -51,6 +53,38 @@ export function VerifyOtpForm() {
             ? "حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى."
             : "An error occurred during verification. Please try again.")
       )
+    }
+  }
+
+  async function handleResend() {
+    if (!email) {
+      setResendStatus({
+        type: "error",
+        message: isAr
+          ? "البريد الإلكتروني مفقود. يرجى العودة للتسجيل."
+          : "Email parameter is missing. Please return to registration.",
+      })
+      return
+    }
+
+    setIsResending(true)
+    setResendStatus(null)
+
+    try {
+      await apiClient.post("/auth/resend-otp", { email })
+      setResendStatus({
+        type: "success",
+        message: isAr ? "تم إعادة إرسال رمز التحقق بنجاح." : "Verification code resent successfully.",
+      })
+    } catch (err: any) {
+      setResendStatus({
+        type: "error",
+        message:
+          err.response?.data?.message ||
+          (isAr ? "فشل إعادة إرسال الرمز. حاول مرة أخرى." : "Failed to resend verification code. Try again."),
+      })
+    } finally {
+      setIsResending(false)
     }
   }
 
@@ -75,10 +109,7 @@ export function VerifyOtpForm() {
             <InputOTP
               maxLength={4}
               value={field.value}
-              onChange={(val) => {
-                field.onChange(val)
-                setValue("email", email)
-              }}
+              onChange={field.onChange}
               containerClassName="justify-center"
             >
               <InputOTPGroup>
@@ -91,12 +122,20 @@ export function VerifyOtpForm() {
           )}
         />
 
+        {errors.email && (
+          <p className="text-center text-sm font-medium text-destructive">
+            {isAr
+              ? "البريد الإلكتروني مفقود أو غير صحيح. يرجى البدء من جديد من صفحة التسجيل."
+              : "Email parameter is missing or invalid. Please restart registration."}
+          </p>
+        )}
+
         {errors.otp && (
-          <p className="text-sm font-medium text-destructive">{errors.otp.message}</p>
+          <p className="text-center text-sm font-medium text-destructive">{errors.otp.message}</p>
         )}
 
         {apiError && (
-          <p className="text-sm font-medium text-destructive">{apiError}</p>
+          <p className="text-center text-sm font-medium text-destructive">{apiError}</p>
         )}
 
         <Button
@@ -113,12 +152,30 @@ export function VerifyOtpForm() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        {isAr ? "لم يصلك الرمز؟ " : "Didn't receive code? "}
-        <button type="button" className="font-semibold text-primary hover:underline">
-          {isAr ? "إعادة الإرسال" : "Resend"}
-        </button>
-      </p>
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-center text-sm text-muted-foreground">
+          {isAr ? "لم يصلك الرمز؟ " : "Didn't receive code? "}
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={isResending || !email}
+            className="inline-flex items-center gap-1 font-semibold text-primary hover:underline disabled:opacity-50"
+          >
+            {isResending && <Loader2 className="size-3 animate-spin" />}
+            {isAr ? "إعادة الإرسال" : "Resend"}
+          </button>
+        </p>
+
+        {resendStatus && (
+          <p
+            className={`text-center text-sm font-medium ${
+              resendStatus.type === "success" ? "text-emerald-600" : "text-destructive"
+            }`}
+          >
+            {resendStatus.message}
+          </p>
+        )}
+      </div>
 
       <p className="text-center text-sm text-muted-foreground">
         <Link href="/register" className="hover:underline">
