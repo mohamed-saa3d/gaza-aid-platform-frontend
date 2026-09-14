@@ -13,10 +13,12 @@ apiClient.interceptors.request.use((config) => {
   }
 
   const token = window.localStorage.getItem("accessToken")
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  const locale = window.localStorage.getItem("preferred-locale") || "ar"
+  config.headers["Accept-Language"] = locale
 
   return config
 })
