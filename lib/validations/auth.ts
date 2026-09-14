@@ -14,7 +14,14 @@ export const registerSchema = z.object({
 })
 
 export const otpSchema = z.object({
-  email: z.string().trim().email("يرجى إدخال بريد إلكتروني صحيح"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "يرجى إدخال البريد الإلكتروني أو رقم الهاتف")
+    .refine(
+      (val) => z.string().email().safeParse(val).success || /^\d{8,15}$/.test(val),
+      { message: "يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح" }
+    ),
   otp: z.string().trim().regex(/^\d{4}$/, "رمز التحقق يجب أن يتكون من 4 أرقام"),
 })
 
