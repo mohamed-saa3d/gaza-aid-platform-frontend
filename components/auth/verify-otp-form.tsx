@@ -17,7 +17,10 @@ import { otpSchema, type OtpInput } from "@/lib/validations/auth"
 export function VerifyOtpForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const email = searchParams.get("email") || searchParams.get("phone") || ""
+  const emailParam = searchParams.get("email") || ""
+  const phoneParam = searchParams.get("phone") || ""
+  const identifier = emailParam || phoneParam
+
   const { locale } = useLocale()
   const isAr = locale === "ar"
 
@@ -28,12 +31,13 @@ export function VerifyOtpForm() {
   const {
     control,
     handleSubmit,
+    setValue,
     watch,
     formState: { isSubmitting, errors },
   } = useForm<OtpInput>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
-      email: email,
+      email: identifier,
       otp: "",
     },
   })
@@ -47,6 +51,8 @@ export function VerifyOtpForm() {
       await apiClient.post("/auth/verify-email", data)
       router.push("/profile")
     } catch (err: any) {
+      // Clear OTP input for immediate error recovery and re-entry
+      setValue("otp", "")
       setApiError(
         err.response?.data?.message ||
           (isAr
@@ -57,12 +63,14 @@ export function VerifyOtpForm() {
   }
 
   async function handleResend() {
-    if (!email) {
+    const payload = emailParam ? { email: emailParam } : phoneParam ? { phone: phoneParam } : null
+
+    if (!payload) {
       setResendStatus({
         type: "error",
         message: isAr
-          ? "البريد الإلكتروني مفقود. يرجى العودة للتسجيل."
-          : "Email parameter is missing. Please return to registration.",
+          ? "معلومات التواصل مفقودة. يرجى العودة للتسجيل."
+          : "Contact information is missing. Please return to registration.",
       })
       return
     }
@@ -71,7 +79,7 @@ export function VerifyOtpForm() {
     setResendStatus(null)
 
     try {
-      await apiClient.post("/auth/resend-otp", { email })
+      await apiClient.post("/auth/resend-otp", payload)
       setResendStatus({
         type: "success",
         message: isAr ? "تم إعادة إرسال رمز التحقق بنجاح." : "Verification code resent successfully.",
@@ -92,10 +100,10 @@ export function VerifyOtpForm() {
     <AuthCard
       title={isAr ? "تأكيد الحساب" : "Verify Account"}
       description={
-        email
+        identifier
           ? isAr
-            ? `أدخل رمز التحقق المرسل إلى ${email}`
-            : `Enter the verification code sent to ${email}`
+            ? `أدخل رمز التحقق المرسل إلى ${identifier}`
+            : `Enter the verification code sent to ${identifier}`
           : isAr
           ? "أدخل رمز التحقق المرسل إلى بريدك/هاتفك"
           : "Enter the verification code sent to your email/phone"
@@ -125,8 +133,8 @@ export function VerifyOtpForm() {
         {errors.email && (
           <p className="text-center text-sm font-medium text-destructive">
             {isAr
-              ? "البريد الإلكتروني مفقود أو غير صحيح. يرجى البدء من جديد من صفحة التسجيل."
-              : "Email parameter is missing or invalid. Please restart registration."}
+              ? "معلومات التواصل مفقودة أو غير صحيحة. يرجى البدء من جديد من صفحة التسجيل."
+              : "Contact information is missing or invalid. Please restart registration."}
           </p>
         )}
 
@@ -158,7 +166,7 @@ export function VerifyOtpForm() {
           <button
             type="button"
             onClick={handleResend}
-            disabled={isResending || !email}
+            disabled={isResending || !identifier}
             className="inline-flex items-center gap-1 font-semibold text-primary hover:underline disabled:opacity-50"
           >
             {isResending && <Loader2 className="size-3 animate-spin" />}
@@ -169,7 +177,9 @@ export function VerifyOtpForm() {
         {resendStatus && (
           <p
             className={`text-center text-sm font-medium ${
-              resendStatus.type === "success" ? "text-emerald-600" : "text-destructive"
+              resendStatus.type === "success"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-destructive"
             }`}
           >
             {resendStatus.message}
