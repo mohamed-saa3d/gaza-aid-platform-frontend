@@ -39,6 +39,7 @@ export interface Project {
   funded: number
   remaining: number
   target: number
+  beneficiaries?: number | null
   location?: string | null
   startDate?: string | null
   endDate?: string | null
@@ -69,6 +70,7 @@ export interface ProjectFormData {
   category: CategoryId
   status: ProjectStatus
   target: number
+  beneficiaries?: number
   location?: string
   image: File | null
 }

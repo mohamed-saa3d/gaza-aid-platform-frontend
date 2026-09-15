@@ -98,8 +98,9 @@ export function ProjectsSection() {
         <CreateProjectDialog
           onSuccess={fetchProjects}
           trigger={
-            <Button variant="ghost" size="icon-sm" aria-label="إضافة مشروع">
-              <Plus className="size-4" />
+            <Button size="sm" aria-label="إضافة مشروع جديد">
+              <Plus className="ml-2 size-4" />
+              إضافة مشروع جديد
             </Button>
           }
         />

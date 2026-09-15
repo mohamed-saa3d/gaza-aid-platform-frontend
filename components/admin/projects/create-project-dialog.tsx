@@ -44,20 +44,33 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   // Form State
   const [title, setTitle] = useState("")
   const [slug, setSlug] = useState("")
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState<CategoryId>("water")
   const [status, setStatus] = useState<ProjectStatus>("ongoing")
   const [target, setTarget] = useState<number | "">("")
+  const [beneficiaries, setBeneficiaries] = useState<number | "">("")
   const [location, setLocation] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
+
+  /** Generate a URL-safe slug from a title string */
+  const generateSlug = (text: string): string =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\u0600-\u06FFa-zA-Z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
 
   const resetForm = () => {
     setTitle("")
     setSlug("")
+    setIsSlugManuallyEdited(false)
     setDescription("")
     setCategory("water")
     setStatus("ongoing")
     setTarget("")
+    setBeneficiaries("")
     setLocation("")
     setImageFile(null)
   }
@@ -80,6 +93,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
         category,
         status,
         target: Number(target),
+        beneficiaries: beneficiaries ? Number(beneficiaries) : undefined,
         location,
         image: imageFile,
       })
@@ -129,9 +143,10 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                 id="title"
                 value={title}
                 onChange={(e) => {
-                  setTitle(e.target.value)
-                  if (!slug) {
-                    setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-"))
+                  const newTitle = e.target.value
+                  setTitle(newTitle)
+                  if (!isSlugManuallyEdited) {
+                    setSlug(generateSlug(newTitle))
                   }
                 }}
                 placeholder="مثال: حفر بئر ماء"
@@ -144,7 +159,10 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
               <Input
                 id="slug"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => {
+                  setIsSlugManuallyEdited(true)
+                  setSlug(e.target.value)
+                }}
                 placeholder="well-water-project"
                 disabled={isSubmitting}
                 required
@@ -221,15 +239,29 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="location">الموقع / المنطقة</Label>
-            <Input
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="مثال: غزة - خانيونس"
-              disabled={isSubmitting}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="location">الموقع / المنطقة</Label>
+              <Input
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="مثال: غزة - خانيونس"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="beneficiaries">عدد المستفيدين</Label>
+              <Input
+                id="beneficiaries"
+                type="number"
+                value={beneficiaries}
+                onChange={(e) => setBeneficiaries(e.target.value ? Number(e.target.value) : "")}
+                placeholder="مثال: 500"
+                disabled={isSubmitting}
+                min={0}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

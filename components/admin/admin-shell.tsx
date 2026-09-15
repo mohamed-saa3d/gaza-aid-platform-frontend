@@ -6,11 +6,9 @@ import {
   Bell,
   CircleHelp,
   FileText,
-  LayoutDashboard,
   LogOut,
   Megaphone,
   Newspaper,
-  Settings,
   Users,
   ChevronDown,
   Menu,
@@ -22,7 +20,6 @@ import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import { useState } from 'react'
 
 const navItems = [
-  { href: '/admin', label: 'لوحة التحكم', icon: LayoutDashboard },
   { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText },
   { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper },
   { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell },
@@ -53,19 +50,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
         )
       })}
-      <p className='px-3 pb-2 pt-7 text-xs font-semibold text-muted-foreground'>أدوات المنصة</p>
-      <Link
-        href='/admin/content'
-        className='flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground'
-      >
-        <Settings className='size-5' /> إعدادات المنصة
-      </Link>
-      <Link
-        href='/admin/newsletter'
-        className='flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground'
-      >
-        <Users className='size-5' /> المشتركون
-      </Link>
     </>
   )
 
@@ -98,7 +82,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <nav aria-label='القائمة الرئيسية' className='flex flex-1 flex-col gap-1 p-4'>
-          <p className='px-3 pb-2 pt-3 text-xs font-semibold text-muted-foreground'>الإدارة</p>
           {NavList}
         </nav>
         <div className='flex flex-col gap-2 border-t p-4'>
@@ -131,10 +114,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <ChevronDown className='size-4 text-muted-foreground' />
           </div>
           <div className='flex items-center gap-4'>
-            <div className='relative'>
+            <Link href='/admin/notifications' className='relative'>
               <Bell className='size-5 text-primary' />
               <Badge className='absolute -end-2 -top-2 size-4 justify-center rounded-full p-0 text-[10px]'>4</Badge>
-            </div>
+            </Link>
             <span className='hidden font-heading text-xl font-bold md:block'>لوحة الإدارة</span>
           </div>
         </header>

@@ -21,8 +21,9 @@ export function LivestreamsSection() {
           <Radio className="text-primary" />
           إدارة البث المباشر
         </CardTitle>
-        <Button variant="ghost" size="icon-sm" aria-label="إضافة بث">
-          <Plus />
+        <Button size="sm" aria-label="إضافة بث جديد">
+          <Plus className="ml-2 size-4" />
+          إضافة بث جديد
         </Button>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

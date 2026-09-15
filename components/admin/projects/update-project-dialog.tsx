@@ -49,6 +49,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
   const [category, setCategory] = useState<CategoryId>(project.category)
   const [status, setStatus] = useState<ProjectStatus>(project.status)
   const [target, setTarget] = useState<number | "">(project.target)
+  const [beneficiaries, setBeneficiaries] = useState<number | "">(project.beneficiaries ?? "")
   const [location, setLocation] = useState(project.location || "")
   const [imageFile, setImageFile] = useState<File | null>(null)
 
@@ -61,6 +62,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       setCategory(project.category)
       setStatus(project.status)
       setTarget(project.target)
+      setBeneficiaries(project.beneficiaries ?? "")
       setLocation(project.location || "")
       setImageFile(null)
     }
@@ -84,6 +86,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
         category,
         status,
         target: Number(target),
+        beneficiaries: beneficiaries ? Number(beneficiaries) : undefined,
         location,
         image: imageFile,
       })
@@ -217,15 +220,29 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor={`edit-location-${project.id}`}>الموقع / المنطقة</Label>
-            <Input
-              id={`edit-location-${project.id}`}
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="مثال: غزة - خانيونس"
-              disabled={isSubmitting}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor={`edit-location-${project.id}`}>الموقع / المنطقة</Label>
+              <Input
+                id={`edit-location-${project.id}`}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="مثال: غزة - خانيونس"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor={`edit-beneficiaries-${project.id}`}>عدد المستفيدين</Label>
+              <Input
+                id={`edit-beneficiaries-${project.id}`}
+                type="number"
+                value={beneficiaries}
+                onChange={(e) => setBeneficiaries(e.target.value ? Number(e.target.value) : "")}
+                placeholder="مثال: 500"
+                disabled={isSubmitting}
+                min={0}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

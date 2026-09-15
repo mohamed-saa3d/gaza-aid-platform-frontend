@@ -37,8 +37,9 @@ export function NewsSection() {
           <Newspaper className="text-primary" />
           إدارة الأخبار
         </CardTitle>
-        <Button variant="ghost" size="icon-sm" aria-label="إضافة خبر">
-          <Plus />
+        <Button size="sm" aria-label="إضافة خبر جديد">
+          <Plus className="ml-2 size-4" />
+          إضافة خبر جديد
         </Button>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
