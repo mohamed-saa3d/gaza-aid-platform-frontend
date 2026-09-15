@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [phone, setPhone] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   function handleSubmit(e: FormEvent) {
@@ -23,15 +23,14 @@ export default function LoginPage() {
     <AuthCard title="تسجيل الدخول" description="أدخل بيانات حسابك للوصول إلى ملفك الشخصي">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phone">رقم الهاتف</Label>
+          <Label htmlFor="email">البريد الإلكتروني</Label>
           <Input
-            id="phone"
-            type="tel"
-            inputMode="tel"
-            placeholder="05XXXXXXXX"
+            id="email"
+            type="email"
+            placeholder="name@example.com"
             required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="h-10"
           />
         </div>

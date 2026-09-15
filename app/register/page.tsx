@@ -15,14 +15,13 @@ export default function RegisterPage() {
   const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
   const [agreed, setAgreed] = useState(false)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
 
-    const result = registerSchema.safeParse({ name, email, phone, password, agreed })
+    const result = registerSchema.safeParse({ name, email, password, agreed })
 
     if (!result.success) return
 
@@ -45,19 +44,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phone">رقم الهاتف</Label>
-          <Input
-            id="phone"
-            type="tel"
-            inputMode="tel"
-            placeholder="05XXXXXXXX"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="h-10"
-          />
-        </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">البريد الإلكتروني</Label>
