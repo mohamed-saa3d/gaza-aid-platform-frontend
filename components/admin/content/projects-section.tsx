@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useState, useEffect, useCallback } from "react"
+import { AxiosError } from "axios"
 import Image from "next/image"
 import {
   Plus,
@@ -32,10 +33,10 @@ import {
 } from "@/components/ui/pagination"
 
 import { projectsService } from "@/services/projects.service"
-import type { Project, PaginatedResponse } from "@/types/projects"
+import type { Project, PaginatedResponse } from "@/types/models"
 import { useDebounce } from "@/hooks/use-debounce"
 import { CreateProjectDialog } from "@/components/admin/create-project-dialog"
-import { UpdateProjectDialog } from "@/components/projects/update-project-dialog"
+import { UpdateProjectDialog } from "@/components/admin/update-project-dialog"
 import { DeleteProjectDialog } from "@/components/admin/delete-project-dialog"
 
 export function ProjectsSection() {
@@ -49,8 +50,8 @@ export function ProjectsSection() {
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
 
-  // 🔴 DEBOUNCED SEARCH: Prevents API flooding on rapid keystrokes (300ms delay)
-  const debouncedSearch = useDebounce(search, 300)
+  // 🔴 DEBOUNCED SEARCH: Prevents API flooding on rapid keystrokes (350ms delay)
+  const debouncedSearch = useDebounce(search, 350)
 
   // Reset to page 1 whenever debounced search or category filter changes
   useEffect(() => {
@@ -70,9 +71,10 @@ export function ProjectsSection() {
         category: category !== "all" ? category : undefined,
       })
       setProjectsData(response)
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>
       console.error("Failed to fetch projects:", err)
-      setError("فشل في تحميل المشاريع من الخادم.")
+      setError(axiosError?.response?.data?.message || "فشل في تحميل المشاريع من الخادم.")
     } finally {
       setLoading(false)
     }

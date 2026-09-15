@@ -4,6 +4,7 @@ import * as React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { AxiosError } from "axios"
 import { Loader2, Trash2 } from "lucide-react"
 
 import {
@@ -49,9 +50,10 @@ export function DeleteProjectDialog({
       } else {
         router.refresh()
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message?: string }>
       const errorMsg =
-        error?.response?.data?.message || error?.message || "فشل في حذف المشروع"
+        axiosError?.response?.data?.message || axiosError?.message || "فشل في حذف المشروع"
       toast.error(errorMsg)
     } finally {
       setIsDeleting(false)
