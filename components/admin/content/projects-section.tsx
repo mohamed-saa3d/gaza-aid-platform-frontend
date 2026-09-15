@@ -32,10 +32,10 @@ import {
 } from "@/components/ui/pagination"
 
 import { projectsService } from "@/services/projects.service"
-import type { Project, PaginatedResponse } from "@/types/models"
+import type { Project, PaginatedResponse } from "@/types/projects"
 import { useDebounce } from "@/hooks/use-debounce"
 import { CreateProjectDialog } from "@/components/admin/create-project-dialog"
-import { UpdateProjectDialog } from "@/components/admin/update-project-dialog"
+import { UpdateProjectDialog } from "@/components/projects/update-project-dialog"
 import { DeleteProjectDialog } from "@/components/admin/delete-project-dialog"
 
 export function ProjectsSection() {
@@ -49,8 +49,8 @@ export function ProjectsSection() {
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
 
-  // 🔴 DEBOUNCED SEARCH: Prevents API flooding on rapid keystrokes (350ms delay)
-  const debouncedSearch = useDebounce(search, 350)
+  // 🔴 DEBOUNCED SEARCH: Prevents API flooding on rapid keystrokes (300ms delay)
+  const debouncedSearch = useDebounce(search, 300)
 
   // Reset to page 1 whenever debounced search or category filter changes
   useEffect(() => {
