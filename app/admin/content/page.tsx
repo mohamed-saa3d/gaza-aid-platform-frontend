@@ -3,6 +3,7 @@ import { CreateProjectDialog } from "@/components/admin/projects/create-project-
 import { NewsSection } from "@/components/admin/content/news-section"
 import { ProjectsSection } from "@/components/admin/projects/projects-section"
 import { LivestreamsSection } from "@/components/admin/content/livestreams-section"
+import { FaqsSection } from "@/components/admin/content/faqs-section"
 import { SettingsSection } from "@/components/admin/content/settings-section"
 
 export default function ContentPage() {
@@ -16,7 +17,7 @@ export default function ContentPage() {
             تعديل المحتوى والبيانات
           </h1>
           <p className="mt-2 text-muted-foreground">
-            أدر الأخبار والمشاريع والبث المباشر من مكان واحد.
+            أدر الأخبار والمشاريع والبث المباشر والأسئلة الشائعة من مكان واحد.
           </p>
         </div>
 
@@ -28,6 +29,7 @@ export default function ContentPage() {
         <NewsSection />
         <ProjectsSection />
         <LivestreamsSection />
+        <FaqsSection />
       </section>
 
       {/* Site Settings Section */}

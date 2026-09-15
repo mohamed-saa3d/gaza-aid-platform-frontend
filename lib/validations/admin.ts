@@ -32,6 +32,17 @@ export const livestreamFormSchema = z.object({
   isActive: z.boolean().default(true),
 })
 
+// FAQ Schema
+export const faqFormSchema = z.object({
+  questionAr: z.string().min(2, "السؤال بالعربية مطلوب (حرفين على الأقل)"),
+  questionEn: z.string().min(2, "English question is required (min 2 characters)"),
+  answerAr: z.string().min(5, "الإجابة بالعربية مطلوبة (5 أحرف على الأقل)"),
+  answerEn: z.string().min(5, "English answer is required (min 5 characters)"),
+  isActive: z.boolean().default(true),
+})
+
 export type ProjectFormValues = z.infer<typeof projectFormSchema>
 export type NewsFormValues = z.infer<typeof newsFormSchema>
 export type LivestreamFormValues = z.infer<typeof livestreamFormSchema>
+export type FAQFormValues = z.infer<typeof faqFormSchema>
+
