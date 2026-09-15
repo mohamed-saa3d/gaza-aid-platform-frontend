@@ -55,6 +55,13 @@ export const registerSchema = z
     message: "كلمات المرور غير متطابقة",
     path: ["confirmPassword"], // ربط الرسالة بحقل تأكيد كلمة المرور
   })
+// ---------------------------------------------------------
+// 3. OTP Schema (للتحقق من رمز التحقق)
+// ---------------------------------------------------------
+export const otpSchema = z.object({
+  code: z.string().length(6, "رمز التحقق مكون من 6 أرقام"),
+})
+export type OtpInput = z.infer<typeof otpSchema>
 
 // ---------------------------------------------------------
 // 3. Infer Types & API Payload Handler

@@ -1,7 +1,7 @@
 import * as React from "react"
-import { CreateProjectDialog } from "@/components/admin/create-project-dialog"
+import { CreateProjectDialog } from "@/components/admin/projects/create-project-dialog"
 import { NewsSection } from "@/components/admin/content/news-section"
-import { ProjectsSection } from "@/components/admin/content/projects-section"
+import { ProjectsSection } from "@/components/admin/projects/projects-section"
 import { LivestreamsSection } from "@/components/admin/content/livestreams-section"
 import { SettingsSection } from "@/components/admin/content/settings-section"
 
