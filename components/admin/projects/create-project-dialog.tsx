@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { AxiosError } from "axios"
-import { Loader2, Plus, Upload } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 
 import {
   Dialog,
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select"
 
 import { projectsService } from "@/services/projects.service"
-import type { CategoryId, ProjectStatus } from "@/types/models"
+import { projectFormSchema, type ProjectFormValues } from "@/lib/validations/admin"
 
 interface CreateProjectDialogProps {
   onSuccess?: () => void
@@ -40,69 +40,90 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Form State
-  const [title, setTitle] = useState("")
-  const [slug, setSlug] = useState("")
-  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
-  const [description, setDescription] = useState("")
-  const [category, setCategory] = useState<CategoryId>("water")
-  const [status, setStatus] = useState<ProjectStatus>("ongoing")
-  const [target, setTarget] = useState<number | "">("")
-  const [beneficiaries, setBeneficiaries] = useState<number | "">("")
-  const [location, setLocation] = useState("")
+  // Form State matching backend DTO contract
+  const [titleAr, setTitleAr] = useState("")
+  const [titleEn, setTitleEn] = useState("")
+  const [descriptionAr, setDescriptionAr] = useState("")
+  const [descriptionEn, setDescriptionEn] = useState("")
+  const [targetAmount, setTargetAmount] = useState<number | "">("")
+  const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">(0)
+  const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
+  const [categoryId, setCategoryId] = useState("water")
+  const [imageUrl, setImageUrl] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
 
-  /** Generate a URL-safe slug from a title string */
-  const generateSlug = (text: string): string =>
-    text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\u0600-\u06FFa-zA-Z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-
   const resetForm = () => {
-    setTitle("")
-    setSlug("")
-    setIsSlugManuallyEdited(false)
-    setDescription("")
-    setCategory("water")
-    setStatus("ongoing")
-    setTarget("")
-    setBeneficiaries("")
-    setLocation("")
+    setTitleAr("")
+    setTitleEn("")
+    setDescriptionAr("")
+    setDescriptionEn("")
+    setTargetAmount("")
+    setBeneficiariesCount(0)
+    setStatus("ACTIVE")
+    setCategoryId("water")
+    setImageUrl("")
     setImageFile(null)
+    setErrors({})
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrors({})
 
-    if (!title || !slug || !description || !target) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة")
+    const rawData = {
+      titleAr,
+      titleEn,
+      descriptionAr,
+      descriptionEn,
+      targetAmount: targetAmount === "" ? 0 : Number(targetAmount),
+      beneficiariesCount: beneficiariesCount === "" ? 0 : Number(beneficiariesCount),
+      status,
+      categoryId,
+      imageUrl: imageUrl || undefined,
+    }
+
+    const validationResult = projectFormSchema.safeParse(rawData)
+
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {}
+      validationResult.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0]?.toString()
+        if (fieldName && !fieldErrors[fieldName]) {
+          fieldErrors[fieldName] = issue.message
+        }
+      })
+      setErrors(fieldErrors)
+      toast.error("يرجى التحقق من صحة البيانات المدخلة")
       return
     }
 
     setIsSubmitting(true)
 
     try {
+      const validData = validationResult.data
       await projectsService.createProject({
-        title,
-        slug,
-        description,
-        category,
-        status,
-        target: Number(target),
-        beneficiaries: beneficiaries ? Number(beneficiaries) : undefined,
-        location,
+        titleAr: validData.titleAr,
+        titleEn: validData.titleEn,
+        descriptionAr: validData.descriptionAr,
+        descriptionEn: validData.descriptionEn,
+        targetAmount: validData.targetAmount,
+        beneficiariesCount: validData.beneficiariesCount,
+        status: validData.status,
+        categoryId: validData.categoryId,
+        imageUrl: validData.imageUrl,
         image: imageFile,
+        // Legacy fallbacks for compatibility
+        title: validData.titleAr,
+        description: validData.descriptionAr,
+        target: validData.targetAmount,
       })
 
       toast.success("تم إنشاء المشروع بنجاح!")
       resetForm()
       setOpen(false)
 
-      // Data Refetching: Refresh Next.js server components or trigger callback
       if (onSuccess) {
         onSuccess()
       } else {
@@ -127,160 +148,182 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>إضافة مشروع جديد</DialogTitle>
+          <DialogTitle>إضافة مشروع جديد (New Project)</DialogTitle>
           <DialogDescription>
-            أدخل تفاصيل المشروع الجديد لبدء جمع التبرعات.
+            أدخل تفاصيل المشروع بالعربية والإنجليزية لبدء جمع التبرعات.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
+          {/* Bilingual Titles */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="title">عنوان المشروع *</Label>
+              <Label htmlFor="titleAr">عنوان المشروع (بالعربية) *</Label>
               <Input
-                id="title"
-                value={title}
-                onChange={(e) => {
-                  const newTitle = e.target.value
-                  setTitle(newTitle)
-                  if (!isSlugManuallyEdited) {
-                    setSlug(generateSlug(newTitle))
-                  }
-                }}
+                id="titleAr"
+                value={titleAr}
+                onChange={(e) => setTitleAr(e.target.value)}
                 placeholder="مثال: حفر بئر ماء"
                 disabled={isSubmitting}
-                required
+                dir="rtl"
               />
+              {errors.titleAr && <span className="text-xs text-destructive">{errors.titleAr}</span>}
             </div>
+
             <div className="flex flex-col gap-2">
-              <Label htmlFor="slug">الرابط المباشر (Slug) *</Label>
+              <Label htmlFor="titleEn">Project Title (English) *</Label>
               <Input
-                id="slug"
-                value={slug}
-                onChange={(e) => {
-                  setIsSlugManuallyEdited(true)
-                  setSlug(e.target.value)
-                }}
-                placeholder="well-water-project"
+                id="titleEn"
+                value={titleEn}
+                onChange={(e) => setTitleEn(e.target.value)}
+                placeholder="e.g. Water Well Drilling"
                 disabled={isSubmitting}
-                required
+                dir="ltr"
               />
+              {errors.titleEn && <span className="text-xs text-destructive">{errors.titleEn}</span>}
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="description">الوصف *</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="اكتب وصفاً مفصلاً للمشروع..."
-              rows={3}
-              disabled={isSubmitting}
-              required
-            />
+          {/* Bilingual Descriptions */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="descriptionAr">الوصف (بالعربية) *</Label>
+              <Textarea
+                id="descriptionAr"
+                value={descriptionAr}
+                onChange={(e) => setDescriptionAr(e.target.value)}
+                placeholder="تفاصيل المشروع بالعربية..."
+                rows={3}
+                disabled={isSubmitting}
+                dir="rtl"
+              />
+              {errors.descriptionAr && <span className="text-xs text-destructive">{errors.descriptionAr}</span>}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="descriptionEn">Description (English) *</Label>
+              <Textarea
+                id="descriptionEn"
+                value={descriptionEn}
+                onChange={(e) => setDescriptionEn(e.target.value)}
+                placeholder="Project details in English..."
+                rows={3}
+                disabled={isSubmitting}
+                dir="ltr"
+              />
+              {errors.descriptionEn && <span className="text-xs text-destructive">{errors.descriptionEn}</span>}
+            </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          {/* Amounts & Stats */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="category">التصنيف</Label>
+              <Label htmlFor="targetAmount">المبلغ المستهدف (Target Amount) *</Label>
+              <Input
+                id="targetAmount"
+                type="number"
+                value={targetAmount}
+                onChange={(e) => setTargetAmount(e.target.value ? Number(e.target.value) : "")}
+                placeholder="50000"
+                disabled={isSubmitting}
+                min={1}
+              />
+              {errors.targetAmount && <span className="text-xs text-destructive">{errors.targetAmount}</span>}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="beneficiariesCount">عدد المستفيدين (Beneficiaries Count)</Label>
+              <Input
+                id="beneficiariesCount"
+                type="number"
+                value={beneficiariesCount}
+                onChange={(e) => setBeneficiariesCount(e.target.value ? Number(e.target.value) : 0)}
+                placeholder="100"
+                disabled={isSubmitting}
+                min={0}
+              />
+              {errors.beneficiariesCount && (
+                <span className="text-xs text-destructive">{errors.beneficiariesCount}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Category & Status */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="categoryId">فئة المشروع (Category) *</Label>
               <Select
-                value={category}
-                onValueChange={(val) => setCategory(val as CategoryId)}
+                value={categoryId}
+                onValueChange={(val) => {
+                  if (val) setCategoryId(val)
+                }}
                 disabled={isSubmitting}
               >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="اختر التصنيف" />
+                <SelectTrigger id="categoryId">
+                  <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="water">سقيا ماء</SelectItem>
-                  <SelectItem value="food">سلال غذائية</SelectItem>
-                  <SelectItem value="shelter">إيواء</SelectItem>
-                  <SelectItem value="orphans">رعاية أيتام</SelectItem>
-                  <SelectItem value="health">صحة</SelectItem>
-                  <SelectItem value="education">تعليم</SelectItem>
-                  <SelectItem value="other">أخرى</SelectItem>
+                  <SelectItem value="water">سقيا ماء (Water)</SelectItem>
+                  <SelectItem value="food">سلال غذائية (Food)</SelectItem>
+                  <SelectItem value="shelter">إيواء (Shelter)</SelectItem>
+                  <SelectItem value="orphans">رعاية أيتام (Orphans)</SelectItem>
+                  <SelectItem value="health">صحة (Health)</SelectItem>
+                  <SelectItem value="education">تعليم (Education)</SelectItem>
+                  <SelectItem value="other">أخرى (Other)</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.categoryId && <span className="text-xs text-destructive">{errors.categoryId}</span>}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">الحالة</Label>
+              <Label htmlFor="status">حالة المشروع (Status) *</Label>
               <Select
                 value={status}
-                onValueChange={(val) => setStatus(val as ProjectStatus)}
+                onValueChange={(val) => {
+                  if (val) setStatus(val as "ACTIVE" | "COMPLETED" | "PAUSED")
+                }}
                 disabled={isSubmitting}
               >
                 <SelectTrigger id="status">
                   <SelectValue placeholder="اختر الحالة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ongoing">جاري</SelectItem>
-                  <SelectItem value="urgent">عاجل</SelectItem>
-                  <SelectItem value="completed">مكتمل</SelectItem>
-                  <SelectItem value="paused">متوقف</SelectItem>
+                  <SelectItem value="ACTIVE">نشط (ACTIVE)</SelectItem>
+                  <SelectItem value="COMPLETED">مكتمل (COMPLETED)</SelectItem>
+                  <SelectItem value="PAUSED">متوقف (PAUSED)</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="target">المبلغ المستهدف (ر.س) *</Label>
-              <Input
-                id="target"
-                type="number"
-                value={target}
-                onChange={(e) => setTarget(e.target.value ? Number(e.target.value) : "")}
-                placeholder="50000"
-                disabled={isSubmitting}
-                required
-              />
+              {errors.status && <span className="text-xs text-destructive">{errors.status}</span>}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="location">الموقع / المنطقة</Label>
-              <Input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="مثال: غزة - خانيونس"
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="beneficiaries">عدد المستفيدين</Label>
-              <Input
-                id="beneficiaries"
-                type="number"
-                value={beneficiaries}
-                onChange={(e) => setBeneficiaries(e.target.value ? Number(e.target.value) : "")}
-                placeholder="مثال: 500"
-                disabled={isSubmitting}
-                min={0}
-              />
-            </div>
+          {/* Image Upload / URL */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="imageUrl">رابط الصورة (Image URL)</Label>
+            <Input
+              id="imageUrl"
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              disabled={isSubmitting}
+              dir="ltr"
+            />
+            {errors.imageUrl && <span className="text-xs text-destructive">{errors.imageUrl}</span>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="image">صورة المشروع (Cloudinary Upload)</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                disabled={isSubmitting}
-                className="cursor-pointer"
-              />
-            </div>
-            {imageFile && (
-              <p className="text-xs text-muted-foreground">
-                الملف المحدد: {imageFile.name} ({(imageFile.size / 1024).toFixed(1)} KB)
-              </p>
-            )}
+            <Label htmlFor="image">أو رفع صورة من الجهاز (File Upload)</Label>
+            <Input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              disabled={isSubmitting}
+              className="cursor-pointer"
+            />
           </div>
 
           <DialogFooter className="mt-4">

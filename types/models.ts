@@ -1,9 +1,9 @@
 // Enums
 export type Role = "USER" | "ADMIN" | "SUPER_ADMIN"
 export type AdminRole = "SUPER_ADMIN" | "CONTENT_MANAGER" | "FINANCE_MANAGER"
-export type ProjectStatus = "ongoing" | "urgent" | "completed" | "paused"
+export type ProjectStatus = "ACTIVE" | "COMPLETED" | "PAUSED" | "ongoing" | "urgent" | "completed" | "paused"
 export type DonationStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED"
-export type CategoryId = "water" | "food" | "shelter" | "orphans" | "health" | "education" | "other"
+export type CategoryId = "water" | "food" | "shelter" | "orphans" | "health" | "education" | "other" | string
 
 // Base Entity Interfaces
 export interface User {
@@ -31,20 +31,51 @@ export interface Project {
   id: string
   slug: string
   title: string
+  titleAr?: string
+  titleEn?: string
   description: string
+  descriptionAr?: string
+  descriptionEn?: string
   image: string
+  imageUrl?: string
   category: CategoryId
+  categoryId?: string
   status: ProjectStatus
   progress: number
   funded: number
   remaining: number
   target: number
+  targetAmount?: number
   beneficiaries?: number | null
+  beneficiariesCount?: number | null
   location?: string | null
   startDate?: string | null
   endDate?: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface NewsItem {
+  id: string
+  titleAr: string
+  titleEn: string
+  descriptionAr: string
+  descriptionEn: string
+  detailsUrl?: string
+  isUrgent: boolean
+  imageUrl?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface LivestreamItem {
+  id: string
+  titleAr: string
+  titleEn: string
+  youtubeUrl: string
+  isActive: boolean
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Donation {
@@ -64,15 +95,23 @@ export interface Donation {
 
 // Form Data Type for Create / Update Forms
 export interface ProjectFormData {
-  slug: string
-  title: string
-  description: string
-  category: CategoryId
-  status: ProjectStatus
-  target: number
-  beneficiaries?: number
+  slug?: string
+  titleAr: string
+  titleEn: string
+  descriptionAr: string
+  descriptionEn: string
+  categoryId: string
+  status: "ACTIVE" | "COMPLETED" | "PAUSED" | string
+  targetAmount: number
+  beneficiariesCount?: number
   location?: string
-  image: File | null
+  imageUrl?: string
+  image?: File | null
+  // Legacy / fallback fields
+  title?: string
+  description?: string
+  target?: number
+  category?: string
 }
 
 // API Response & Query Interfaces
