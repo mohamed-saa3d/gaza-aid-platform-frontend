@@ -37,12 +37,11 @@ export function VerifyOtpForm() {
   } = useForm<OtpInput>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
-      email: identifier,
-      otp: "",
+      code: "",
     },
   })
 
-  const otpValue = watch("otp") || ""
+  const codeValue = watch("code") || ""
 
   async function onSubmit(data: OtpInput) {
     setApiError(null)
@@ -52,7 +51,7 @@ export function VerifyOtpForm() {
       router.push("/profile")
     } catch (err: any) {
       // Clear OTP input for immediate error recovery and re-entry
-      setValue("otp", "")
+      setValue("code", "")
       setApiError(
         err.response?.data?.message ||
           (isAr
@@ -111,7 +110,7 @@ export function VerifyOtpForm() {
     >
       <form className="flex flex-col items-center gap-6" onSubmit={handleSubmit(onSubmit)}>
         <Controller
-          name="otp"
+          name="code"
           control={control}
           render={({ field }) => (
             <InputOTP
@@ -130,7 +129,7 @@ export function VerifyOtpForm() {
           )}
         />
 
-        {errors.email && (
+        {!identifier && (
           <p className="text-center text-sm font-medium text-destructive">
             {isAr
               ? "معلومات التواصل مفقودة أو غير صحيحة. يرجى البدء من جديد من صفحة التسجيل."
@@ -138,8 +137,8 @@ export function VerifyOtpForm() {
           </p>
         )}
 
-        {errors.otp && (
-          <p className="text-center text-sm font-medium text-destructive">{errors.otp.message}</p>
+        {errors.code && (
+          <p className="text-center text-sm font-medium text-destructive">{errors.code.message}</p>
         )}
 
         {apiError && (
@@ -148,7 +147,7 @@ export function VerifyOtpForm() {
 
         <Button
           type="submit"
-          disabled={otpValue.length < 4 || isSubmitting}
+          disabled={codeValue.length < 4 || isSubmitting}
           className="w-full gap-2 rounded-full"
         >
           {isSubmitting ? (

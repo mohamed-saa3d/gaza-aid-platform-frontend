@@ -35,9 +35,9 @@ import {
 import { projectsService } from "@/services/projects.service"
 import type { Project, PaginatedResponse } from "@/types/models"
 import { useDebounce } from "@/hooks/use-debounce"
-import { CreateProjectDialog } from "@/components/admin/create-project-dialog"
-import { UpdateProjectDialog } from "@/components/admin/update-project-dialog"
-import { DeleteProjectDialog } from "@/components/admin/delete-project-dialog"
+import { CreateProjectDialog } from "./create-project-dialog"
+import { UpdateProjectDialog } from "./update-project-dialog"
+import { DeleteProjectDialog } from "./delete-project-dialog"
 
 export function ProjectsSection() {
   const [projectsData, setProjectsData] = useState<PaginatedResponse<Project> | null>(null)
