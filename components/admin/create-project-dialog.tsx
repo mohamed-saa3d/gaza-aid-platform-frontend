@@ -103,18 +103,14 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          trigger ? (
-            (trigger as React.ReactElement)
-          ) : (
-            <Button>
-              <Plus className="ml-2 size-4" />
-              إضافة مشروع جديد
-            </Button>
-          )
-        }
-      />
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button>
+            <Plus className="ml-2 size-4" />
+            إضافة مشروع جديد
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>إضافة مشروع جديد</DialogTitle>

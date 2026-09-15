@@ -60,17 +60,13 @@ export function DeleteProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          trigger ? (
-            (trigger as React.ReactElement)
-          ) : (
-            <Button variant="ghost" size="icon-sm" aria-label="حذف المشروع">
-              <Trash2 className="size-4 text-destructive" />
-            </Button>
-          )
-        }
-      />
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button variant="ghost" size="icon-sm" aria-label="حذف المشروع">
+            <Trash2 className="size-4 text-destructive" />
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-destructive">تأكيد حذف المشروع</DialogTitle>
