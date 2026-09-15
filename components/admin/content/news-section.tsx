@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useState } from "react"
 import Image from "next/image"
-import { Newspaper, Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react"
+import { Newspaper, Plus, Pencil, Trash2, Search, Loader2, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,7 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { newsFormSchema, type NewsFormValues } from "@/lib/validations/admin"
+import { newsFormSchema } from "@/lib/validations/admin"
 
 interface NewsItemData {
   id: string
@@ -80,7 +80,7 @@ export function NewsSection() {
   const [addDescEn, setAddDescEn] = useState("")
   const [addDetailsUrl, setAddDetailsUrl] = useState("")
   const [addIsUrgent, setAddIsUrgent] = useState(false)
-  const [addImageUrl, setAddImageUrl] = useState("")
+  const [addImageFile, setAddImageFile] = useState<File | null>(null)
   const [addErrors, setAddErrors] = useState<Record<string, string>>({})
   const [isAdding, setIsAdding] = useState(false)
 
@@ -92,7 +92,7 @@ export function NewsSection() {
   const [editDescEn, setEditDescEn] = useState("")
   const [editDetailsUrl, setEditDetailsUrl] = useState("")
   const [editIsUrgent, setEditIsUrgent] = useState(false)
-  const [editImageUrl, setEditImageUrl] = useState("")
+  const [editImageFile, setEditImageFile] = useState<File | null>(null)
   const [editErrors, setEditErrors] = useState<Record<string, string>>({})
   const [isEditing, setIsEditing] = useState(false)
 
@@ -103,7 +103,7 @@ export function NewsSection() {
     setAddDescEn("")
     setAddDetailsUrl("")
     setAddIsUrgent(false)
-    setAddImageUrl("")
+    setAddImageFile(null)
     setAddErrors({})
   }
 
@@ -118,7 +118,7 @@ export function NewsSection() {
       descriptionEn: addDescEn,
       detailsUrl: addDetailsUrl || undefined,
       isUrgent: addIsUrgent,
-      imageUrl: addImageUrl || undefined,
+      imageUrl: "",
     }
 
     const validation = newsFormSchema.safeParse(payload)
@@ -145,7 +145,7 @@ export function NewsSection() {
         descriptionEn: validation.data.descriptionEn,
         detailsUrl: validation.data.detailsUrl || "",
         isUrgent: validation.data.isUrgent,
-        imageUrl: validation.data.imageUrl || "/images/news-food-distribution.png",
+        imageUrl: addImageFile ? URL.createObjectURL(addImageFile) : "/images/news-food-distribution.png",
       }
 
       setNews((prev) => [newItem, ...prev])
@@ -164,7 +164,7 @@ export function NewsSection() {
     setEditDescEn(item.descriptionEn)
     setEditDetailsUrl(item.detailsUrl || "")
     setEditIsUrgent(item.isUrgent)
-    setEditImageUrl(item.imageUrl)
+    setEditImageFile(null)
     setEditErrors({})
   }
 
@@ -180,7 +180,7 @@ export function NewsSection() {
       descriptionEn: editDescEn,
       detailsUrl: editDetailsUrl || undefined,
       isUrgent: editIsUrgent,
-      imageUrl: editImageUrl || undefined,
+      imageUrl: "",
     }
 
     const validation = newsFormSchema.safeParse(payload)
@@ -210,7 +210,7 @@ export function NewsSection() {
                 descriptionEn: validation.data.descriptionEn,
                 detailsUrl: validation.data.detailsUrl || "",
                 isUrgent: validation.data.isUrgent,
-                imageUrl: validation.data.imageUrl || item.imageUrl,
+                imageUrl: editImageFile ? URL.createObjectURL(editImageFile) : item.imageUrl,
               }
             : item
         )
@@ -237,7 +237,7 @@ export function NewsSection() {
       <CardHeader className="flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Newspaper className="text-primary" />
-          إدارة الأخبار (News Management)
+          إدارة الأخبار
         </CardTitle>
 
         {/* Add News Dialog */}
@@ -250,7 +250,7 @@ export function NewsSection() {
           </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
             <DialogHeader>
-              <DialogTitle>إضافة خبر جديد (New Article)</DialogTitle>
+              <DialogTitle>إضافة خبر جديد</DialogTitle>
               <DialogDescription>
                 أدخل تفاصيل الخبر باللغتين العربية والإنجليزية.
               </DialogDescription>
@@ -264,19 +264,19 @@ export function NewsSection() {
                     id="addTitleAr"
                     value={addTitleAr}
                     onChange={(e) => setAddTitleAr(e.target.value)}
-                    placeholder="عنوان الخبر..."
+                    placeholder="عنوان الخبر بالعربية..."
                     dir="rtl"
                   />
                   {addErrors.titleAr && <span className="text-xs text-destructive">{addErrors.titleAr}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="addTitleEn">News Title (English) *</Label>
+                  <Label htmlFor="addTitleEn">عنوان الخبر (بالإنجليزية) *</Label>
                   <Input
                     id="addTitleEn"
                     value={addTitleEn}
                     onChange={(e) => setAddTitleEn(e.target.value)}
-                    placeholder="News title..."
+                    placeholder="عنوان الخبر بالإنجليزية..."
                     dir="ltr"
                   />
                   {addErrors.titleEn && <span className="text-xs text-destructive">{addErrors.titleEn}</span>}
@@ -300,12 +300,12 @@ export function NewsSection() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="addDescEn">News Details (English) *</Label>
+                  <Label htmlFor="addDescEn">تفاصيل الخبر (بالإنجليزية) *</Label>
                   <Textarea
                     id="addDescEn"
                     value={addDescEn}
                     onChange={(e) => setAddDescEn(e.target.value)}
-                    placeholder="News details in English..."
+                    placeholder="تفاصيل الخبر بالإنجليزية..."
                     rows={3}
                     dir="ltr"
                   />
@@ -315,36 +315,42 @@ export function NewsSection() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="addDetailsUrl">رابط التفاصيل (Details URL)</Label>
-                  <Input
-                    id="addDetailsUrl"
-                    type="url"
-                    value={addDetailsUrl}
-                    onChange={(e) => setAddDetailsUrl(e.target.value)}
-                    placeholder="https://example.com/news/1"
-                    dir="ltr"
-                  />
-                  {addErrors.detailsUrl && (
-                    <span className="text-xs text-destructive">{addErrors.detailsUrl}</span>
-                  )}
-                </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="addDetailsUrl">رابط تفاصيل الخبر المباشر</Label>
+                <Input
+                  id="addDetailsUrl"
+                  type="url"
+                  value={addDetailsUrl}
+                  onChange={(e) => setAddDetailsUrl(e.target.value)}
+                  placeholder="https://example.com/news/1"
+                  dir="ltr"
+                />
+                {addErrors.detailsUrl && (
+                  <span className="text-xs text-destructive">{addErrors.detailsUrl}</span>
+                )}
+              </div>
 
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="addImageUrl">رابط الصورة (Image URL)</Label>
+              {/* File Upload Box */}
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="addImageFile">صورة الخبر الرئيسية</Label>
+                <div className="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-5 transition-colors hover:border-primary/50 bg-muted/20">
+                  <Upload className="mb-2 size-7 text-muted-foreground" />
+                  <p className="text-xs font-medium text-foreground">
+                    اضغط هنا لاختيار صورة الخبر
+                  </p>
                   <Input
-                    id="addImageUrl"
-                    type="url"
-                    value={addImageUrl}
-                    onChange={(e) => setAddImageUrl(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    dir="ltr"
+                    id="addImageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setAddImageFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 cursor-pointer opacity-0"
                   />
-                  {addErrors.imageUrl && (
-                    <span className="text-xs text-destructive">{addErrors.imageUrl}</span>
-                  )}
                 </div>
+                {addImageFile && (
+                  <p className="text-xs font-medium text-primary">
+                    تم تحديد الملف: {addImageFile.name}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-2 pt-2">
@@ -354,16 +360,16 @@ export function NewsSection() {
                   onCheckedChange={(checked) => setAddIsUrgent(Boolean(checked))}
                 />
                 <Label htmlFor="addIsUrgent" className="cursor-pointer font-medium">
-                  خبر عاجل / هام (Urgent News)
+                  تعيين كخبر عاجل
                 </Label>
               </div>
 
-              <DialogFooter className="mt-4">
-                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
-                  إلغاء
-                </Button>
+              <DialogFooter className="mt-4 flex flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2">
                 <Button type="submit" disabled={isAdding}>
                   {isAdding ? <Loader2 className="ml-2 size-4 animate-spin" /> : "إضافة الخبر"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+                  إلغاء
                 </Button>
               </DialogFooter>
             </form>
@@ -434,7 +440,7 @@ export function NewsSection() {
         <Dialog open={Boolean(editingItem)} onOpenChange={(open) => !open && setEditingItem(null)}>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
             <DialogHeader>
-              <DialogTitle>تعديل الخبر (Edit News)</DialogTitle>
+              <DialogTitle>تعديل بيانات الخبر</DialogTitle>
               <DialogDescription>
                 تعديل بيانات الخبر باللغتين العربية والإنجليزية.
               </DialogDescription>
@@ -454,7 +460,7 @@ export function NewsSection() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="editTitleEn">News Title (English) *</Label>
+                  <Label htmlFor="editTitleEn">عنوان الخبر (بالإنجليزية) *</Label>
                   <Input
                     id="editTitleEn"
                     value={editTitleEn}
@@ -481,7 +487,7 @@ export function NewsSection() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="editDescEn">News Details (English) *</Label>
+                  <Label htmlFor="editDescEn">تفاصيل الخبر (بالإنجليزية) *</Label>
                   <Textarea
                     id="editDescEn"
                     value={editDescEn}
@@ -495,34 +501,40 @@ export function NewsSection() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="editDetailsUrl">رابط التفاصيل (Details URL)</Label>
-                  <Input
-                    id="editDetailsUrl"
-                    type="url"
-                    value={editDetailsUrl}
-                    onChange={(e) => setEditDetailsUrl(e.target.value)}
-                    dir="ltr"
-                  />
-                  {editErrors.detailsUrl && (
-                    <span className="text-xs text-destructive">{editErrors.detailsUrl}</span>
-                  )}
-                </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="editDetailsUrl">رابط تفاصيل الخبر المباشر</Label>
+                <Input
+                  id="editDetailsUrl"
+                  type="url"
+                  value={editDetailsUrl}
+                  onChange={(e) => setEditDetailsUrl(e.target.value)}
+                  dir="ltr"
+                />
+                {editErrors.detailsUrl && (
+                  <span className="text-xs text-destructive">{editErrors.detailsUrl}</span>
+                )}
+              </div>
 
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="editImageUrl">رابط الصورة (Image URL)</Label>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="editImageFile">تغيير صورة الخبر (اختياري)</Label>
+                <div className="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-5 transition-colors hover:border-primary/50 bg-muted/20">
+                  <Upload className="mb-2 size-7 text-muted-foreground" />
+                  <p className="text-xs font-medium text-foreground">
+                    اضغط لتغيير الصورة
+                  </p>
                   <Input
-                    id="editImageUrl"
-                    type="url"
-                    value={editImageUrl}
-                    onChange={(e) => setEditImageUrl(e.target.value)}
-                    dir="ltr"
+                    id="editImageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEditImageFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 cursor-pointer opacity-0"
                   />
-                  {editErrors.imageUrl && (
-                    <span className="text-xs text-destructive">{editErrors.imageUrl}</span>
-                  )}
                 </div>
+                {editImageFile && (
+                  <p className="text-xs font-medium text-primary">
+                    الملف الجديد: {editImageFile.name}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-2 pt-2">
@@ -532,16 +544,16 @@ export function NewsSection() {
                   onCheckedChange={(checked) => setEditIsUrgent(Boolean(checked))}
                 />
                 <Label htmlFor="editIsUrgent" className="cursor-pointer font-medium">
-                  خبر عاجل / هام (Urgent News)
+                  تعيين كخبر عاجل
                 </Label>
               </div>
 
-              <DialogFooter className="mt-4">
-                <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
-                  إلغاء
-                </Button>
+              <DialogFooter className="mt-4 flex flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2">
                 <Button type="submit" disabled={isEditing}>
                   {isEditing ? <Loader2 className="ml-2 size-4 animate-spin" /> : "حفظ التعديلات"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
+                  إلغاء
                 </Button>
               </DialogFooter>
             </form>

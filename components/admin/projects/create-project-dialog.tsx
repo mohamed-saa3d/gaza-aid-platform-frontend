@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { AxiosError } from "axios"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2, Plus, Upload } from "lucide-react"
 
 import {
   Dialog,
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select"
 
 import { projectsService } from "@/services/projects.service"
-import { projectFormSchema, type ProjectFormValues } from "@/lib/validations/admin"
+import { projectFormSchema } from "@/lib/validations/admin"
 
 interface CreateProjectDialogProps {
   onSuccess?: () => void
@@ -42,16 +42,15 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Form State matching backend DTO contract
+  // Form State matching exact backend DTO contract
   const [titleAr, setTitleAr] = useState("")
   const [titleEn, setTitleEn] = useState("")
   const [descriptionAr, setDescriptionAr] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
   const [targetAmount, setTargetAmount] = useState<number | "">("")
   const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">(0)
-  const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
   const [categoryId, setCategoryId] = useState("water")
-  const [imageUrl, setImageUrl] = useState("")
+  const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
   const [imageFile, setImageFile] = useState<File | null>(null)
 
   const resetForm = () => {
@@ -61,9 +60,8 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
     setDescriptionEn("")
     setTargetAmount("")
     setBeneficiariesCount(0)
-    setStatus("ACTIVE")
     setCategoryId("water")
-    setImageUrl("")
+    setStatus("ACTIVE")
     setImageFile(null)
     setErrors({})
   }
@@ -81,7 +79,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
       beneficiariesCount: beneficiariesCount === "" ? 0 : Number(beneficiariesCount),
       status,
       categoryId,
-      imageUrl: imageUrl || undefined,
+      imageUrl: "",
     }
 
     const validationResult = projectFormSchema.safeParse(rawData)
@@ -112,7 +110,6 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
         beneficiariesCount: validData.beneficiariesCount,
         status: validData.status,
         categoryId: validData.categoryId,
-        imageUrl: validData.imageUrl,
         image: imageFile,
         // Legacy fallbacks for compatibility
         title: validData.titleAr,
@@ -150,14 +147,14 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>إضافة مشروع جديد (New Project)</DialogTitle>
+          <DialogTitle>إضافة مشروع جديد</DialogTitle>
           <DialogDescription>
             أدخل تفاصيل المشروع بالعربية والإنجليزية لبدء جمع التبرعات.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-          {/* Bilingual Titles */}
+          {/* 1 & 2: Arabic & English Titles */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor="titleAr">عنوان المشروع (بالعربية) *</Label>
@@ -173,12 +170,12 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="titleEn">Project Title (English) *</Label>
+              <Label htmlFor="titleEn">عنوان المشروع (بالإنجليزية) *</Label>
               <Input
                 id="titleEn"
                 value={titleEn}
                 onChange={(e) => setTitleEn(e.target.value)}
-                placeholder="e.g. Water Well Drilling"
+                placeholder="مثال: Water Well Drilling"
                 disabled={isSubmitting}
                 dir="ltr"
               />
@@ -186,15 +183,15 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
           </div>
 
-          {/* Bilingual Descriptions */}
+          {/* 3 & 4: Arabic & English Descriptions */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="descriptionAr">الوصف (بالعربية) *</Label>
+              <Label htmlFor="descriptionAr">وصف المشروع (بالعربية) *</Label>
               <Textarea
                 id="descriptionAr"
                 value={descriptionAr}
                 onChange={(e) => setDescriptionAr(e.target.value)}
-                placeholder="تفاصيل المشروع بالعربية..."
+                placeholder="اكتب وصفاً مفصلاً للمشروع بالعربية..."
                 rows={3}
                 disabled={isSubmitting}
                 dir="rtl"
@@ -203,12 +200,12 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="descriptionEn">Description (English) *</Label>
+              <Label htmlFor="descriptionEn">وصف المشروع (بالإنجليزية) *</Label>
               <Textarea
                 id="descriptionEn"
                 value={descriptionEn}
                 onChange={(e) => setDescriptionEn(e.target.value)}
-                placeholder="Project details in English..."
+                placeholder="اكتب وصفاً مفصلاً للمشروع بالإنجليزية..."
                 rows={3}
                 disabled={isSubmitting}
                 dir="ltr"
@@ -217,10 +214,10 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
           </div>
 
-          {/* Amounts & Stats */}
+          {/* 5 & 6: Target Amount & Beneficiaries Count */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="targetAmount">المبلغ المستهدف (Target Amount) *</Label>
+              <Label htmlFor="targetAmount">المبلغ المستهدف (ر.س) *</Label>
               <Input
                 id="targetAmount"
                 type="number"
@@ -234,7 +231,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="beneficiariesCount">عدد المستفيدين (Beneficiaries Count)</Label>
+              <Label htmlFor="beneficiariesCount">عدد المستفيدين المتوقع</Label>
               <Input
                 id="beneficiariesCount"
                 type="number"
@@ -250,10 +247,10 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
           </div>
 
-          {/* Category & Status */}
+          {/* 7 & 8: Category & Status */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="categoryId">فئة المشروع (Category) *</Label>
+              <Label htmlFor="categoryId">فئة المشروع *</Label>
               <Select
                 value={categoryId}
                 onValueChange={(val) => {
@@ -265,20 +262,20 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="water">سقيا ماء (Water)</SelectItem>
-                  <SelectItem value="food">سلال غذائية (Food)</SelectItem>
-                  <SelectItem value="shelter">إيواء (Shelter)</SelectItem>
-                  <SelectItem value="orphans">رعاية أيتام (Orphans)</SelectItem>
-                  <SelectItem value="health">صحة (Health)</SelectItem>
-                  <SelectItem value="education">تعليم (Education)</SelectItem>
-                  <SelectItem value="other">أخرى (Other)</SelectItem>
+                  <SelectItem value="water">سقيا ماء</SelectItem>
+                  <SelectItem value="food">سلال غذائية</SelectItem>
+                  <SelectItem value="shelter">إيواء</SelectItem>
+                  <SelectItem value="orphans">رعاية أيتام</SelectItem>
+                  <SelectItem value="health">صحة</SelectItem>
+                  <SelectItem value="education">تعليم</SelectItem>
+                  <SelectItem value="other">أخرى</SelectItem>
                 </SelectContent>
               </Select>
               {errors.categoryId && <span className="text-xs text-destructive">{errors.categoryId}</span>}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">حالة المشروع (Status) *</Label>
+              <Label htmlFor="status">حالة المشروع *</Label>
               <Select
                 value={status}
                 onValueChange={(val) => {
@@ -290,51 +287,43 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                   <SelectValue placeholder="اختر الحالة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">نشط (ACTIVE)</SelectItem>
-                  <SelectItem value="COMPLETED">مكتمل (COMPLETED)</SelectItem>
-                  <SelectItem value="PAUSED">متوقف (PAUSED)</SelectItem>
+                  <SelectItem value="ACTIVE">نشط</SelectItem>
+                  <SelectItem value="COMPLETED">مكتمل</SelectItem>
+                  <SelectItem value="PAUSED">متوقف</SelectItem>
                 </SelectContent>
               </Select>
               {errors.status && <span className="text-xs text-destructive">{errors.status}</span>}
             </div>
           </div>
 
-          {/* Image Upload / URL */}
+          {/* 9: Image File Upload Dropzone Only */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="imageUrl">رابط الصورة (Image URL)</Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              disabled={isSubmitting}
-              dir="ltr"
-            />
-            {errors.imageUrl && <span className="text-xs text-destructive">{errors.imageUrl}</span>}
+            <Label htmlFor="image">صورة المشروع الرئيسية *</Label>
+            <div className="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 transition-colors hover:border-primary/50 bg-muted/20">
+              <Upload className="mb-2 size-8 text-muted-foreground" />
+              <p className="text-xs font-medium text-foreground">
+                اضغط هنا لاختيار صورة من جهازك
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                PNG, JPG, WEBP حتى 5 ميجابايت
+              </p>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                disabled={isSubmitting}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+            </div>
+            {imageFile && (
+              <p className="text-xs font-medium text-primary">
+                تم تحديد الصورة: {imageFile.name} ({(imageFile.size / 1024).toFixed(1)} ك.ب)
+              </p>
+            )}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="image">أو رفع صورة من الجهاز (File Upload)</Label>
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            />
-          </div>
-
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isSubmitting}
-            >
-              إلغاء
-            </Button>
+          <DialogFooter className="mt-4 flex flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
@@ -344,6 +333,14 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
               ) : (
                 "إضافة المشروع"
               )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isSubmitting}
+            >
+              إلغاء
             </Button>
           </DialogFooter>
         </form>

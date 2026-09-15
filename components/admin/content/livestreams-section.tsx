@@ -200,7 +200,7 @@ export function LivestreamsSection() {
       <CardHeader className="flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Radio className="text-primary" />
-          إدارة البث المباشر (Livestreams Management)
+          إدارة البث المباشر
         </CardTitle>
 
         {/* Add Stream Dialog */}
@@ -213,7 +213,7 @@ export function LivestreamsSection() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>إضافة بث مباشر جديد (New Livestream)</DialogTitle>
+              <DialogTitle>إضافة بث مباشر جديد</DialogTitle>
               <DialogDescription>
                 أدخل عنوان البث باللغتين العربية والإنجليزية ورابط YouTube.
               </DialogDescription>
@@ -233,12 +233,12 @@ export function LivestreamsSection() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="addTitleEn">Stream Title (English) *</Label>
+                <Label htmlFor="addTitleEn">عنوان البث (بالإنجليزية) *</Label>
                 <Input
                   id="addTitleEn"
                   value={addTitleEn}
                   onChange={(e) => setAddTitleEn(e.target.value)}
-                  placeholder="Stream title in English..."
+                  placeholder="عنوان البث بالإنجليزية..."
                   dir="ltr"
                 />
                 {addErrors.titleEn && <span className="text-xs text-destructive">{addErrors.titleEn}</span>}
@@ -266,16 +266,16 @@ export function LivestreamsSection() {
                   onCheckedChange={(checked) => setAddIsActive(Boolean(checked))}
                 />
                 <Label htmlFor="addIsActive" className="cursor-pointer font-medium">
-                  بث نشط الآن (Active Live Stream)
+                  بث نشط الآن
                 </Label>
               </div>
 
-              <DialogFooter className="mt-4">
-                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
-                  إلغاء
-                </Button>
+              <DialogFooter className="mt-4 flex flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2">
                 <Button type="submit" disabled={isAdding}>
                   {isAdding ? <Loader2 className="ml-2 size-4 animate-spin" /> : "إضافة البث"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
+                  إلغاء
                 </Button>
               </DialogFooter>
             </form>
@@ -305,11 +305,11 @@ export function LivestreamsSection() {
                   <span className="font-medium">{item.titleAr}</span>
                   {item.isActive ? (
                     <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600 font-semibold">
-                      مباشر (Active)
+                      مباشر
                     </span>
                   ) : (
                     <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      متوقف (Inactive)
+                      متوقف
                     </span>
                   )}
                 </div>
@@ -353,7 +353,7 @@ export function LivestreamsSection() {
         <Dialog open={Boolean(editingStream)} onOpenChange={(open) => !open && setEditingStream(null)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>تعديل البث المباشر (Edit Livestream)</DialogTitle>
+              <DialogTitle>تعديل البث المباشر</DialogTitle>
               <DialogDescription>
                 تعديل بيانات البث باللغتين العربية والإنجليزية ورابط YouTube.
               </DialogDescription>
@@ -372,7 +372,7 @@ export function LivestreamsSection() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="editTitleEn">Stream Title (English) *</Label>
+                <Label htmlFor="editTitleEn">عنوان البث (بالإنجليزية) *</Label>
                 <Input
                   id="editTitleEn"
                   value={editTitleEn}
@@ -403,16 +403,16 @@ export function LivestreamsSection() {
                   onCheckedChange={(checked) => setEditIsActive(Boolean(checked))}
                 />
                 <Label htmlFor="editIsActive" className="cursor-pointer font-medium">
-                  بث نشط الآن (Active Live Stream)
+                  بث نشط الآن
                 </Label>
               </div>
 
-              <DialogFooter className="mt-4">
-                <Button type="button" variant="outline" onClick={() => setEditingStream(null)}>
-                  إلغاء
-                </Button>
+              <DialogFooter className="mt-4 flex flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2">
                 <Button type="submit" disabled={isEditing}>
                   {isEditing ? <Loader2 className="ml-2 size-4 animate-spin" /> : "حفظ التعديلات"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setEditingStream(null)}>
+                  إلغاء
                 </Button>
               </DialogFooter>
             </form>

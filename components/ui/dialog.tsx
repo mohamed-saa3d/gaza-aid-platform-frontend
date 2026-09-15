@@ -76,7 +76,7 @@ function DialogContent({
             data-slot="dialog-close"
             render={
               <button
-                className="absolute top-4 left-4 flex size-9 items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
+                className="absolute top-4 left-4 flex size-8 items-center justify-center rounded-full bg-muted p-2 text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
               />
             }
           >

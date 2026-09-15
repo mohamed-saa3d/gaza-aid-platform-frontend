@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { AxiosError } from "axios"
-import { Loader2, Pencil } from "lucide-react"
+import { Loader2, Pencil, Upload } from "lucide-react"
 
 import {
   Dialog,
@@ -44,7 +44,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Form State
+  // Pre-filled Form State
   const [titleAr, setTitleAr] = useState(project.titleAr || project.title || "")
   const [titleEn, setTitleEn] = useState(project.titleEn || project.title || "")
   const [descriptionAr, setDescriptionAr] = useState(project.descriptionAr || project.description || "")
@@ -61,7 +61,6 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       : "ACTIVE"
   )
   const [categoryId, setCategoryId] = useState<string>(project.categoryId || project.category || "water")
-  const [imageUrl, setImageUrl] = useState(project.imageUrl || project.image || "")
   const [imageFile, setImageFile] = useState<File | null>(null)
 
   useEffect(() => {
@@ -80,7 +79,6 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
           : "ACTIVE"
       )
       setCategoryId(project.categoryId || project.category || "water")
-      setImageUrl(project.imageUrl || project.image || "")
       setImageFile(null)
       setErrors({})
     }
@@ -99,7 +97,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       beneficiariesCount: beneficiariesCount === "" ? 0 : Number(beneficiariesCount),
       status,
       categoryId,
-      imageUrl: imageUrl || undefined,
+      imageUrl: "",
     }
 
     const validationResult = projectFormSchema.safeParse(rawData)
@@ -130,7 +128,6 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
         beneficiariesCount: validData.beneficiariesCount,
         status: validData.status,
         categoryId: validData.categoryId,
-        imageUrl: validData.imageUrl,
         image: imageFile,
         title: validData.titleAr,
         description: validData.descriptionAr,
@@ -165,14 +162,14 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>تعديل بيانات المشروع (Edit Project)</DialogTitle>
+          <DialogTitle>تعديل بيانات المشروع</DialogTitle>
           <DialogDescription>
             تعديل معلومات المشروع بالعربية والإنجليزية.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-          {/* Bilingual Titles */}
+          {/* 1 & 2: Arabic & English Titles */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor={`titleAr-${project.id}`}>عنوان المشروع (بالعربية) *</Label>
@@ -188,12 +185,12 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`titleEn-${project.id}`}>Project Title (English) *</Label>
+              <Label htmlFor={`titleEn-${project.id}`}>عنوان المشروع (بالإنجليزية) *</Label>
               <Input
                 id={`titleEn-${project.id}`}
                 value={titleEn}
                 onChange={(e) => setTitleEn(e.target.value)}
-                placeholder="Project Title in English"
+                placeholder="Project title in English"
                 disabled={isSubmitting}
                 dir="ltr"
               />
@@ -201,10 +198,10 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
           </div>
 
-          {/* Bilingual Descriptions */}
+          {/* 3 & 4: Arabic & English Descriptions */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`descriptionAr-${project.id}`}>الوصف (بالعربية) *</Label>
+              <Label htmlFor={`descriptionAr-${project.id}`}>وصف المشروع (بالعربية) *</Label>
               <Textarea
                 id={`descriptionAr-${project.id}`}
                 value={descriptionAr}
@@ -218,7 +215,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`descriptionEn-${project.id}`}>Description (English) *</Label>
+              <Label htmlFor={`descriptionEn-${project.id}`}>وصف المشروع (بالإنجليزية) *</Label>
               <Textarea
                 id={`descriptionEn-${project.id}`}
                 value={descriptionEn}
@@ -232,10 +229,10 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
           </div>
 
-          {/* Amounts & Stats */}
+          {/* 5 & 6: Target Amount & Beneficiaries Count */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`targetAmount-${project.id}`}>المبلغ المستهدف (Target Amount) *</Label>
+              <Label htmlFor={`targetAmount-${project.id}`}>المبلغ المستهدف (ر.س) *</Label>
               <Input
                 id={`targetAmount-${project.id}`}
                 type="number"
@@ -249,7 +246,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`beneficiariesCount-${project.id}`}>عدد المستفيدين (Beneficiaries Count)</Label>
+              <Label htmlFor={`beneficiariesCount-${project.id}`}>عدد المستفيدين المتوقع</Label>
               <Input
                 id={`beneficiariesCount-${project.id}`}
                 type="number"
@@ -265,10 +262,10 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
           </div>
 
-          {/* Category & Status */}
+          {/* 7 & 8: Category & Status */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`categoryId-${project.id}`}>فئة المشروع (Category) *</Label>
+              <Label htmlFor={`categoryId-${project.id}`}>فئة المشروع *</Label>
               <Select
                 value={categoryId}
                 onValueChange={(val) => {
@@ -280,20 +277,20 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="water">سقيا ماء (Water)</SelectItem>
-                  <SelectItem value="food">سلال غذائية (Food)</SelectItem>
-                  <SelectItem value="shelter">إيواء (Shelter)</SelectItem>
-                  <SelectItem value="orphans">رعاية أيتام (Orphans)</SelectItem>
-                  <SelectItem value="health">صحة (Health)</SelectItem>
-                  <SelectItem value="education">تعليم (Education)</SelectItem>
-                  <SelectItem value="other">أخرى (Other)</SelectItem>
+                  <SelectItem value="water">سقيا ماء</SelectItem>
+                  <SelectItem value="food">سلال غذائية</SelectItem>
+                  <SelectItem value="shelter">إيواء</SelectItem>
+                  <SelectItem value="orphans">رعاية أيتام</SelectItem>
+                  <SelectItem value="health">صحة</SelectItem>
+                  <SelectItem value="education">تعليم</SelectItem>
+                  <SelectItem value="other">أخرى</SelectItem>
                 </SelectContent>
               </Select>
               {errors.categoryId && <span className="text-xs text-destructive">{errors.categoryId}</span>}
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`status-${project.id}`}>حالة المشروع (Status) *</Label>
+              <Label htmlFor={`status-${project.id}`}>حالة المشروع *</Label>
               <Select
                 value={status}
                 onValueChange={(val) => {
@@ -305,51 +302,46 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
                   <SelectValue placeholder="اختر الحالة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">نشط (ACTIVE)</SelectItem>
-                  <SelectItem value="COMPLETED">مكتمل (COMPLETED)</SelectItem>
-                  <SelectItem value="PAUSED">متوقف (PAUSED)</SelectItem>
+                  <SelectItem value="ACTIVE">نشط</SelectItem>
+                  <SelectItem value="COMPLETED">مكتمل</SelectItem>
+                  <SelectItem value="PAUSED">متوقف</SelectItem>
                 </SelectContent>
               </Select>
               {errors.status && <span className="text-xs text-destructive">{errors.status}</span>}
             </div>
           </div>
 
-          {/* Image Upload / URL */}
+          {/* 9: Image File Upload Dropzone */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor={`imageUrl-${project.id}`}>رابط الصورة (Image URL)</Label>
-            <Input
-              id={`imageUrl-${project.id}`}
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              disabled={isSubmitting}
-              dir="ltr"
-            />
-            {errors.imageUrl && <span className="text-xs text-destructive">{errors.imageUrl}</span>}
+            <Label htmlFor={`image-${project.id}`}>
+              صورة جديدة (اختياري - يترك فارغاً للإبقاء على الصورة الحالية)
+            </Label>
+            <div className="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-5 transition-colors hover:border-primary/50 bg-muted/20">
+              <Upload className="mb-2 size-7 text-muted-foreground" />
+              <p className="text-xs font-medium text-foreground">
+                اضغط لتغيير صورة المشروع
+              </p>
+              <Input
+                id={`image-${project.id}`}
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                disabled={isSubmitting}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+            </div>
+            {imageFile ? (
+              <p className="text-xs font-medium text-primary">
+                الملف الجديد: {imageFile.name}
+              </p>
+            ) : project.image ? (
+              <p className="text-xs text-muted-foreground truncate">
+                الصورة الحالية: {project.image}
+              </p>
+            ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor={`image-${project.id}`}>أو تغيير الصورة عبر الملف (File Upload)</Label>
-            <Input
-              id={`image-${project.id}`}
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            />
-          </div>
-
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isSubmitting}
-            >
-              إلغاء
-            </Button>
+          <DialogFooter className="mt-4 flex flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
@@ -359,6 +351,14 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
               ) : (
                 "حفظ التعديلات"
               )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isSubmitting}
+            >
+              إلغاء
             </Button>
           </DialogFooter>
         </form>
