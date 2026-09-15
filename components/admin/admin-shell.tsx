@@ -10,7 +10,6 @@ import {
   Megaphone,
   Newspaper,
   Users,
-  ChevronDown,
   Menu,
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -85,12 +84,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           {NavList}
         </nav>
         <div className='flex flex-col gap-2 border-t p-4'>
-          <Link
-            href='#'
+          <a
+            href={`https://wa.me/201092731005?text=${encodeURIComponent("السلام عليكم عندي استفسار بخصوص لوحات التحكم او غيره الخاصه بمشروع غزه")}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className='flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:bg-muted'
           >
             <CircleHelp className='size-5' /> مركز المساعدة
-          </Link>
+          </a>
           <Link
             href='/'
             className='flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:bg-muted'
@@ -111,14 +112,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <p className='text-sm font-bold'>أمن المنصة</p>
               <p className='text-xs text-muted-foreground'>مسؤول النظام</p>
             </div>
-            <ChevronDown className='size-4 text-muted-foreground' />
           </div>
-          <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-3'>
+            <span className='font-heading text-lg font-bold sm:text-xl'>لوحة الإدارة</span>
             <Link href='/admin/notifications' className='relative'>
               <Bell className='size-5 text-primary' />
               <Badge className='absolute -end-2 -top-2 size-4 justify-center rounded-full p-0 text-[10px]'>4</Badge>
             </Link>
-            <span className='hidden font-heading text-xl font-bold md:block'>لوحة الإدارة</span>
           </div>
         </header>
         <main className='mx-auto max-w-7xl p-5 md:p-8'>{children}</main>

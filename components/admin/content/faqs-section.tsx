@@ -186,13 +186,13 @@ export function FaqsSection() {
         prev.map((item) =>
           item.id === editingFaq.id
             ? {
-                ...item,
-                questionAr: validation.data.questionAr,
-                questionEn: validation.data.questionEn,
-                answerAr: validation.data.answerAr,
-                answerEn: validation.data.answerEn,
-                isActive: validation.data.isActive,
-              }
+              ...item,
+              questionAr: validation.data.questionAr,
+              questionEn: validation.data.questionEn,
+              answerAr: validation.data.answerAr,
+              answerEn: validation.data.answerEn,
+              isActive: validation.data.isActive,
+            }
             : item
         )
       )
@@ -219,7 +219,7 @@ export function FaqsSection() {
       <CardHeader className="flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <HelpCircle className="text-primary" />
-          إدارة الأسئلة الشائعة
+          إدارة الأسئلة الشائعة (يمكنك التعديل فقد في اساله الشفافية والتقارير)
         </CardTitle>
 
         {/* Add FAQ Dialog */}

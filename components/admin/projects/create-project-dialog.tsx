@@ -48,7 +48,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const [descriptionAr, setDescriptionAr] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
   const [targetAmount, setTargetAmount] = useState<number | "">("")
-  const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">(0)
+  const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">("")
   const [categoryId, setCategoryId] = useState("water")
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -59,7 +59,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
     setDescriptionAr("")
     setDescriptionEn("")
     setTargetAmount("")
-    setBeneficiariesCount(0)
+    setBeneficiariesCount("")
     setCategoryId("water")
     setStatus("ACTIVE")
     setImageFile(null)
@@ -154,8 +154,8 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-          {/* 1 & 2: Arabic & English Titles */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Top Upper Grid: Titles & Beneficiaries Count */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex flex-col gap-2">
               <Label htmlFor="titleAr">عنوان المشروع (بالعربية) *</Label>
               <Input
@@ -181,9 +181,33 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
               />
               {errors.titleEn && <span className="text-xs text-destructive">{errors.titleEn}</span>}
             </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="beneficiariesCount">عدد المستفيدين المتوقع</Label>
+              <Input
+                id="beneficiariesCount"
+                type="number"
+                value={beneficiariesCount}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setBeneficiariesCount(val === "" ? "" : Number(val))
+                }}
+                onKeyDown={(e) => {
+                  if (["e", "E", "+", "-", "."].includes(e.key)) {
+                    e.preventDefault()
+                  }
+                }}
+                placeholder="100"
+                disabled={isSubmitting}
+                min={1}
+              />
+              {errors.beneficiariesCount && (
+                <span className="text-xs text-destructive">{errors.beneficiariesCount}</span>
+              )}
+            </div>
           </div>
 
-          {/* 3 & 4: Arabic & English Descriptions */}
+          {/* Descriptions */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor="descriptionAr">وصف المشروع (بالعربية) *</Label>
@@ -214,37 +238,27 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
             </div>
           </div>
 
-          {/* 5 & 6: Target Amount & Beneficiaries Count */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="targetAmount">المبلغ المستهدف (ر.س) *</Label>
-              <Input
-                id="targetAmount"
-                type="number"
-                value={targetAmount}
-                onChange={(e) => setTargetAmount(e.target.value ? Number(e.target.value) : "")}
-                placeholder="50000"
-                disabled={isSubmitting}
-                min={1}
-              />
-              {errors.targetAmount && <span className="text-xs text-destructive">{errors.targetAmount}</span>}
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="beneficiariesCount">عدد المستفيدين المتوقع</Label>
-              <Input
-                id="beneficiariesCount"
-                type="number"
-                value={beneficiariesCount}
-                onChange={(e) => setBeneficiariesCount(e.target.value ? Number(e.target.value) : 0)}
-                placeholder="100"
-                disabled={isSubmitting}
-                min={0}
-              />
-              {errors.beneficiariesCount && (
-                <span className="text-xs text-destructive">{errors.beneficiariesCount}</span>
-              )}
-            </div>
+          {/* Target Amount */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="targetAmount">المبلغ المستهدف (ر.س) *</Label>
+            <Input
+              id="targetAmount"
+              type="number"
+              value={targetAmount}
+              onChange={(e) => {
+                const val = e.target.value
+                setTargetAmount(val === "" ? "" : Number(val))
+              }}
+              onKeyDown={(e) => {
+                if (["e", "E", "+", "-", "."].includes(e.key)) {
+                  e.preventDefault()
+                }
+              }}
+              placeholder="50000"
+              disabled={isSubmitting}
+              min={1}
+            />
+            {errors.targetAmount && <span className="text-xs text-destructive">{errors.targetAmount}</span>}
           </div>
 
           {/* 7 & 8: Category & Status */}

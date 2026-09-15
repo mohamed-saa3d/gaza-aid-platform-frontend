@@ -169,8 +169,8 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-          {/* 1 & 2: Arabic & English Titles */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Top Upper Grid: Titles & Beneficiaries Count */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex flex-col gap-2">
               <Label htmlFor={`titleAr-${project.id}`}>عنوان المشروع (بالعربية) *</Label>
               <Input
@@ -196,9 +196,33 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
               />
               {errors.titleEn && <span className="text-xs text-destructive">{errors.titleEn}</span>}
             </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor={`beneficiariesCount-${project.id}`}>عدد المستفيدين المتوقع</Label>
+              <Input
+                id={`beneficiariesCount-${project.id}`}
+                type="number"
+                value={beneficiariesCount}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setBeneficiariesCount(val === "" ? "" : Number(val))
+                }}
+                onKeyDown={(e) => {
+                  if (["e", "E", "+", "-", "."].includes(e.key)) {
+                    e.preventDefault()
+                  }
+                }}
+                placeholder="100"
+                disabled={isSubmitting}
+                min={1}
+              />
+              {errors.beneficiariesCount && (
+                <span className="text-xs text-destructive">{errors.beneficiariesCount}</span>
+              )}
+            </div>
           </div>
 
-          {/* 3 & 4: Arabic & English Descriptions */}
+          {/* Descriptions */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor={`descriptionAr-${project.id}`}>وصف المشروع (بالعربية) *</Label>
@@ -229,37 +253,27 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
             </div>
           </div>
 
-          {/* 5 & 6: Target Amount & Beneficiaries Count */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor={`targetAmount-${project.id}`}>المبلغ المستهدف (ر.س) *</Label>
-              <Input
-                id={`targetAmount-${project.id}`}
-                type="number"
-                value={targetAmount}
-                onChange={(e) => setTargetAmount(e.target.value ? Number(e.target.value) : "")}
-                placeholder="50000"
-                disabled={isSubmitting}
-                min={1}
-              />
-              {errors.targetAmount && <span className="text-xs text-destructive">{errors.targetAmount}</span>}
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor={`beneficiariesCount-${project.id}`}>عدد المستفيدين المتوقع</Label>
-              <Input
-                id={`beneficiariesCount-${project.id}`}
-                type="number"
-                value={beneficiariesCount}
-                onChange={(e) => setBeneficiariesCount(e.target.value ? Number(e.target.value) : 0)}
-                placeholder="100"
-                disabled={isSubmitting}
-                min={0}
-              />
-              {errors.beneficiariesCount && (
-                <span className="text-xs text-destructive">{errors.beneficiariesCount}</span>
-              )}
-            </div>
+          {/* Target Amount */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor={`targetAmount-${project.id}`}>المبلغ المستهدف (ر.س) *</Label>
+            <Input
+              id={`targetAmount-${project.id}`}
+              type="number"
+              value={targetAmount}
+              onChange={(e) => {
+                const val = e.target.value
+                setTargetAmount(val === "" ? "" : Number(val))
+              }}
+              onKeyDown={(e) => {
+                if (["e", "E", "+", "-", "."].includes(e.key)) {
+                  e.preventDefault()
+                }
+              }}
+              placeholder="50000"
+              disabled={isSubmitting}
+              min={1}
+            />
+            {errors.targetAmount && <span className="text-xs text-destructive">{errors.targetAmount}</span>}
           </div>
 
           {/* 7 & 8: Category & Status */}
