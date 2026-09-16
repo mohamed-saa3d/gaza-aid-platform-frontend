@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { newsFormSchema } from "@/lib/validations/admin"
+import { createNewsSchema, newsFormSchema } from "./schema"
 import type { NewsItemData } from "./types"
 
 interface CreateNewsDialogProps {
@@ -88,7 +88,7 @@ export function CreateNewsDialog({ onSuccess, trigger }: CreateNewsDialogProps) 
         descriptionAr: validation.data.descriptionAr,
         descriptionEn: validation.data.descriptionEn,
         detailsUrl: validation.data.detailsUrl || "",
-        isUrgent: validation.data.isUrgent,
+        isUrgent: validation.data.isUrgent ?? false,
         imageUrl: imageFile ? URL.createObjectURL(imageFile) : "/images/news-food-distribution.png",
       }
 

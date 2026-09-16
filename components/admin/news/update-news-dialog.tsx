@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { newsFormSchema } from "@/lib/validations/admin"
+import { newsFormSchema, updateNewsSchema } from "./schema"
 import type { NewsItemData } from "./types"
 
 interface UpdateNewsDialogProps {
@@ -91,7 +91,7 @@ export function UpdateNewsDialog({ item, onSuccess, trigger }: UpdateNewsDialogP
         descriptionAr: validation.data.descriptionAr,
         descriptionEn: validation.data.descriptionEn,
         detailsUrl: validation.data.detailsUrl || "",
-        isUrgent: validation.data.isUrgent,
+        isUrgent: validation.data.isUrgent ?? isUrgent,
         imageUrl: imageFile ? URL.createObjectURL(imageFile) : item.imageUrl,
       }
 

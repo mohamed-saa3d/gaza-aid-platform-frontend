@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select"
 
 import { projectsService } from "@/services/projects.service"
-import { projectFormSchema } from "@/lib/validations/admin"
+import { createProjectSchema, projectFormSchema } from "./schema"
 
 interface CreateProjectDialogProps {
   onSuccess?: () => void

@@ -1,11 +1,6 @@
 import apiClient from "@/lib/api-client"
-import type {
-  Project,
-  ProjectFormData,
-  QueryParams,
-  PaginatedResponse,
-  ApiSuccess,
-} from "@/types/models"
+import type { Project, ProjectFormData } from "@/components/admin/projects/types"
+import type { QueryParams, PaginatedResponse, ApiSuccess } from "@/types/models"
 
 /**
  * Helper to convert ProjectFormData object into a FormData payload

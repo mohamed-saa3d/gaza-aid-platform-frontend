@@ -33,7 +33,8 @@ import {
 } from "@/components/ui/pagination"
 
 import { projectsService } from "@/services/projects.service"
-import type { Project, PaginatedResponse } from "@/types/models"
+import type { Project } from "./types"
+import type { PaginatedResponse } from "@/types/models"
 import { useDebounce } from "@/hooks/use-debounce"
 import { CreateProjectDialog } from "./create-project-dialog"
 import { UpdateProjectDialog } from "./update-project-dialog"
@@ -167,10 +168,12 @@ export function ProjectsSection() {
             </div>
           ) : (
             projects.map((item) => {
-              const targetVal = item.target || 0
-              const fundedVal = item.funded || 0
+              const targetVal = item.targetAmount || item.target || 0
+              const fundedVal = item.collectedAmount || item.funded || 0
               const calcProgress =
-                item.progress ?? (targetVal > 0 ? Math.round((fundedVal / targetVal) * 100) : 0)
+                item.progressPercentage ?? item.progress ?? (targetVal > 0 ? Math.round((fundedVal / targetVal) * 100) : 0)
+              const itemTitle = item.titleAr || item.title || item.titleEn || "مشروع بدون عنوان"
+              const itemImage = item.imgUrl || item.imageUrl || item.image || "/images/placeholder.jpg"
 
               return (
                 <article
@@ -179,8 +182,8 @@ export function ProjectsSection() {
                 >
                   <div className="relative h-24 w-full sm:w-28 flex-shrink-0 overflow-hidden rounded-md bg-muted">
                     <Image
-                      src={item.image || "/images/project-placeholder.png"}
-                      alt={item.title}
+                      src={itemImage}
+                      alt={itemTitle}
                       fill
                       className="object-cover"
                     />
@@ -190,7 +193,7 @@ export function ProjectsSection() {
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <h3 className="font-bold text-sm sm:text-base line-clamp-1">
-                          {item.title}
+                          {itemTitle}
                         </h3>
                         <p className="mt-1 text-xs text-muted-foreground">
                           المستهدف: {targetVal.toLocaleString("ar-SA")} ر.س · تم جمع:{" "}
@@ -202,7 +205,7 @@ export function ProjectsSection() {
                         <UpdateProjectDialog project={item} onSuccess={fetchProjects} />
                         <DeleteProjectDialog
                           projectId={item.id}
-                          projectTitle={item.title}
+                          projectTitle={itemTitle}
                           onSuccess={fetchProjects}
                         />
                       </div>

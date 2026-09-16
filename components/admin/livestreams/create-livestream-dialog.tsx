@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { livestreamFormSchema } from "@/lib/validations/admin"
+import { createLiveStreamSchema, livestreamFormSchema } from "./schema"
 import type { LivestreamItemData } from "./types"
 
 interface CreateLivestreamDialogProps {
@@ -76,7 +76,7 @@ export function CreateLivestreamDialog({ onSuccess, trigger }: CreateLivestreamD
         titleAr: validation.data.titleAr,
         titleEn: validation.data.titleEn,
         youtubeUrl: validation.data.youtubeUrl,
-        isActive: validation.data.isActive,
+        isActive: validation.data.isActive ?? true,
       }
 
       if (onSuccess) {

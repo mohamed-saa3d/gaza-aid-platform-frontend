@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { faqFormSchema } from "@/lib/validations/admin"
+import { faqFormSchema, updateFaqSchema } from "./schema"
 import type { FAQItemData } from "./types"
 
 interface UpdateFaqDialogProps {
@@ -84,7 +84,7 @@ export function UpdateFaqDialog({ faq, onSuccess, trigger }: UpdateFaqDialogProp
         questionEn: validation.data.questionEn,
         answerAr: validation.data.answerAr,
         answerEn: validation.data.answerEn,
-        isActive: validation.data.isActive,
+        isActive: validation.data.isActive ?? isActive,
       }
 
       onSuccess(updatedFaq)

@@ -29,8 +29,8 @@ import {
 } from "@/components/ui/select"
 
 import { projectsService } from "@/services/projects.service"
-import type { Project } from "@/types/models"
-import { projectFormSchema } from "@/lib/validations/admin"
+import type { Project } from "./types"
+import { projectFormSchema, updateProjectSchema } from "./schema"
 
 interface UpdateProjectDialogProps {
   project: Project
@@ -53,14 +53,20 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
   const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">(
     project.beneficiariesCount ?? project.beneficiaries ?? 0
   )
+  const getCategoryId = (cat: typeof project.category, catId?: string) => {
+    if (typeof cat === "string") return cat
+    if (cat && typeof cat === "object" && cat.id) return cat.id
+    return catId || "water"
+  }
+
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">(
-    project.status === "completed" || project.status === "COMPLETED"
+    (project.status as string) === "completed" || project.status === "COMPLETED"
       ? "COMPLETED"
-      : project.status === "paused" || project.status === "PAUSED"
+      : (project.status as string) === "paused" || project.status === "PAUSED"
       ? "PAUSED"
       : "ACTIVE"
   )
-  const [categoryId, setCategoryId] = useState<string>(project.categoryId || project.category || "water")
+  const [categoryId, setCategoryId] = useState<string>(getCategoryId(project.category, project.categoryId))
   const [imageFile, setImageFile] = useState<File | null>(null)
 
   useEffect(() => {
@@ -72,13 +78,13 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       setTargetAmount(project.targetAmount || project.target || "")
       setBeneficiariesCount(project.beneficiariesCount ?? project.beneficiaries ?? 0)
       setStatus(
-        project.status === "completed" || project.status === "COMPLETED"
+        (project.status as string) === "completed" || project.status === "COMPLETED"
           ? "COMPLETED"
-          : project.status === "paused" || project.status === "PAUSED"
+          : (project.status as string) === "paused" || project.status === "PAUSED"
           ? "PAUSED"
           : "ACTIVE"
       )
-      setCategoryId(project.categoryId || project.category || "water")
+      setCategoryId(getCategoryId(project.category, project.categoryId))
       setImageFile(null)
       setErrors({})
     }

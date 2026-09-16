@@ -1,7 +1,33 @@
-// Enums
+// Re-export feature-sliced model types from co-located modules
+export type {
+  Project,
+  ProjectStatus,
+  ProjectCategory,
+  ProjectsListResponse,
+  ProjectFormData,
+} from "@/components/admin/projects/types"
+
+export type {
+  News,
+  NewsListResponse,
+  NewsItemData as NewsItem,
+} from "@/components/admin/news/types"
+
+export type {
+  LiveStream,
+  LiveStreamListResponse,
+  LivestreamItemData as LivestreamItem,
+} from "@/components/admin/livestreams/types"
+
+export type {
+  FAQ,
+  FAQListResponse,
+  FAQItemData,
+} from "@/components/admin/faqs/types"
+
+// Shared Enums & Identifiers
 export type Role = "USER" | "ADMIN" | "SUPER_ADMIN"
 export type AdminRole = "SUPER_ADMIN" | "CONTENT_MANAGER" | "FINANCE_MANAGER"
-export type ProjectStatus = "ACTIVE" | "COMPLETED" | "PAUSED" | "ongoing" | "urgent" | "completed" | "paused"
 export type DonationStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED"
 export type CategoryId = "water" | "food" | "shelter" | "orphans" | "health" | "education" | "other" | string
 
@@ -27,57 +53,6 @@ export interface Admin {
   updatedAt: string
 }
 
-export interface Project {
-  id: string
-  slug: string
-  title: string
-  titleAr?: string
-  titleEn?: string
-  description: string
-  descriptionAr?: string
-  descriptionEn?: string
-  image: string
-  imageUrl?: string
-  category: CategoryId
-  categoryId?: string
-  status: ProjectStatus
-  progress: number
-  funded: number
-  remaining: number
-  target: number
-  targetAmount?: number
-  beneficiaries?: number | null
-  beneficiariesCount?: number | null
-  location?: string | null
-  startDate?: string | null
-  endDate?: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-export interface NewsItem {
-  id: string
-  titleAr: string
-  titleEn: string
-  descriptionAr: string
-  descriptionEn: string
-  detailsUrl?: string
-  isUrgent: boolean
-  imageUrl?: string
-  createdAt?: string
-  updatedAt?: string
-}
-
-export interface LivestreamItem {
-  id: string
-  titleAr: string
-  titleEn: string
-  youtubeUrl: string
-  isActive: boolean
-  createdAt?: string
-  updatedAt?: string
-}
-
 export interface Donation {
   id: string
   amount: number
@@ -86,32 +61,11 @@ export interface Donation {
   donorId?: string | null
   donor?: User | null
   projectId?: string | null
-  project?: Project | null
+  project?: import("@/components/admin/projects/types").Project | null
   paymentMethod: string
   transactionId?: string | null
   createdAt: string
   updatedAt: string
-}
-
-// Form Data Type for Create / Update Forms
-export interface ProjectFormData {
-  slug?: string
-  titleAr: string
-  titleEn: string
-  descriptionAr: string
-  descriptionEn: string
-  categoryId: string
-  status: "ACTIVE" | "COMPLETED" | "PAUSED" | string
-  targetAmount: number
-  beneficiariesCount?: number
-  location?: string
-  imageUrl?: string
-  image?: File | null
-  // Legacy / fallback fields
-  title?: string
-  description?: string
-  target?: number
-  category?: string
 }
 
 // API Response & Query Interfaces
