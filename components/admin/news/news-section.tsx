@@ -11,17 +11,9 @@ import { Input } from "@/components/ui/input"
 import { CreateNewsDialog } from "./create-news-dialog"
 import { UpdateNewsDialog } from "./update-news-dialog"
 import { DeleteNewsDialog } from "./delete-news-dialog"
+import type { NewsItemData } from "./types"
+export type { NewsItemData }
 
-export interface NewsItemData {
-  id: string
-  titleAr: string
-  titleEn: string
-  descriptionAr: string
-  descriptionEn: string
-  detailsUrl?: string
-  isUrgent: boolean
-  imageUrl: string
-}
 
 const initialNewsItems: NewsItemData[] = [
   {

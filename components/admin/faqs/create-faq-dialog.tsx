@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { faqFormSchema } from "@/lib/validations/admin"
-import type { FAQItemData } from "./faqs-section"
+import type { FAQItemData } from "./types"
 
 interface CreateFaqDialogProps {
   onSuccess?: (newItem: FAQItemData) => void

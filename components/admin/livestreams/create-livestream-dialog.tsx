@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { livestreamFormSchema } from "@/lib/validations/admin"
-import type { LivestreamItemData } from "./livestreams-section"
+import type { LivestreamItemData } from "./types"
 
 interface CreateLivestreamDialogProps {
   onSuccess?: (newItem: LivestreamItemData) => void

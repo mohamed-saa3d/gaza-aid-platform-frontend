@@ -11,16 +11,9 @@ import { Badge } from "@/components/ui/badge"
 import { CreateFaqDialog } from "./create-faq-dialog"
 import { UpdateFaqDialog } from "./update-faq-dialog"
 import { DeleteFaqDialog } from "./delete-faq-dialog"
+import type { FAQItemData } from "./types"
+export type { FAQItemData }
 
-export interface FAQItemData {
-  id: string
-  questionAr: string
-  questionEn: string
-  answerAr: string
-  answerEn: string
-  isActive: boolean
-  createdAt?: string
-}
 
 const initialFaqs: FAQItemData[] = [
   {

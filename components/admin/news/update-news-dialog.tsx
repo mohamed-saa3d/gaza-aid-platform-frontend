@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { newsFormSchema } from "@/lib/validations/admin"
-import type { NewsItemData } from "./news-section"
+import type { NewsItemData } from "./types"
 
 interface UpdateNewsDialogProps {
   item: NewsItemData

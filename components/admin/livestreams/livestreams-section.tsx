@@ -10,14 +10,9 @@ import { Input } from "@/components/ui/input"
 import { CreateLivestreamDialog } from "./create-livestream-dialog"
 import { UpdateLivestreamDialog } from "./update-livestream-dialog"
 import { DeleteLivestreamDialog } from "./delete-livestream-dialog"
+import type { LivestreamItemData } from "./types"
+export type { LivestreamItemData }
 
-export interface LivestreamItemData {
-  id: string
-  titleAr: string
-  titleEn: string
-  youtubeUrl: string
-  isActive: boolean
-}
 
 const initialLivestreams: LivestreamItemData[] = [
   {
