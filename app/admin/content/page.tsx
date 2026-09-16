@@ -1,10 +1,10 @@
 import * as React from "react"
 import { CreateProjectDialog } from "@/components/admin/projects/create-project-dialog"
-import { NewsSection } from "@/components/admin/content/news-section"
+import { NewsSection } from "@/components/admin/news/news-section"
 import { ProjectsSection } from "@/components/admin/projects/projects-section"
-import { LivestreamsSection } from "@/components/admin/content/livestreams-section"
-import { FaqsSection } from "@/components/admin/content/faqs-section"
-import { SettingsSection } from "@/components/admin/content/settings-section"
+import { LivestreamsSection } from "@/components/admin/livestreams/livestreams-section"
+import { FaqsSection } from "@/components/admin/faqs/faqs-section"
+import { SettingsSection } from "@/components/admin/settings/settings-section"
 
 export default function ContentPage() {
   return (
