@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { AuthCard } from "@/components/auth/auth-card"
 import { Button } from "@/components/ui/button"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
-import { apiClient } from "@/lib/api/client"
+import { http as apiClient } from "@/lib/http"
 import { useLocale } from "@/components/locale-provider"
 import { otpSchema, type OtpInput } from "@/lib/validations/auth"
 
