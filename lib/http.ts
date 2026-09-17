@@ -22,7 +22,7 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
-// Response Interceptor: 401 Handling & Token Refresh
+// Response Interceptor: Silent Token Refresh & Request Queueing
 let isRefreshing = false
 let failedQueue: Array<{
   resolve: (token: string) => void
@@ -45,7 +45,29 @@ http.interceptors.response.use(
   async (error: AxiosError<{ message?: string; errors?: Array<{ message: string }> }>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest) {
+      const isRefreshRequest = originalRequest.url?.includes("/auth/refresh")
+
+      // Do NOT attempt to refresh if this is the refresh request itself or has already been retried
+      if (isRefreshRequest || originalRequest._retry) {
+        if (typeof window !== "undefined") {
+          const isLoginPage = window.location.pathname.startsWith("/login")
+          localStorage.removeItem("accessToken")
+          delete http.defaults.headers.common["Authorization"]
+
+          if (!isLoginPage) {
+            toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى", {
+              id: "session-expired-toast",
+            })
+            setTimeout(() => {
+              window.location.href = "/login"
+            }, 800)
+          }
+        }
+        return Promise.reject(error)
+      }
+
+      // Queue concurrent requests if refresh is already in flight
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
@@ -75,6 +97,7 @@ http.interceptors.response.use(
           localStorage.setItem("accessToken", newAccessToken)
         }
 
+        http.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         }
@@ -86,6 +109,7 @@ http.interceptors.response.use(
         if (typeof window !== "undefined") {
           const isLoginPage = window.location.pathname.startsWith("/login")
           localStorage.removeItem("accessToken")
+          delete http.defaults.headers.common["Authorization"]
 
           if (!isLoginPage) {
             toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى", {
