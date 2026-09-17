@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { projectsService } from "@/services/projects.service"
+import { createProject } from "./api"
 import { createProjectSchema, projectFormSchema } from "./schema"
 
 interface CreateProjectDialogProps {
@@ -101,21 +101,19 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
 
     try {
       const validData = validationResult.data
-      await projectsService.createProject({
-        titleAr: validData.titleAr,
-        titleEn: validData.titleEn,
-        descriptionAr: validData.descriptionAr,
-        descriptionEn: validData.descriptionEn,
-        targetAmount: validData.targetAmount,
-        beneficiariesCount: validData.beneficiariesCount,
-        status: validData.status,
-        categoryId: validData.categoryId,
-        image: imageFile,
-        // Legacy fallbacks for compatibility
-        title: validData.titleAr,
-        description: validData.descriptionAr,
-        target: validData.targetAmount,
-      })
+      await createProject(
+        {
+          titleAr: validData.titleAr,
+          titleEn: validData.titleEn,
+          descriptionAr: validData.descriptionAr,
+          descriptionEn: validData.descriptionEn,
+          targetAmount: validData.targetAmount,
+          beneficiariesCount: validData.beneficiariesCount,
+          status: validData.status,
+          categoryId: validData.categoryId,
+        },
+        imageFile || undefined
+      )
 
       toast.success("تم إنشاء المشروع بنجاح!")
       resetForm()

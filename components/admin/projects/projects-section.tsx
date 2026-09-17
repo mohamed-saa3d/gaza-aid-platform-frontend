@@ -32,7 +32,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 
-import { projectsService } from "@/services/projects.service"
+import { getProjects } from "./api"
 import type { Project } from "./types"
 import type { PaginatedResponse } from "@/types/models"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -65,11 +65,10 @@ export function ProjectsSection() {
     setError(null)
 
     try {
-      const response = await projectsService.getProjects({
+      const response = await getProjects({
         page,
         limit,
-        search: debouncedSearch.trim() || undefined,
-        category: category !== "all" ? category : undefined,
+        status: category !== "all" ? category : undefined,
       })
       setProjectsData(response)
     } catch (err: unknown) {

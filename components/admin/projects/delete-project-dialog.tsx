@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { projectsService } from "@/services/projects.service"
+import { deleteProject } from "./api"
 
 interface DeleteProjectDialogProps {
   projectId: string
@@ -40,7 +40,7 @@ export function DeleteProjectDialog({
     setIsDeleting(true)
 
     try {
-      await projectsService.deleteProject(projectId)
+      await deleteProject(projectId)
       toast.success(`تم حذف المشروع "${projectTitle}" بنجاح!`)
       setOpen(false)
 

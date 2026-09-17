@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api-client"
+import http from "@/lib/http"
 
-export { apiClient }
-export default apiClient
+export const apiClient = http
+export default http

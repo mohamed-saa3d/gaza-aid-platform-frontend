@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { projectsService } from "@/services/projects.service"
+import { updateProject } from "./api"
 import type { Project } from "./types"
 import { projectFormSchema, updateProjectSchema } from "./schema"
 
@@ -125,20 +125,20 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
 
     try {
       const validData = validationResult.data
-      await projectsService.updateProject(project.id, {
-        titleAr: validData.titleAr,
-        titleEn: validData.titleEn,
-        descriptionAr: validData.descriptionAr,
-        descriptionEn: validData.descriptionEn,
-        targetAmount: validData.targetAmount,
-        beneficiariesCount: validData.beneficiariesCount,
-        status: validData.status,
-        categoryId: validData.categoryId,
-        image: imageFile,
-        title: validData.titleAr,
-        description: validData.descriptionAr,
-        target: validData.targetAmount,
-      })
+      await updateProject(
+        project.id,
+        {
+          titleAr: validData.titleAr,
+          titleEn: validData.titleEn,
+          descriptionAr: validData.descriptionAr,
+          descriptionEn: validData.descriptionEn,
+          targetAmount: validData.targetAmount,
+          beneficiariesCount: validData.beneficiariesCount,
+          status: validData.status,
+          categoryId: validData.categoryId,
+        },
+        imageFile || undefined
+      )
 
       toast.success(`تم تحديث المشروع "${validData.titleAr}" بنجاح!`)
       setOpen(false)
