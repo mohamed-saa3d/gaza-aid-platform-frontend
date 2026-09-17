@@ -3,29 +3,64 @@
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { UserPlus } from "lucide-react"
+import { UserPlus, Loader2 } from "lucide-react"
+import { toast } from "sonner"
+
 import { AuthCard } from "@/components/auth/auth-card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { registerSchema } from "@/lib/validations/auth"
+import { registerSchema, formatRegisterPayload } from "@/lib/validations/auth"
+import { http, getErrorMessage } from "@/lib/http"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [agreed, setAgreed] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    setErrors({})
 
-    const result = registerSchema.safeParse({ name, email, password, agreed })
+    const validation = registerSchema.safeParse({
+      name,
+      email,
+      password,
+      confirmPassword: confirmPassword || password,
+      agreed,
+    })
 
-    if (!result.success) return
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {}
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0]?.toString()
+        if (fieldName && !fieldErrors[fieldName]) {
+          fieldErrors[fieldName] = issue.message
+        }
+      })
+      setErrors(fieldErrors)
+      return
+    }
 
-    router.push(`/verify-otp?email=${encodeURIComponent(result.data.email)}`)
+    setIsSubmitting(true)
+
+    try {
+      const payload = formatRegisterPayload(validation.data)
+      await http.post("/auth/register", payload)
+      toast.success("تم إنشاء الحساب بنجاح! يرجى إدخال رمز التحقق.")
+      router.push(`/verify-otp?email=${encodeURIComponent(validation.data.email)}`)
+    } catch (error: unknown) {
+      const errorMsg = getErrorMessage(error) || "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى"
+      toast.error(errorMsg)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -42,8 +77,8 @@ export default function RegisterPage() {
             onChange={(e) => setName(e.target.value)}
             className="h-10"
           />
+          {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
         </div>
-
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">البريد الإلكتروني</Label>
@@ -56,6 +91,7 @@ export default function RegisterPage() {
             onChange={(e) => setEmail(e.target.value)}
             className="h-10"
           />
+          {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -69,6 +105,21 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="h-10"
           />
+          {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            placeholder="********"
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="h-10"
+          />
+          {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
         </div>
 
         <div className="flex items-start gap-2">
@@ -82,9 +133,14 @@ export default function RegisterPage() {
             أوافق على الشروط والأحكام وسياسة الخصوصية الخاصة بالمؤسسة
           </Label>
         </div>
+        {errors.agreed && <p className="text-xs text-destructive">{errors.agreed}</p>}
 
-        <Button type="submit" disabled={!agreed} className="mt-2 gap-2 rounded-full">
-          <UserPlus className="size-4" data-icon="inline-start" />
+        <Button type="submit" disabled={!agreed || isSubmitting} className="mt-2 gap-2 rounded-full">
+          {isSubmitting ? (
+            <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
+          ) : (
+            <UserPlus className="size-4" data-icon="inline-start" />
+          )}
           إنشاء الحساب
         </Button>
       </form>

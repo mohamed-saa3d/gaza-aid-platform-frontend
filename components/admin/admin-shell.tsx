@@ -1,7 +1,7 @@
-  'use client'
+'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Bell,
   CircleHelp,
@@ -17,21 +17,33 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import { useState } from 'react'
+import { useAuth } from '@/context/auth-context'
 
-const navItems = [
-  { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText },
-  { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper },
-  { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell },
-  { href: '/admin/admins', label: 'إدارة المديرين', icon: Users },
+const allNavItems = [
+  { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText, superAdminOnly: false },
+  { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper, superAdminOnly: false },
+  { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell, superAdminOnly: false },
+  { href: '/admin/admins', label: 'إدارة المديرين', icon: Users, superAdminOnly: true },
 ]
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, role, logout } = useAuth()
   const [sheetOpen, setSheetOpen] = useState(false)
+
+  const isSuperAdmin = role === 'SUPER_ADMIN' || (typeof window !== 'undefined' && localStorage.getItem('userRole') === 'SUPER_ADMIN')
+
+  const visibleNavItems = allNavItems.filter(item => !item.superAdminOnly || isSuperAdmin)
+
+  const handleLogout = () => {
+    logout()
+    router.push('/login')
+  }
 
   const NavList = (
     <>
-      {navItems.map(({ href, label, icon: Icon }) => {
+      {visibleNavItems.map(({ href, label, icon: Icon }) => {
         const active = href === '/admin' ? pathname === href : pathname.startsWith(href)
         return (
           <Link
@@ -77,7 +89,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <p className='font-heading text-lg font-bold text-primary'>للأدمن فقط</p>
-            <p className='text-xs text-muted-foreground'>غير مصرح للجميع</p>
+            <p className='text-xs text-muted-foreground'>
+              {isSuperAdmin ? 'Super Admin' : 'مدير النظام'}
+            </p>
           </div>
         </div>
         <nav aria-label='القائمة الرئيسية' className='flex flex-1 flex-col gap-1 p-4'>
@@ -92,25 +106,29 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           >
             <CircleHelp className='size-5' /> مركز المساعدة
           </a>
-          <Link
-            href='/'
-            className='flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:bg-muted'
+          <button
+            onClick={handleLogout}
+            className='flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-muted-foreground hover:bg-muted text-right'
           >
             <LogOut className='size-5' /> تسجيل الخروج
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* Main content – logical margin‑start */}
+      {/* Main content */}
       <div className='lg:ms-72'>
         <header className='sticky top-0 z-10 flex h-20 items-center justify-between border-b bg-card/95 px-5 backdrop-blur md:px-10'>
           <div className='flex items-center gap-3'>
             <Avatar className='size-10'>
-              <AvatarFallback className='bg-muted text-muted-foreground'>أ</AvatarFallback>
+              <AvatarFallback className='bg-primary/10 text-primary font-bold'>
+                {user?.name ? user.name.slice(0, 1) : 'أ'}
+              </AvatarFallback>
             </Avatar>
             <div className='hidden sm:block'>
-              <p className='text-sm font-bold'>أمن المنصة</p>
-              <p className='text-xs text-muted-foreground'>مسؤول النظام</p>
+              <p className='text-sm font-bold'>{user?.name || 'أمن المنصة'}</p>
+              <p className='text-xs text-muted-foreground'>
+                {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'مسؤول النظام'}
+              </p>
             </div>
           </div>
           <div className='flex items-center gap-3'>

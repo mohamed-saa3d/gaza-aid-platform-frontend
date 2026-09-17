@@ -1,0 +1,28 @@
+import { http, type ApiResponse } from "@/lib/http"
+import type { AdminUser, AdminListResponse } from "./types"
+import type { CreateAdminInput, UpdateAdminInput } from "./schema"
+
+export async function getAdmins(params?: { page?: number; limit?: number }): Promise<AdminListResponse> {
+  const response = await http.get<AdminListResponse>("/admins", { params })
+  return response.data
+}
+
+export async function getAdminById(id: string): Promise<ApiResponse<AdminUser>> {
+  const response = await http.get<ApiResponse<AdminUser>>(`/admins/${id}`)
+  return response.data
+}
+
+export async function createAdmin(data: CreateAdminInput): Promise<ApiResponse<AdminUser>> {
+  const response = await http.post<ApiResponse<AdminUser>>("/admins", data)
+  return response.data
+}
+
+export async function updateAdmin(id: string, data: UpdateAdminInput): Promise<ApiResponse<AdminUser>> {
+  const response = await http.put<ApiResponse<AdminUser>>(`/admins/${id}`, data)
+  return response.data
+}
+
+export async function deleteAdmin(id: string): Promise<ApiResponse<null>> {
+  const response = await http.delete<ApiResponse<null>>(`/admins/${id}`)
+  return response.data
+}
