@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
+import { toast } from "sonner"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
@@ -83,8 +84,13 @@ http.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null)
         if (typeof window !== "undefined") {
+          toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى")
           localStorage.removeItem("accessToken")
-          window.location.href = "/login"
+          setTimeout(() => {
+            if (window.location.pathname.startsWith("/admin")) {
+              window.location.href = "/login"
+            }
+          }, 800)
         }
         return Promise.reject(refreshError)
       } finally {

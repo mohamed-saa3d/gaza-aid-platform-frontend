@@ -31,6 +31,7 @@ import {
 import { updateProject } from "./api"
 import type { Project } from "./types"
 import { projectFormSchema, updateProjectSchema } from "./schema"
+import { getErrorMessage } from "@/lib/http"
 
 interface UpdateProjectDialogProps {
   project: Project
@@ -149,8 +150,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
         router.refresh()
       }
     } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ message?: string }>
-      const errorMsg = axiosError?.response?.data?.message || axiosError?.message || "فشل في تحديث المشروع"
+      const errorMsg = getErrorMessage(error) || "فشل في تحديث المشروع"
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)

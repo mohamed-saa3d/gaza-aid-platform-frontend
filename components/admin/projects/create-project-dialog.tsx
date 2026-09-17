@@ -30,6 +30,7 @@ import {
 
 import { createProject } from "./api"
 import { createProjectSchema, projectFormSchema } from "./schema"
+import { getErrorMessage } from "@/lib/http"
 
 interface CreateProjectDialogProps {
   onSuccess?: () => void
@@ -125,8 +126,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
         router.refresh()
       }
     } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ message?: string }>
-      const errorMsg = axiosError?.response?.data?.message || axiosError?.message || "فشل في إنشاء المشروع"
+      const errorMsg = getErrorMessage(error) || "فشل في إنشاء المشروع"
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)

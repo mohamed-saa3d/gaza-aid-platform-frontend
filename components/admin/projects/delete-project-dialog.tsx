@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { deleteProject } from "./api"
+import { getErrorMessage } from "@/lib/http"
 
 interface DeleteProjectDialogProps {
   projectId: string
@@ -51,9 +52,7 @@ export function DeleteProjectDialog({
         router.refresh()
       }
     } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ message?: string }>
-      const errorMsg =
-        axiosError?.response?.data?.message || axiosError?.message || "فشل في حذف المشروع"
+      const errorMsg = getErrorMessage(error) || "فشل في حذف المشروع"
       toast.error(errorMsg)
     } finally {
       setIsDeleting(false)
