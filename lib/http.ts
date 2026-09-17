@@ -99,7 +99,7 @@ http.interceptors.response.use(
 
         http.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`
         if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`
         }
 
         processQueue(null, newAccessToken)
