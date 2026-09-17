@@ -84,13 +84,17 @@ http.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null)
         if (typeof window !== "undefined") {
-          toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى")
+          const isLoginPage = window.location.pathname.startsWith("/login")
           localStorage.removeItem("accessToken")
-          setTimeout(() => {
-            if (window.location.pathname.startsWith("/admin")) {
+
+          if (!isLoginPage) {
+            toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى", {
+              id: "session-expired-toast",
+            })
+            setTimeout(() => {
               window.location.href = "/login"
-            }
-          }, 800)
+            }, 800)
+          }
         }
         return Promise.reject(refreshError)
       } finally {
