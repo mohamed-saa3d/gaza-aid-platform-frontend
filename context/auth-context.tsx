@@ -66,6 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProfile = useCallback(async () => {
     if (typeof window === "undefined") return
     const storedToken = localStorage.getItem("accessToken")
+    const publicPages = ["/login", "/register", "/verify-otp", "/verify-email", "/forgot-password", "/reset-password"]
+    const isPublicPage = publicPages.some((path) => window.location.pathname.startsWith(path))
+
     if (!storedToken) {
       setIsLoading(false)
       return
@@ -81,13 +84,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("userRole", profile.role)
       }
     } catch (err) {
-      // If profile fetch fails, attempt to restore basic session from stored role if token exists
-      const storedRole = (localStorage.getItem("userRole") as UserRole) || "USER"
-      setUser((prev) => prev || { id: "me", name: "User", email: "", role: storedRole })
+      if (isPublicPage) {
+        logout()
+      } else {
+        const storedRole = (localStorage.getItem("userRole") as UserRole) || "USER"
+        setUser((prev) => prev || { id: "me", name: "User", email: "", role: storedRole })
+      }
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [logout])
 
   useEffect(() => {
     refreshProfile()

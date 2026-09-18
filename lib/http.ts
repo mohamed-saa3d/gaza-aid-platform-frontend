@@ -40,12 +40,47 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = []
 }
 
+const PUBLIC_ROUTES = [
+  "/login",
+  "/register",
+  "/verify-otp",
+  "/verify-email",
+  "/forgot-password",
+  "/reset-password",
+]
+
 http.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<{ message?: string; errors?: Array<{ message: string }> }>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+    const requestUrl = originalRequest?.url || ""
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    const isAuthEndpoint =
+      requestUrl.includes("/auth/refresh") ||
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/verify-email") ||
+      requestUrl.includes("/auth/resend-otp") ||
+      requestUrl.includes("/auth/forgot-password") ||
+      requestUrl.includes("/auth/reset-password")
+
+    const isPublicPage =
+      typeof window !== "undefined" &&
+      PUBLIC_ROUTES.some((path) => window.location.pathname.startsWith(path))
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
+      const storedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
+
+      // Do NOT attempt refresh on public pages if no stored token exists
+      if (isPublicPage && !storedToken) {
+        return Promise.reject(error)
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
@@ -84,10 +119,9 @@ http.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null)
         if (typeof window !== "undefined") {
-          const isLoginPage = window.location.pathname.startsWith("/login")
           localStorage.removeItem("accessToken")
 
-          if (!isLoginPage) {
+          if (!isPublicPage) {
             toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى", {
               id: "session-expired-toast",
             })
