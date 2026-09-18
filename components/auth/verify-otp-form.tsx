@@ -1,16 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ShieldCheck, Loader2 } from "lucide-react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 
 import { AuthCard } from "@/components/auth/auth-card"
 import { Button } from "@/components/ui/button"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
-import { http as apiClient } from "@/lib/http"
+import { http as apiClient, getErrorMessage } from "@/lib/http"
 import { useLocale } from "@/components/locale-provider"
 import { otpSchema, type OtpInput } from "@/lib/validations/auth"
 
@@ -27,6 +28,19 @@ export function VerifyOtpForm() {
   const [apiError, setApiError] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
   const [resendStatus, setResendStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  
+  // Cooldown timer state: starts automatically at 60s upon landing
+  const [cooldown, setCooldown] = useState(60)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [cooldown])
 
   const {
     control,
@@ -48,29 +62,39 @@ export function VerifyOtpForm() {
     setResendStatus(null)
     try {
       await apiClient.post("/auth/verify-email", data)
+      toast.success(isAr ? "تم تمحيص وتأكيد حسابك بنجاح!" : "Account verified successfully!")
       router.push("/profile")
     } catch (err: any) {
       // Clear OTP input for immediate error recovery and re-entry
       setValue("code", "")
-      setApiError(
-        err.response?.data?.message ||
-          (isAr
-            ? "حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى."
-            : "An error occurred during verification. Please try again.")
-      )
+      const msg =
+        getErrorMessage(err) ||
+        (isAr
+          ? "حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى."
+          : "An error occurred during verification. Please try again.")
+      setApiError(msg)
+      toast.error(msg)
     }
   }
 
   async function handleResend() {
+    if (cooldown > 0) {
+      toast.error(
+        isAr
+          ? "يرجى الانتظار حتى انتهاء العداد قبل طلب رمز جديد"
+          : "Please wait for the timer to finish before requesting a new code"
+      )
+      return
+    }
+
     const payload = emailParam ? { email: emailParam } : phoneParam ? { phone: phoneParam } : null
 
     if (!payload) {
-      setResendStatus({
-        type: "error",
-        message: isAr
-          ? "معلومات التواصل مفقودة. يرجى العودة للتسجيل."
-          : "Contact information is missing. Please return to registration.",
-      })
+      const errorMsg = isAr
+        ? "معلومات التواصل مفقودة. يرجى العودة للتسجيل."
+        : "Contact information is missing. Please return to registration."
+      setResendStatus({ type: "error", message: errorMsg })
+      toast.error(errorMsg)
       return
     }
 
@@ -79,17 +103,23 @@ export function VerifyOtpForm() {
 
     try {
       await apiClient.post("/auth/resend-otp", payload)
-      setResendStatus({
-        type: "success",
-        message: isAr ? "تم إعادة إرسال رمز التحقق بنجاح." : "Verification code resent successfully.",
-      })
+      const successMsg = isAr ? "تم إعادة إرسال رمز التحقق بنجاح." : "Verification code resent successfully."
+      setResendStatus({ type: "success", message: successMsg })
+      toast.success(successMsg)
+      setCooldown(60)
     } catch (err: any) {
-      setResendStatus({
-        type: "error",
-        message:
-          err.response?.data?.message ||
-          (isAr ? "فشل إعادة إرسال الرمز. حاول مرة أخرى." : "Failed to resend verification code. Try again."),
-      })
+      let errorMsg = ""
+      if (err.response?.status === 429) {
+        errorMsg = isAr
+          ? "لقد تجاوزت عدد المحاولات المسموح بها، يرجى الانتظار قليلاً."
+          : "Too many attempts. Please try again later."
+      } else {
+        errorMsg =
+          getErrorMessage(err) ||
+          (isAr ? "فشل إعادة إرسال الرمز. حاول مرة أخرى." : "Failed to resend verification code. Try again.")
+      }
+      setResendStatus({ type: "error", message: errorMsg })
+      toast.error(errorMsg)
     } finally {
       setIsResending(false)
     }
@@ -165,11 +195,17 @@ export function VerifyOtpForm() {
           <button
             type="button"
             onClick={handleResend}
-            disabled={isResending || !identifier}
+            disabled={isResending || cooldown > 0 || !identifier}
             className="inline-flex items-center gap-1 font-semibold text-primary hover:underline disabled:opacity-50"
           >
             {isResending && <Loader2 className="size-3 animate-spin" />}
-            {isAr ? "إعادة الإرسال" : "Resend"}
+            {cooldown > 0
+              ? isAr
+                ? `إعادة إرسال الرمز خلال (${cooldown}ث)`
+                : `Resend code in (${cooldown}s)`
+              : isAr
+              ? "إعادة إرسال الرمز"
+              : "Resend"}
           </button>
         </p>
 
