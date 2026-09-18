@@ -49,8 +49,8 @@ export default function ResetPasswordPage() {
 
     try {
       await http.post("/auth/reset-password", {
-        token: validation.data.token,
-        password: validation.data.password,
+        otp: validation.data.token,
+        newPassword: validation.data.password,
       })
       toast.success("تم إعادة تعيين كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.")
       router.push("/login")
