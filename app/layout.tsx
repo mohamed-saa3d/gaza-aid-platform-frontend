@@ -51,6 +51,8 @@ export const viewport: Viewport = {
   ],
 }
 
+import { Toaster } from 'sonner'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,6 +73,7 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <SiteFooter />
             </div>
+            <Toaster position="top-right" richColors closeButton />
           </AuthProvider>
         </LocaleProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

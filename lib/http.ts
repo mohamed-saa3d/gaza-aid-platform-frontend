@@ -57,7 +57,7 @@ const PUBLIC_ROUTES = [
 
 http.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError<{ message?: string; errors?: Array<{ message: string }> }>) => {
+  async (error: AxiosError<{ message?: string; errors?: Array<{ field?: string; message: string }> }>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = originalRequest?.url || ""
 
@@ -74,15 +74,32 @@ http.interceptors.response.use(
       typeof window !== "undefined" &&
       PUBLIC_ROUTES.some((path) => window.location.pathname.startsWith(path))
 
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      !isAuthEndpoint
-    ) {
+    // 1. Client & Network Failures (No response received)
+    if (!error.response) {
+      if (typeof window !== "undefined" && !window.navigator.onLine) {
+        toast.error("لا يوجد اتصال بالإنترنت، يرجى التحقق من الشبكة", {
+          id: "offline-error",
+        })
+      } else if (error.code === "ECONNABORTED") {
+        toast.error("انتهت مهلة الاتصال بالسيرفر، يرجى المحاولة لاحقاً", {
+          id: "timeout-error",
+        })
+      } else {
+        toast.error("تعذر الاتصال بالسيرفر، تأكد من تشغيل الباك إند", {
+          id: "network-error",
+        })
+      }
+      return Promise.reject(error)
+    }
+
+    // 2. Server Response Error Handling
+    const status = error.response.status
+    const responseData = error.response.data
+
+    // 401 Unauthorized Handling & Token Refresh
+    if (status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
       const storedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
 
-      // Do NOT attempt refresh on public pages if no stored token exists
       if (isPublicPage && !storedToken) {
         return Promise.reject(error)
       }
@@ -128,7 +145,7 @@ http.interceptors.response.use(
           localStorage.removeItem("accessToken")
 
           if (!isPublicPage) {
-            toast.error("انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى", {
+            toast.error("جلسة العمل انتهت، يرجى إعادة التسجيل", {
               id: "session-expired-toast",
             })
             setTimeout(() => {
@@ -140,6 +157,21 @@ http.interceptors.response.use(
       } finally {
         isRefreshing = false
       }
+    }
+
+    // Handle standard status-based toasts
+    if (status === 429) {
+      toast.warning(responseData?.message || "تجاوزت عدد المحاولات المسموح بها، يرجى الانتظار", {
+        id: "rate-limit-warning",
+      })
+    } else if (status === 400) {
+      toast.error(responseData?.message || "يرجى مراجعة البيانات المدخلة", {
+        id: "validation-error",
+      })
+    } else if (status === 403 || status === 404 || status === 409 || status >= 500) {
+      toast.error(responseData?.message || "حدث خطأ غير متوقع", {
+        id: `http-error-${status}`,
+      })
     }
 
     return Promise.reject(error)
@@ -173,6 +205,27 @@ export function getErrorMessage(error: unknown): string {
     return error.message
   }
   return "An unexpected error occurred"
+}
+
+/**
+ * Helper to extract field-specific validation errors from backend responses
+ */
+export function extractFieldErrors(error: unknown): Record<string, string> {
+  const fieldErrors: Record<string, string> = {}
+  if (axios.isAxiosError(error) && error.response?.data) {
+    const data = error.response.data as {
+      errors?: Array<{ field?: string; path?: string[]; message: string }>
+    }
+    if (data.errors && Array.isArray(data.errors)) {
+      data.errors.forEach((err) => {
+        const key = err.field || (err.path && err.path[0]?.toString())
+        if (key && !fieldErrors[key]) {
+          fieldErrors[key] = err.message
+        }
+      })
+    }
+  }
+  return fieldErrors
 }
 
 export default http

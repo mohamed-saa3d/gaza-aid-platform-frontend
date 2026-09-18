@@ -10,7 +10,7 @@ import { AuthCard } from "@/components/auth/auth-card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { http, getErrorMessage } from "@/lib/http"
+import { http, getErrorMessage, extractFieldErrors } from "@/lib/http"
 import { loginSchema } from "@/lib/validations/auth"
 import { useAuth, type UserProfile } from "@/context/auth-context"
 
@@ -67,8 +67,13 @@ export default function LoginPage() {
         router.push("/profile")
       }
     } catch (error: unknown) {
-      const errorMsg = getErrorMessage(error) || "فشل تسجيل الدخول، يرجى التأكد من البيانات"
-      toast.error(errorMsg)
+      const fieldErrs = extractFieldErrors(error)
+      if (Object.keys(fieldErrs).length > 0) {
+        setErrors(fieldErrs)
+      } else {
+        const errorMsg = getErrorMessage(error) || "فشل تسجيل الدخول، يرجى التأكد من البيانات"
+        toast.error(errorMsg)
+      }
     } finally {
       setIsSubmitting(false)
     }

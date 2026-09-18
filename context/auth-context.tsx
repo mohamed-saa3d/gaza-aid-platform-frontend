@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setToken(storedToken)
       setAuthCookie(storedToken)
-      const res = await http.get<{ data?: UserProfile; user?: UserProfile }>("/auth/me")
+      const res = await http.get<{ data?: UserProfile; user?: UserProfile }>("/users/profile")
       const profile = res.data.data || res.data.user || (res.data as unknown as UserProfile)
       if (profile && profile.role) {
         setUser(profile)

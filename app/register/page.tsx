@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { registerSchema, formatRegisterPayload } from "@/lib/validations/auth"
-import { http, getErrorMessage } from "@/lib/http"
+import { http, getErrorMessage, extractFieldErrors } from "@/lib/http"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -56,8 +56,13 @@ export default function RegisterPage() {
       toast.success("تم إنشاء الحساب بنجاح! يرجى إدخال رمز التحقق.")
       router.push(`/verify-otp?email=${encodeURIComponent(validation.data.email)}`)
     } catch (error: unknown) {
-      const errorMsg = getErrorMessage(error) || "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى"
-      toast.error(errorMsg)
+      const fieldErrs = extractFieldErrors(error)
+      if (Object.keys(fieldErrs).length > 0) {
+        setErrors(fieldErrs)
+      } else {
+        const errorMsg = getErrorMessage(error) || "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى"
+        toast.error(errorMsg)
+      }
     } finally {
       setIsSubmitting(false)
     }
