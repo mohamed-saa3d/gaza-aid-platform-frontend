@@ -19,6 +19,12 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       config.headers.Authorization = `Bearer ${token}`
     }
   }
+
+  if (process.env.NODE_ENV !== "production") {
+    const fullUrl = `${config.baseURL || ""}${config.url || ""}`
+    console.log(`[HTTP Request] ${config.method?.toUpperCase()} -> ${fullUrl}`)
+  }
+
   return config
 })
 
