@@ -1,13 +1,35 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
-import { projects } from "@/lib/mock-data"
+import { ChevronLeft, Loader2 } from "lucide-react"
 import { DonationWaysCard } from "@/components/home/donation-ways-card"
 import { FeaturedProjectCarousel } from "@/components/home/featured-project-carousel"
 import { PlatformRatingCard } from "@/components/home/platform-rating-card"
 import { ProjectCard } from "@/components/project-card"
+import { getProjects } from "@/components/admin/projects/api"
+import type { Project } from "@/components/admin/projects/types"
 
 export function LifeSavingProjects() {
-  const featured = projects.slice(2, 5)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await getProjects({ limit: 6 })
+        const data = Array.isArray(res?.data) ? res.data : []
+        setProjects(data)
+      } catch (err) {
+        console.error("Failed to load home projects", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
+
+  const featured = projects.slice(0, 3)
   const secondary = projects.slice(3, 6)
 
   return (
@@ -23,19 +45,29 @@ export function LifeSavingProjects() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
-        <DonationWaysCard />
-        <FeaturedProjectCarousel projects={featured} />
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-        <PlatformRatingCard />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {secondary.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="animate-spin text-primary size-8" />
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
+            <DonationWaysCard />
+            <FeaturedProjectCarousel projects={featured} />
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
+            <PlatformRatingCard />
+            {secondary.length > 0 && (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {secondary.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </section>
   )
 }

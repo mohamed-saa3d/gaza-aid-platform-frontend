@@ -18,7 +18,12 @@ export const useNews = () => {
     const fetchNews = async () => {
       try {
         const response = await getNews();
-        const fetched = (response as any).news || response;
+        // Ensure we get an array of news items regardless of API shape
+        const fetched = Array.isArray((response as any).news)
+          ? (response as any).news
+          : Array.isArray((response as any).data)
+          ? (response as any).data
+          : [];
         setNews(fetched);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unexpected error");

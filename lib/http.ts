@@ -10,6 +10,13 @@ export const http = axios.create({
     "Content-Type": "application/json",
   },
 })
+// Set default Authorization header synchronously if token is available (client side)
+if (typeof window !== "undefined") {
+  const token = localStorage.getItem("accessToken")
+  if (token) {
+    http.defaults.headers.common["Authorization"] = `Bearer ${token}`
+  }
+}
 
 // Request Interceptor: Attach Access Token
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -169,9 +176,12 @@ http.interceptors.response.use(
         id: "validation-error",
       })
     } else if (status === 403 || status === 404 || status === 409 || status >= 500) {
-      toast.error(responseData?.message || "حدث خطأ غير متوقع", {
-        id: `http-error-${status}`,
-      })
+      const isSilentProfileError = requestUrl.includes("/users/profile") && (status === 401 || status === 403);
+      if (!isSilentProfileError) {
+        toast.error(responseData?.message || "حدث خطأ غير متوقع", {
+          id: `http-error-${status}`,
+        })
+      }
     }
 
     return Promise.reject(error)

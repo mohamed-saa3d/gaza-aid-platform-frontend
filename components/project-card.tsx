@@ -7,7 +7,7 @@ import { Share2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ProjectProgress } from "@/components/project-progress"
-import type { Project } from "@/lib/mock-data"
+import type { Project } from "@/components/admin/projects/types"
 
 export function ProjectCard({ project }: { project: Project }) {
   const [copied, setCopied] = useState(false)
@@ -22,7 +22,7 @@ export function ProjectCard({ project }: { project: Project }) {
   const handleShare = async () => {
     if (typeof window === "undefined") return
 
-    const shareUrl = `${window.location.origin}/projects/${project.slug}`
+    const shareUrl = `${window.location.origin}/projects/${project.id}`
 
     try {
       if (typeof navigator === "undefined" || !navigator.clipboard) {
@@ -37,28 +37,37 @@ export function ProjectCard({ project }: { project: Project }) {
     }
   }
 
+  const title = project.titleAr || project.titleEn || ""
+  const description = project.descriptionAr || project.descriptionEn || ""
+  const image = project.imgUrl || project.imageUrl || project.image || "/placeholder.svg"
+  
+  const target = project.targetAmount || 0
+  const collected = project.collectedAmount || 0
+  const progress = target > 0 ? Math.min((collected / target) * 100, 100) : 0
+  const remaining = Math.max(target - collected, 0)
+
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
       <div className="relative aspect-[16/10] overflow-hidden">
         <Image
-          src={project.image || "/placeholder.svg"}
-          alt={project.title}
+          src={image}
+          alt={title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <Badge
           className="absolute end-3 top-3"
-          variant={project.status === "urgent" ? "destructive" : "secondary"}
+          variant={project.status === "ACTIVE" ? "secondary" : "default"}
         >
-          {project.status === "urgent" ? "إغاثة عاجلة" : "مستمر"}
+          {project.status === "ACTIVE" ? "مستمر" : project.status === "PAUSED" ? "متوقف" : "مكتمل"}
         </Badge>
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <h3 className="font-heading text-lg font-bold text-foreground">{project.title}</h3>
-        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
+        <h3 className="font-heading text-lg font-bold text-foreground">{title}</h3>
+        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
 
-        <ProjectProgress progress={project.progress} funded={project.funded} remaining={project.remaining} />
+        <ProjectProgress progress={progress} funded={collected} remaining={remaining} />
 
         <div className="mt-1 flex items-center gap-2">
           <div className="relative">
@@ -79,7 +88,7 @@ export function ProjectCard({ project }: { project: Project }) {
             )}
           </div>
           <Button asChild className="flex-1 rounded-full">
-            <Link href={`/donate?project=${project.slug}`}>ساهم الآن</Link>
+            <Link href={`/donate?project=${project.id}`}>ساهم الآن</Link>
           </Button>
         </div>
       </div>

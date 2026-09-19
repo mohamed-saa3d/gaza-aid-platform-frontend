@@ -84,12 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("userRole", profile.role)
       }
     } catch (err) {
-      if (isPublicPage) {
-        logout()
-      } else {
-        const storedRole = (localStorage.getItem("userRole") as UserRole) || "USER"
-        setUser((prev) => prev || { id: "me", name: "User", email: "", role: storedRole })
-      }
+      logout()
     } finally {
       setIsLoading(false)
     }
