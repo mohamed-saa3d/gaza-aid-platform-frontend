@@ -39,6 +39,9 @@ export function CategoryTable({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null)
 
+  // Defensive guard – ensure we always iterate over an array
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
   return (
     <>
       <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
@@ -59,14 +62,14 @@ export function CategoryTable({
                   جاري تحميل قائمة الفئات...
                 </TableCell>
               </TableRow>
-            ) : categories.length === 0 ? (
+            ) : safeCategories.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                   لا توجد فئات حالياً.
                 </TableCell>
               </TableRow>
             ) : (
-              categories.map((category) => (
+              safeCategories.map((category) => (
                 <TableRow key={category.id} className="h-16">
                   <TableCell className="font-medium text-right">
                     {category.nameAr}

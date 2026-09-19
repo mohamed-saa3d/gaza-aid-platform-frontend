@@ -14,8 +14,11 @@ export function useCategories() {
     setLoading(true)
     try {
       const res = await getCategories({ page, limit, search })
-      setCategories(res.data)
-      setMeta(res.meta)
+      const rawData: any = res
+      const categoriesList = Array.isArray(rawData?.data) ? rawData.data : []
+      const paginationMeta = rawData?.meta || { total: 0, page: 1, limit: 10, totalPages: 0 }
+      setCategories(categoriesList)
+      setMeta(paginationMeta)
     } catch (err) {
       toast.error('فشل في تحميل الفئات')
     } finally {

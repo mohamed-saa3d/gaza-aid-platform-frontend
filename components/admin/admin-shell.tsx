@@ -11,6 +11,7 @@ import {
   Newspaper,
   Users,
   Menu,
+  Tags,
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +22,7 @@ import { useAuth } from '@/context/auth-context'
 
 const allNavItems = [
   { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText, superAdminOnly: false },
+  { href: '/admin/categories', label: 'إدارة الفئات', icon: Tags, superAdminOnly: false },
   { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper, superAdminOnly: false },
   { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell, superAdminOnly: false },
   { href: '/admin/admins', label: 'إدارة المديرين', icon: Users, superAdminOnly: true },
