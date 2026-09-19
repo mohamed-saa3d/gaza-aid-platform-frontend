@@ -7,10 +7,11 @@ export function middleware(request: NextRequest) {
   // Only protect /admin routes
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get("accessToken")?.value
+    const refreshToken = request.cookies.get("refreshToken")?.value
     const userRole = request.cookies.get("userRole")?.value
 
     // 1. Unauthenticated users -> Redirect to /login
-    if (!token) {
+    if (!token && !refreshToken) {
       const loginUrl = new URL("/login", request.url)
       loginUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(loginUrl)

@@ -69,14 +69,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const publicPages = ["/login", "/register", "/verify-otp", "/verify-email", "/forgot-password", "/reset-password"]
     const isPublicPage = publicPages.some((path) => window.location.pathname.startsWith(path))
 
-    if (!storedToken) {
+    const storedRole = localStorage.getItem("userRole")
+    const isProtectedRoute = window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/profile")
+
+    if (!storedToken && !isProtectedRoute && !storedRole) {
       setIsLoading(false)
       return
     }
 
     try {
-      setToken(storedToken)
-      setAuthCookie(storedToken)
+      if (storedToken) {
+        setToken(storedToken)
+        setAuthCookie(storedToken)
+      }
       const res = await http.get<{ data?: UserProfile; user?: UserProfile }>("/users/profile")
       const profile = res.data.data || res.data.user || (res.data as unknown as UserProfile)
       if (profile && profile.role) {

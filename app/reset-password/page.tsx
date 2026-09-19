@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { Suspense, useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { LockKeyhole, Loader2 } from "lucide-react"
@@ -14,6 +14,23 @@ import { resetPasswordSchema } from "@/lib/validations/auth"
 import { http, getErrorMessage } from "@/lib/http"
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthCard title="إعادة تعيين كلمة المرور" description="جاري تجهيز رابط إعادة التعيين...">
+          <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" />
+            جاري التحميل...
+          </div>
+        </AuthCard>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
+  )
+}
+
+function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tokenParam = searchParams.get("token") || ""

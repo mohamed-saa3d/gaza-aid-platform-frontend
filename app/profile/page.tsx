@@ -1,4 +1,6 @@
-import { Home, ChevronLeft } from "lucide-react"
+"use client"
+
+import { Home, ChevronLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { NotificationsCard } from "@/components/profile/notifications-card"
@@ -8,8 +10,27 @@ import { DonationHistoryList } from "@/components/profile/donation-history-list"
 import { MyProjectsGrid } from "@/components/profile/my-projects-grid"
 import { SecurityCard } from "@/components/profile/security-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/context/auth-context"
+import { GuestProfilePrompt } from "@/components/profile/guest-profile-prompt"
 
 export default function ProfilePage() {
+  const { isAuthenticated, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <main className="mx-auto flex min-h-[420px] max-w-7xl items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm">
+          <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" />
+          جاري تحميل الملف الشخصي...
+        </div>
+      </main>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return <GuestProfilePrompt />
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">

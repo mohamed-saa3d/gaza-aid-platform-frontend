@@ -17,8 +17,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/auth-context'
+import { Loader2 } from 'lucide-react'
 
 const allNavItems = [
   { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText, superAdminOnly: false },
@@ -31,8 +32,14 @@ const allNavItems = [
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, role, logout } = useAuth()
+  const { user, role, logout, isAuthenticated, isLoading } = useAuth()
   const [sheetOpen, setSheetOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login?callbackUrl=' + encodeURIComponent(pathname))
+    }
+  }, [isLoading, isAuthenticated, router, pathname])
 
   const isSuperAdmin = role === 'SUPER_ADMIN' || (typeof window !== 'undefined' && localStorage.getItem('userRole') === 'SUPER_ADMIN')
 
@@ -41,6 +48,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const handleLogout = () => {
     logout()
     router.push('/login')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/50">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null
   }
 
   const NavList = (
