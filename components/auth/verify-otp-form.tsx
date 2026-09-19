@@ -28,7 +28,7 @@ export function VerifyOtpForm() {
   const [apiError, setApiError] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
   const [resendStatus, setResendStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
-  
+
   // Cooldown timer state: starts automatically at 60s upon landing
   const [cooldown, setCooldown] = useState(60)
 
@@ -61,8 +61,11 @@ export function VerifyOtpForm() {
     setApiError(null)
     setResendStatus(null)
     try {
-      await apiClient.post("/auth/verify-email", data)
-      toast.success(isAr ? "تم تمحيص وتأكيد حسابك بنجاح!" : "Account verified successfully!")
+      await apiClient.post("/auth/verify-email", {
+        email: emailParam,
+        otp: data.code,
+      })
+      toast.success(isAr ? "تم تأكيد الحساب وإنشاؤه بنجاح" : "Account verified and created successfully!")
       router.push("/profile")
     } catch (err: any) {
       // Clear OTP input for immediate error recovery and re-entry
@@ -134,8 +137,8 @@ export function VerifyOtpForm() {
             ? `أدخل رمز التحقق المرسل إلى ${identifier}`
             : `Enter the verification code sent to ${identifier}`
           : isAr
-          ? "أدخل رمز التحقق المرسل إلى بريدك/هاتفك"
-          : "Enter the verification code sent to your email/phone"
+            ? "أدخل رمز التحقق المرسل إلى بريدك/هاتفك"
+            : "Enter the verification code sent to your email/phone"
       }
     >
       <form className="flex flex-col items-center gap-6" onSubmit={handleSubmit(onSubmit)}>
@@ -144,7 +147,7 @@ export function VerifyOtpForm() {
           control={control}
           render={({ field }) => (
             <InputOTP
-              maxLength={4}
+              maxLength={6}
               value={field.value}
               onChange={field.onChange}
               containerClassName="justify-center"
@@ -154,6 +157,8 @@ export function VerifyOtpForm() {
                 <InputOTPSlot index={1} className="size-12 text-lg" />
                 <InputOTPSlot index={2} className="size-12 text-lg" />
                 <InputOTPSlot index={3} className="size-12 text-lg" />
+                <InputOTPSlot index={4} className="size-12 text-lg" />
+                <InputOTPSlot index={5} className="size-12 text-lg" />
               </InputOTPGroup>
             </InputOTP>
           )}
@@ -177,7 +182,7 @@ export function VerifyOtpForm() {
 
         <Button
           type="submit"
-          disabled={codeValue.length < 4 || isSubmitting}
+          disabled={codeValue.length < 6 || isSubmitting}
           className="w-full gap-2 rounded-full"
         >
           {isSubmitting ? (
@@ -204,18 +209,17 @@ export function VerifyOtpForm() {
                 ? `إعادة إرسال الرمز خلال (${cooldown}ث)`
                 : `Resend code in (${cooldown}s)`
               : isAr
-              ? "إعادة إرسال الرمز"
-              : "Resend"}
+                ? "إعادة إرسال الرمز"
+                : "Resend"}
           </button>
         </p>
 
         {resendStatus && (
           <p
-            className={`text-center text-sm font-medium ${
-              resendStatus.type === "success"
+            className={`text-center text-sm font-medium ${resendStatus.type === "success"
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-destructive"
-            }`}
+              }`}
           >
             {resendStatus.message}
           </p>

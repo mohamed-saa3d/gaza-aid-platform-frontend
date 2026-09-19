@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { AxiosError } from "axios"
@@ -30,7 +30,7 @@ import {
 
 import { createProject } from "./api"
 import { createProjectSchema, projectFormSchema } from "./schema"
-import { getErrorMessage } from "@/lib/http"
+import { http, getErrorMessage } from "@/lib/http"
 
 interface CreateProjectDialogProps {
   onSuccess?: () => void
@@ -50,9 +50,30 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const [descriptionEn, setDescriptionEn] = useState("")
   const [targetAmount, setTargetAmount] = useState<number | "">("")
   const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">("")
-  const [categoryId, setCategoryId] = useState("water")
+  const [categoryId, setCategoryId] = useState("")
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
   const [imageFile, setImageFile] = useState<File | null>(null)
+
+  const [categories, setCategories] = useState<{ id: string; nameAr?: string; nameEn?: string; name?: string }[]>([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+
+  useEffect(() => {
+    async function fetchCategories() {
+      setIsLoadingCategories(true)
+      try {
+        const res = await http.get("/categories")
+        const data = res.data.data || res.data
+        setCategories(Array.isArray(data) ? data : [])
+      } catch (error) {
+        console.error("Failed to fetch categories", error)
+      } finally {
+        setIsLoadingCategories(false)
+      }
+    }
+    if (open) {
+      fetchCategories()
+    }
+  }, [open])
 
   const resetForm = () => {
     setTitleAr("")
@@ -61,7 +82,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
     setDescriptionEn("")
     setTargetAmount("")
     setBeneficiariesCount("")
-    setCategoryId("water")
+    setCategoryId("")
     setStatus("ACTIVE")
     setImageFile(null)
     setErrors({})
@@ -274,13 +295,17 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                   <SelectValue placeholder="اختر الفئة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="water">سقيا ماء</SelectItem>
-                  <SelectItem value="food">سلال غذائية</SelectItem>
-                  <SelectItem value="shelter">إيواء</SelectItem>
-                  <SelectItem value="orphans">رعاية أيتام</SelectItem>
-                  <SelectItem value="health">صحة</SelectItem>
-                  <SelectItem value="education">تعليم</SelectItem>
-                  <SelectItem value="other">أخرى</SelectItem>
+                  {isLoadingCategories ? (
+                    <SelectItem value="loading" disabled>جاري تحميل الفئات...</SelectItem>
+                  ) : categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.nameAr || cat.name || cat.nameEn || "فئة بدون اسم"}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="empty" disabled>لا توجد فئات</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
               {errors.categoryId && <span className="text-xs text-destructive">{errors.categoryId}</span>}

@@ -53,7 +53,7 @@ export default function RegisterPage() {
     try {
       const payload = formatRegisterPayload(validation.data)
       await http.post("/auth/register", payload)
-      toast.success("تم إنشاء الحساب بنجاح! يرجى إدخال رمز التحقق.")
+      toast.success("تم إرسال رمز التحقق إلى بريدك الإلكتروني، يرجى إدخاله لإتمام إنشاء الحساب")
       router.push(`/verify-otp?email=${encodeURIComponent(validation.data.email)}`)
     } catch (error: unknown) {
       const fieldErrs = extractFieldErrors(error)

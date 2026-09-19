@@ -59,7 +59,7 @@ export const registerSchema = z
 // 3. OTP Schema
 // ---------------------------------------------------------
 export const otpSchema = z.object({
-  code: z.string().min(4, "رمز التحقق مكون من 4 أو 6 أرقام"),
+  code: z.string().length(6, "رمز التحقق مكون من 6 أرقام"),
 })
 export type OtpInput = z.infer<typeof otpSchema>
 
