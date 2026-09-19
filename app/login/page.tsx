@@ -43,14 +43,9 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const res = await http.post<{
-        accessToken: string
-        user: UserProfile
-        data?: { accessToken: string; user: UserProfile }
-      }>("/auth/login", validation.data)
+      const res = await http.post<{ user: UserProfile; data?: { user: UserProfile } }>("/auth/login", validation.data)
 
       const responseData = res.data.data || res.data
-      const accessToken = responseData.accessToken
       const user = responseData.user || {
         id: "user-id",
         name: email.split("@")[0],
@@ -58,7 +53,7 @@ export default function LoginPage() {
         role: email.includes("admin") ? "SUPER_ADMIN" : "DONOR",
       }
 
-      login(accessToken, user)
+      login(user)
       toast.success("تم تسجيل الدخول بنجاح!")
 
       if (user.role === "SUPER_ADMIN" || user.role === "ADMIN") {

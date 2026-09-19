@@ -1,7 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 import { toast } from "sonner"
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const RAW_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"
+const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "").replace(/\/api$/, "/api/v1")
 
 export const http = axios.create({
   baseURL: BASE_URL,
@@ -10,44 +11,19 @@ export const http = axios.create({
     "Content-Type": "application/json",
   },
 })
-// Set default Authorization header synchronously if token is available (client side)
-if (typeof window !== "undefined") {
-  const token = localStorage.getItem("accessToken")
-  if (token) {
-    http.defaults.headers.common["Authorization"] = `Bearer ${token}`
-  }
-}
 
-// Request Interceptor: Attach Access Token
-http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("accessToken")
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-  }
-
-  if (process.env.NODE_ENV !== "production") {
-    const fullUrl = `${config.baseURL || ""}${config.url || ""}`
-    console.log(`[HTTP Request] ${config.method?.toUpperCase()} -> ${fullUrl}`)
-  }
-
-  return config
-})
-
-// Response Interceptor: 401 Handling & Token Refresh
 let isRefreshing = false
 let failedQueue: Array<{
-  resolve: (token: string) => void
+  resolve: () => void
   reject: (err: unknown) => void
 }> = []
 
-const processQueue = (error: unknown, token: string | null = null) => {
+const processQueue = (error: unknown) => {
   failedQueue.forEach((promise) => {
     if (error) {
       promise.reject(error)
-    } else if (token) {
-      promise.resolve(token)
+    } else {
+      promise.resolve()
     }
   })
   failedQueue = []
@@ -62,12 +38,13 @@ const PUBLIC_ROUTES = [
   "/reset-password",
 ]
 
+http.interceptors.request.use((config: InternalAxiosRequestConfig) => config)
+
 http.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<{ message?: string; errors?: Array<{ field?: string; message: string }> }>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = originalRequest?.url || ""
-
     const isAuthEndpoint =
       requestUrl.includes("/auth/refresh") ||
       requestUrl.includes("/auth/login") ||
@@ -81,7 +58,6 @@ http.interceptors.response.use(
       typeof window !== "undefined" &&
       PUBLIC_ROUTES.some((path) => window.location.pathname.startsWith(path))
 
-    // 1. Client & Network Failures (No response received)
     if (!error.response) {
       if (typeof window !== "undefined" && !window.navigator.onLine) {
         toast.error("لا يوجد اتصال بالإنترنت، يرجى التحقق من الشبكة", {
@@ -99,27 +75,18 @@ http.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    // 2. Server Response Error Handling
     const status = error.response.status
     const responseData = error.response.data
 
-    // 401 Unauthorized Handling & Token Refresh
     if (status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
-      const storedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null
-
-      if (isPublicPage && !storedToken) {
+      if (isPublicPage) {
         return Promise.reject(error)
       }
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
-            resolve: (token: string) => {
-              if (originalRequest.headers) {
-                originalRequest.headers.Authorization = `Bearer ${token}`
-              }
-              resolve(http(originalRequest))
-            },
+            resolve: () => resolve(http(originalRequest)),
             reject: (err: unknown) => reject(err),
           })
         })
@@ -129,44 +96,32 @@ http.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const { data } = await axios.post<{ accessToken: string }>(
+        await axios.post(
           `${BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         )
 
-        const newAccessToken = data.accessToken
-        if (typeof window !== "undefined") {
-          localStorage.setItem("accessToken", newAccessToken)
-        }
-
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-        }
-
-        processQueue(null, newAccessToken)
+        processQueue(null)
         return http(originalRequest)
       } catch (refreshError) {
-        processQueue(refreshError, null)
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("accessToken")
+        processQueue(refreshError)
 
-          if (!isPublicPage) {
-            toast.error("جلسة العمل انتهت، يرجى إعادة التسجيل", {
-              id: "session-expired-toast",
-            })
-            setTimeout(() => {
-              window.location.href = "/login"
-            }, 800)
-          }
+        if (!isPublicPage) {
+          toast.error("جلسة العمل انتهت، يرجى إعادة التسجيل", {
+            id: "session-expired-toast",
+          })
+          setTimeout(() => {
+            window.location.href = "/login"
+          }, 800)
         }
+
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
       }
     }
 
-    // Handle standard status-based toasts
     if (status === 429) {
       toast.warning(responseData?.message || "تجاوزت عدد المحاولات المسموح بها، يرجى الانتظار", {
         id: "rate-limit-warning",
@@ -176,7 +131,7 @@ http.interceptors.response.use(
         id: "validation-error",
       })
     } else if (status === 403 || status === 404 || status === 409 || status >= 500) {
-      const isSilentProfileError = requestUrl.includes("/users/profile") && (status === 401 || status === 403);
+      const isSilentProfileError = requestUrl.includes("/users/profile") && (status === 401 || status === 403)
       if (!isSilentProfileError) {
         toast.error(responseData?.message || "حدث خطأ غير متوقع", {
           id: `http-error-${status}`,
@@ -188,9 +143,6 @@ http.interceptors.response.use(
   }
 )
 
-/**
- * Standard Backend API Response Structure
- */
 export interface ApiResponse<T> {
   success: boolean
   message: string
@@ -198,9 +150,6 @@ export interface ApiResponse<T> {
   errors?: Array<{ message: string }>
 }
 
-/**
- * Helper to safely extract error message from standard backend error object
- */
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error) && error.response?.data) {
     const data = error.response.data as { message?: string; errors?: Array<{ message: string }> }
@@ -217,9 +166,6 @@ export function getErrorMessage(error: unknown): string {
   return "An unexpected error occurred"
 }
 
-/**
- * Helper to extract field-specific validation errors from backend responses
- */
 export function extractFieldErrors(error: unknown): Record<string, string> {
   const fieldErrors: Record<string, string> = {}
   if (axios.isAxiosError(error) && error.response?.data) {

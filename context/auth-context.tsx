@@ -18,82 +18,165 @@ export interface AuthContextType {
   role: UserRole | null
   isAuthenticated: boolean
   isLoading: boolean
-  token: string | null
-  login: (token: string, user: UserProfile) => void
-  logout: () => void
+  login: (user: UserProfile) => void
+  logout: () => Promise<void>
+  updateUser: (patch: Partial<UserProfile>) => void
   refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-function setAuthCookie(token: string) {
-  if (typeof document !== "undefined") {
-    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`
-  }
-}
-
-function removeAuthCookie() {
-  if (typeof document !== "undefined") {
-    document.cookie = "accessToken=; path=/; max-age=0; SameSite=Lax"
-  }
-}
+let refreshRequestInFlight = false
+const authEpochRef = { current: 0 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
-  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const logout = useCallback(() => {
+  const getProfileEndpoint = useCallback((pathname: string) => {
+    if (pathname.startsWith('/admin')) {
+      return '/admin/profile'
+    }
+
+    return '/users/profile'
+  }, [])
+
+  const clearClientSession = useCallback(() => {
+    authEpochRef.current += 1
     setUser(null)
-    setToken(null)
+
     if (typeof window !== "undefined") {
-      localStorage.removeItem("accessToken")
       localStorage.removeItem("userRole")
-      removeAuthCookie()
     }
   }, [])
 
-  const login = useCallback((newToken: string, newUser: UserProfile) => {
-    setToken(newToken)
+  const logout = useCallback(async () => {
+    try {
+      await http.post("/auth/logout")
+    } catch (_error) {
+      // Keep the app in a logged-out state even if the backend logout call fails.
+    } finally {
+      clearClientSession()
+    }
+  }, [clearClientSession])
+
+  const updateUser = useCallback((patch: Partial<UserProfile>) => {
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser
+      return { ...currentUser, ...patch }
+    })
+  }, [])
+
+  const login = useCallback((newUser: UserProfile) => {
+    authEpochRef.current += 1
     setUser(newUser)
+
     if (typeof window !== "undefined") {
-      localStorage.setItem("accessToken", newToken)
       localStorage.setItem("userRole", newUser.role)
-      setAuthCookie(newToken)
     }
   }, [])
 
   const refreshProfile = useCallback(async () => {
     if (typeof window === "undefined") return
-    const storedToken = localStorage.getItem("accessToken")
+    if (refreshRequestInFlight) return
+
+    const bootstrapEpoch = authEpochRef.current
+    refreshRequestInFlight = true
+    const path = window.location.pathname
     const publicPages = ["/login", "/register", "/verify-otp", "/verify-email", "/forgot-password", "/reset-password"]
-    const isPublicPage = publicPages.some((path) => window.location.pathname.startsWith(path))
+    const isPublicPage = publicPages.some((item) => path.startsWith(item))
+    const isProtectedRoute = path.startsWith("/admin") || path.startsWith("/profile")
 
-    const storedRole = localStorage.getItem("userRole")
-    const isProtectedRoute = window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/profile")
-
-    if (!storedToken && !isProtectedRoute && !storedRole) {
+    if (!isProtectedRoute && !isPublicPage) {
+      refreshRequestInFlight = false
       setIsLoading(false)
       return
     }
 
+    if (isPublicPage) {
+      setIsLoading(false)
+      refreshRequestInFlight = false
+      return
+    }
+
+    setIsLoading(true)
+
+    const profileEndpoint = getProfileEndpoint(path)
+
     try {
-      if (storedToken) {
-        setToken(storedToken)
-        setAuthCookie(storedToken)
-      }
-      const res = await http.get<{ data?: UserProfile; user?: UserProfile }>("/users/profile")
+      const res = await http.get<{ data?: UserProfile; user?: UserProfile }>(profileEndpoint)
       const profile = res.data.data || res.data.user || (res.data as unknown as UserProfile)
+
+      if (bootstrapEpoch !== authEpochRef.current) {
+        return
+      }
+
       if (profile && profile.role) {
         setUser(profile)
-        localStorage.setItem("userRole", profile.role)
+        if (typeof window !== "undefined") {
+          localStorage.setItem('userRole', profile.role)
+        }
+      } else {
+        clearClientSession()
       }
     } catch (err) {
-      logout()
+      if (bootstrapEpoch !== authEpochRef.current) {
+        return
+      }
+
+      const status = typeof err === 'object' && err !== null && 'response' in err
+        ? Number((err as { response?: { status?: number } }).response?.status)
+        : undefined
+
+      if (status === 401 || status === 403) {
+        try {
+          await http.post('/auth/refresh', {}, { withCredentials: true })
+
+          if (bootstrapEpoch !== authEpochRef.current) {
+            return
+          }
+
+          const retryResponse = await http.get<{ data?: UserProfile; user?: UserProfile }>(profileEndpoint)
+          const retryProfile = retryResponse.data.data || retryResponse.data.user || (retryResponse.data as unknown as UserProfile)
+
+          if (bootstrapEpoch !== authEpochRef.current) {
+            return
+          }
+
+          if (retryProfile && retryProfile.role) {
+            setUser(retryProfile)
+            if (typeof window !== "undefined") {
+              localStorage.setItem('userRole', retryProfile.role)
+            }
+          } else {
+            clearClientSession()
+          }
+        } catch (refreshErr) {
+          if (bootstrapEpoch !== authEpochRef.current) {
+            return
+          }
+
+          clearClientSession()
+
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('AuthContext refresh retry failed', refreshErr)
+          }
+        }
+        return
+      }
+
+      if (status !== 404) {
+        clearClientSession()
+      }
     } finally {
-      setIsLoading(false)
+      if (bootstrapEpoch === authEpochRef.current) {
+        refreshRequestInFlight = false
+        setIsLoading(false)
+      } else {
+        refreshRequestInFlight = false
+        setIsLoading(false)
+      }
     }
-  }, [logout])
+  }, [clearClientSession])
 
   useEffect(() => {
     refreshProfile()
@@ -102,11 +185,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     user,
     role: user?.role || null,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated: !!user,
     isLoading,
-    token,
     login,
     logout,
+    updateUser,
     refreshProfile,
   }
 

@@ -7,11 +7,13 @@ import { Heart, Languages, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useLocale } from "@/components/locale-provider"
+import { useAuth } from "@/context/auth-context"
 import { cn } from "@/lib/utils"
 
 export function SiteHeader() {
   const { t, locale, toggleLocale } = useLocale()
   const pathname = usePathname()
+  const { user, isAuthenticated } = useAuth()
   if (pathname.startsWith('/admin')) return null
 
   const navItems = [
@@ -39,10 +41,14 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/profile"
-            className="flex size-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
+            className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
             aria-label={t.common.profile}
           >
-            <User className="size-4" />
+            {isAuthenticated && user?.avatar ? (
+              <Image src={user.avatar} alt={user.name || "Profile"} width={36} height={36} className="size-full object-cover" unoptimized />
+            ) : (
+                <User className="size-4" />
+            )}
           </Link>
         </div>
 

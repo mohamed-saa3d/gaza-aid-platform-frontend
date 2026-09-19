@@ -3,21 +3,24 @@ import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const access = request.cookies.get("accessToken")?.value
+  const refresh = request.cookies.get("refreshToken")?.value
+  const userRole = request.cookies.get("userRole")?.value
 
-  // Only protect /admin routes
+  console.log("Middleware hit, tokens:", {
+    pathname,
+    access: !!access,
+    refresh: !!refresh,
+    userRole,
+  })
+
   if (pathname.startsWith("/admin")) {
-    const token = request.cookies.get("accessToken")?.value
-    const refreshToken = request.cookies.get("refreshToken")?.value
-    const userRole = request.cookies.get("userRole")?.value
-
-    // 1. Unauthenticated users -> Redirect to /login
-    if (!token && !refreshToken) {
+    if (!refresh) {
       const loginUrl = new URL("/login", request.url)
       loginUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(loginUrl)
     }
 
-    // 2. Protect Super Admin route (/admin/admins)
     if (pathname.startsWith("/admin/admins")) {
       if (userRole && userRole !== "SUPER_ADMIN") {
         return NextResponse.redirect(new URL("/admin/content", request.url))

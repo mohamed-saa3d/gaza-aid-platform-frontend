@@ -45,8 +45,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   const visibleNavItems = allNavItems.filter(item => !item.superAdminOnly || isSuperAdmin)
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     router.push('/login')
   }
 
