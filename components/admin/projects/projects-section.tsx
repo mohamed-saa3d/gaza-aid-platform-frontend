@@ -84,7 +84,7 @@ export function ProjectsSection() {
     fetchProjects()
   }, [fetchProjects])
 
-  const projects = projectsData?.data || []
+  const projects = Array.isArray(projectsData?.data) ? projectsData!.data : [];
   const meta = projectsData?.meta || { total: 0, page: 1, limit: 6, totalPages: 1 }
 
   return (

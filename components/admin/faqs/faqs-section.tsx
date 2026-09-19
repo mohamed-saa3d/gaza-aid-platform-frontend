@@ -63,12 +63,13 @@ export function FaqsSection() {
     setFaqs((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const filteredFaqs = faqs.filter(
+  const safeFaqs = Array.isArray(faqs) ? faqs : [];
+  const filteredFaqs = safeFaqs.filter(
     (item) =>
       item.questionAr.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.questionEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.answerAr.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  );
 
   return (
     <Card className="xl:col-span-2">

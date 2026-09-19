@@ -56,12 +56,13 @@ export function LivestreamsSection() {
     setStreams((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const filteredStreams = streams.filter(
+  const safeStreams = Array.isArray(streams) ? streams : [];
+  const filteredStreams = safeStreams.filter(
     (item) =>
       item.titleAr.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.youtubeUrl.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  );
 
   return (
     <Card className="xl:col-span-2">

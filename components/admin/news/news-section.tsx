@@ -21,8 +21,15 @@ function NewsSection() {
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
-    setNews(fetchedNews)
-  }, [fetchedNews])
+  // Ensure fetchedNews is an array before updating state
+  if (Array.isArray(fetchedNews)) {
+    setNews(fetchedNews);
+  } else {
+    setNews([]);
+  }
+}, [fetchedNews]);
+
+
 
   const handleAddSuccess = (newItem: NewsItemData) => {
     setNews((prev) => [newItem, ...prev])
