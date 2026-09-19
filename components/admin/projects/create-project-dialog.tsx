@@ -54,7 +54,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
   const [imageFile, setImageFile] = useState<File | null>(null)
 
-  const [categories, setCategories] = useState<{ id: string; nameAr?: string; nameEn?: string; name?: string }[]>([])
+  const [categories, setCategories] = useState<{ id?: string; _id?: string; nameAr?: string; nameEn?: string; name?: string }[]>([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(false)
 
   useEffect(() => {
@@ -62,8 +62,9 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
       setIsLoadingCategories(true)
       try {
         const res = await http.get("/categories")
-        const data = res.data.data || res.data
-        setCategories(Array.isArray(data) ? data : [])
+        const rawData = res?.data?.data || res?.data || res;
+        const categoriesList = Array.isArray(rawData) ? rawData : [];
+        setCategories(categoriesList);
       } catch (error) {
         console.error("Failed to fetch categories", error)
       } finally {
@@ -123,6 +124,8 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
 
     try {
       const validData = validationResult.data
+      console.log("Submitting categoryId:", validData.categoryId)
+      
       await createProject(
         {
           titleAr: validData.titleAr,
@@ -298,11 +301,14 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                   {isLoadingCategories ? (
                     <SelectItem value="loading" disabled>جاري تحميل الفئات...</SelectItem>
                   ) : categories.length > 0 ? (
-                    categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.nameAr || cat.name || cat.nameEn || "فئة بدون اسم"}
-                      </SelectItem>
-                    ))
+                    categories.map((cat: any) => {
+                      const catId = cat.id || cat._id
+                      return (
+                        <SelectItem key={catId} value={catId}>
+                          {cat.nameAr || cat.name || cat.nameEn || "فئة بدون اسم"}
+                        </SelectItem>
+                      )
+                    })
                   ) : (
                     <SelectItem value="empty" disabled>لا توجد فئات</SelectItem>
                   )}
