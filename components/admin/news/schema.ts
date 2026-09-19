@@ -5,7 +5,7 @@ export const createNewsSchema = z.object({
   titleEn: z.string().trim().min(2, "English title is required"),
   descriptionAr: z.string().trim().min(10, "Arabic description is required"),
   descriptionEn: z.string().trim().min(10, "English description is required"),
-  imageUrl: z.string().trim().url("Must be a valid URL"),
+  imageUrl: z.string().trim().url("Must be a valid URL").optional().or(z.literal("")),
   detailsUrl: z.string().trim().url("Invalid details URL").optional().or(z.literal("")).nullable(),
   isUrgent: z.boolean().optional(),
 })

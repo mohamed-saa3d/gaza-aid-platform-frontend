@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import { useState } from "react"
+import { createNews } from "./api"
+import { getErrorMessage } from "@/lib/http"
 import { Loader2, Plus, Upload } from "lucide-react"
 import { toast } from "sonner"
 
@@ -79,27 +81,42 @@ export function CreateNewsDialog({ onSuccess, trigger }: CreateNewsDialogProps) 
       return
     }
 
-    setIsSubmitting(true)
-    setTimeout(() => {
-      const newItem: NewsItemData = {
-        id: Date.now().toString(),
+    setIsSubmitting(true);
+    createNews(
+      {
         titleAr: validation.data.titleAr,
         titleEn: validation.data.titleEn,
         descriptionAr: validation.data.descriptionAr,
         descriptionEn: validation.data.descriptionEn,
-        detailsUrl: validation.data.detailsUrl || "",
+        detailsUrl: validation.data.detailsUrl,
         isUrgent: validation.data.isUrgent ?? false,
-        imageUrl: imageFile ? URL.createObjectURL(imageFile) : "/images/news-food-distribution.png",
-      }
-
-      if (onSuccess) {
-        onSuccess(newItem)
-      }
-      toast.success("تم إضافة الخبر بنجاح!")
-      resetForm()
-      setOpen(false)
-      setIsSubmitting(false)
-    }, 300)
+      },
+      imageFile ?? undefined
+    )
+      .then((res) => {
+        const newItem: NewsItemData = {
+          id: res.data.id,
+          titleAr: res.data.titleAr,
+          titleEn: res.data.titleEn,
+          descriptionAr: res.data.descriptionAr,
+          descriptionEn: res.data.descriptionEn,
+          detailsUrl: res.data.detailsUrl ?? "",
+          isUrgent: res.data.isUrgent ?? false,
+          imageUrl: res.data.imageUrl,
+        };
+        if (onSuccess) {
+          onSuccess(newItem);
+        }
+        toast.success("تم إضافة الخبر بنجاح!");
+        resetForm();
+        setOpen(false);
+      })
+      .catch((err) => {
+        toast.error(getErrorMessage(err) || "فشل في إضافة الخبر");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   }
 
   return (
