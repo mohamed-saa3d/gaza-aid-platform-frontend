@@ -40,12 +40,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return '/users/profile'
   }, [])
 
+  const getSessionScope = useCallback(() => {
+    if (typeof window === 'undefined') return 'user'
+    const path = window.location.pathname
+    const storedRole = localStorage.getItem('userRole') || localStorage.getItem('adminRole') || ''
+    if (path.startsWith('/admin')) return storedRole === 'ADMIN' || storedRole === 'SUPER_ADMIN' ? 'admin' : 'user'
+    return storedRole === 'ADMIN' || storedRole === 'SUPER_ADMIN' ? 'admin' : 'user'
+  }, [])
+
   const clearClientSession = useCallback(() => {
     authEpochRef.current += 1
     setUser(null)
 
     if (typeof window !== "undefined") {
       localStorage.removeItem("userRole")
+      localStorage.removeItem("adminRole")
+      localStorage.removeItem("authScope")
     }
   }, [])
 
@@ -71,7 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser)
 
     if (typeof window !== "undefined") {
-      localStorage.setItem("userRole", newUser.role)
+      const isAdmin = newUser.role === 'ADMIN' || newUser.role === 'SUPER_ADMIN'
+      localStorage.setItem(isAdmin ? 'adminRole' : 'userRole', newUser.role)
+      localStorage.setItem('authScope', isAdmin ? 'admin' : 'user')
+      localStorage.removeItem(isAdmin ? 'userRole' : 'adminRole')
     }
   }, [])
 
@@ -113,7 +126,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (profile && profile.role) {
         setUser(profile)
         if (typeof window !== "undefined") {
-          localStorage.setItem('userRole', profile.role)
+          const isAdmin = profile.role === 'ADMIN' || profile.role === 'SUPER_ADMIN'
+          localStorage.setItem(isAdmin ? 'adminRole' : 'userRole', profile.role)
+          localStorage.setItem('authScope', isAdmin ? 'admin' : 'user')
+          localStorage.removeItem(isAdmin ? 'userRole' : 'adminRole')
         }
       } else {
         clearClientSession()
@@ -145,7 +161,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (retryProfile && retryProfile.role) {
             setUser(retryProfile)
             if (typeof window !== "undefined") {
-              localStorage.setItem('userRole', retryProfile.role)
+              const isAdmin = retryProfile.role === 'ADMIN' || retryProfile.role === 'SUPER_ADMIN'
+              localStorage.setItem(isAdmin ? 'adminRole' : 'userRole', retryProfile.role)
+              localStorage.setItem('authScope', isAdmin ? 'admin' : 'user')
+              localStorage.removeItem(isAdmin ? 'userRole' : 'adminRole')
             }
           } else {
             clearClientSession()

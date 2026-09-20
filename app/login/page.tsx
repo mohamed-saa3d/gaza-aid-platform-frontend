@@ -50,7 +50,7 @@ export default function LoginPage() {
         id: "user-id",
         name: email.split("@")[0],
         email,
-        role: email.includes("admin") ? "SUPER_ADMIN" : "DONOR",
+        role: "DONOR",
       }
 
       login(user)

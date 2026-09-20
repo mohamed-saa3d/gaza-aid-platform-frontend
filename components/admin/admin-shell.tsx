@@ -34,14 +34,29 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { user, role, logout, isAuthenticated, isLoading } = useAuth()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
+  const shouldBypassLoginScreen = pathname === '/admin/login'
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login?callbackUrl=' + encodeURIComponent(pathname))
+    if (shouldBypassLoginScreen) {
+      return
     }
-  }, [isLoading, isAuthenticated, router, pathname])
 
-  const isSuperAdmin = role === 'SUPER_ADMIN' || (typeof window !== 'undefined' && localStorage.getItem('userRole') === 'SUPER_ADMIN')
+    if (!isLoading && !isAuthenticated) {
+      router.push('/admin/login?callbackUrl=' + encodeURIComponent(pathname))
+      return
+    }
+
+    if (!isLoading && isAuthenticated && !isAdmin) {
+      router.push('/profile')
+    }
+  }, [isAdmin, isAuthenticated, isLoading, pathname, router, shouldBypassLoginScreen])
+
+  if (shouldBypassLoginScreen) {
+    return <>{children}</>
+  }
+
+  const isSuperAdmin = role === 'SUPER_ADMIN'
 
   const visibleNavItems = allNavItems.filter(item => !item.superAdminOnly || isSuperAdmin)
 
@@ -58,7 +73,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isAdmin) {
     return null
   }
 

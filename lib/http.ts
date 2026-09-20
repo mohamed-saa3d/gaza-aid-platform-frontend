@@ -4,6 +4,34 @@ import { toast } from "sonner"
 const RAW_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "").replace(/\/api$/, "/api/v1")
 
+const makeRequestId = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `req-${Date.now()}-${Math.random().toString(16).slice(2)}`)
+
+const getScopeFromPath = (path: string) => {
+  if (!path) return 'unknown'
+  if (path.startsWith('/admin')) return 'admin'
+  if (path.startsWith('/users')) return 'user'
+  return 'unknown'
+}
+
+const logAuthTrace = (event: string, config: Partial<InternalAxiosRequestConfig> & { url?: string; method?: string }, status?: number, details: Record<string, unknown> = {}) => {
+  const requestId = config.headers?.['X-Correlation-Id'] || config.headers?.['x-correlation-id'] || 'n/a'
+  const method = config.method?.toUpperCase() || 'UNKNOWN'
+  const url = config.url || 'unknown'
+  const scope = getScopeFromPath(url)
+  const payload = {
+    requestId,
+    scope,
+    event,
+    method,
+    url,
+    status,
+    ...details,
+  }
+  if (typeof window !== 'undefined') {
+    console.info('[AUTH TRACE]', payload)
+  }
+}
+
 export const http = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
@@ -31,6 +59,7 @@ const processQueue = (error: unknown) => {
 
 const PUBLIC_ROUTES = [
   "/login",
+  "/admin/login",
   "/register",
   "/verify-otp",
   "/verify-email",
@@ -38,16 +67,32 @@ const PUBLIC_ROUTES = [
   "/reset-password",
 ]
 
-http.interceptors.request.use((config: InternalAxiosRequestConfig) => config)
+http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const requestId = makeRequestId()
+  const headers = { ...(config.headers as Record<string, string> | undefined) }
+  headers['X-Correlation-Id'] = requestId
+  config.headers = headers as any
+
+  const url = config.url || ''
+  const scope = getScopeFromPath(url)
+  const credentialsIncluded = Boolean(config.withCredentials)
+  logAuthTrace('request-start', config, undefined, { scope, credentialsIncluded, authEndpoint: url.includes('/auth/') || url.includes('/admin/') || url.includes('/users/') })
+  return config
+})
 
 http.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const requestId = response.config.headers?.['X-Correlation-Id'] || response.config.headers?.['x-correlation-id'] || 'n/a'
+    logAuthTrace('response-success', response.config, response.status, { requestId, refreshTriggered: false, logoutTriggered: false })
+    return response
+  },
   async (error: AxiosError<{ message?: string; errors?: Array<{ field?: string; message: string }> }>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = originalRequest?.url || ""
     const isAuthEndpoint =
       requestUrl.includes("/auth/refresh") ||
       requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/admin/login") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/verify-email") ||
       requestUrl.includes("/auth/resend-otp") ||
@@ -77,6 +122,16 @@ http.interceptors.response.use(
 
     const status = error.response.status
     const responseData = error.response.data
+    const requestId = originalRequest.headers?.['X-Correlation-Id'] || originalRequest.headers?.['x-correlation-id'] || 'n/a'
+    const scope = getScopeFromPath(requestUrl)
+    logAuthTrace('response-error', originalRequest, status, {
+      requestId,
+      scope,
+      reason: responseData?.message || 'unknown',
+      triggeredRefresh: false,
+      triggeredLogout: false,
+      isAuthEndpoint,
+    })
 
     if (status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
       if (isPublicPage) {
@@ -94,12 +149,13 @@ http.interceptors.response.use(
 
       originalRequest._retry = true
       isRefreshing = true
+      logAuthTrace('refresh-attempt', originalRequest, status, { requestId, scope, reason: '401-on-protected-request', triggeredRefresh: true, triggeredLogout: false })
 
       try {
         await axios.post(
           `${BASE_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true, headers: { 'X-Correlation-Id': requestId } }
         )
 
         processQueue(null)
