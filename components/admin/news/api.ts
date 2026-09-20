@@ -1,4 +1,4 @@
-import { http, type ApiResponse } from "@/lib/http"
+import { adminHttp, type ApiResponse } from "@/lib/http"
 import type { News, NewsListResponse } from "./types"
 import type { CreateNewsInput } from "./schema"
 
@@ -6,12 +6,12 @@ export async function getNews(params?: {
   page?: number
   limit?: number
 }): Promise<NewsListResponse> {
-  const response = await http.get<NewsListResponse>("/news", { params })
+  const response = await adminHttp.get<NewsListResponse>("/news", { params })
   return response.data
 }
 
 export async function getNewsById(id: string): Promise<ApiResponse<News>> {
-  const response = await http.get<ApiResponse<News>>(`/news/${id}`)
+  const response = await adminHttp.get<ApiResponse<News>>(`/news/${id}`)
   return response.data
 }
 
@@ -31,7 +31,7 @@ export async function createNews(
     formData.append("image", imageFile)
   }
 
-  const response = await http.post<ApiResponse<News>>("/news", formData, {
+  const response = await adminHttp.post<ApiResponse<News>>("/news", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -56,7 +56,7 @@ export async function updateNews(
     formData.append("image", imageFile)
   }
 
-  const response = await http.put<ApiResponse<News>>(`/news/${id}`, formData, {
+  const response = await adminHttp.put<ApiResponse<News>>(`/news/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -65,6 +65,6 @@ export async function updateNews(
 }
 
 export async function deleteNews(id: string): Promise<ApiResponse<null>> {
-  const response = await http.delete<ApiResponse<null>>(`/news/${id}`)
+  const response = await adminHttp.delete<ApiResponse<null>>(`/news/${id}`)
   return response.data
 }

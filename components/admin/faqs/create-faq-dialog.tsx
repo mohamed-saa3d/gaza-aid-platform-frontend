@@ -20,7 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { createFaqSchema, faqFormSchema } from "./schema"
+import { createFaq } from "./api"
+import { faqFormSchema } from "./schema"
 import type { FAQItemData } from "./types"
 
 interface CreateFaqDialogProps {
@@ -47,7 +48,7 @@ export function CreateFaqDialog({ onSuccess, trigger }: CreateFaqDialogProps) {
     setErrors({})
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
 
@@ -74,25 +75,19 @@ export function CreateFaqDialog({ onSuccess, trigger }: CreateFaqDialogProps) {
     }
 
     setIsSubmitting(true)
-    setTimeout(() => {
-      const newItem: FAQItemData = {
-        id: Date.now().toString(),
-        questionAr: validation.data.questionAr,
-        questionEn: validation.data.questionEn,
-        answerAr: validation.data.answerAr,
-        answerEn: validation.data.answerEn,
-        isActive: validation.data.isActive ?? true,
-        createdAt: new Date().toISOString().split("T")[0],
-      }
-
+    try {
+      const response = await createFaq(validation.data)
       if (onSuccess) {
-        onSuccess(newItem)
+        onSuccess(response.data)
       }
       toast.success("تم إضافة السؤال الشائع بنجاح!")
       resetForm()
       setOpen(false)
+    } catch {
+      toast.error("فشل إضافة السؤال الشائع")
+    } finally {
       setIsSubmitting(false)
-    }, 300)
+    }
   }
 
   return (

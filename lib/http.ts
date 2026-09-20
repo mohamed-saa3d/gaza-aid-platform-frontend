@@ -13,6 +13,22 @@ const getScopeFromPath = (path: string) => {
   return 'unknown'
 }
 
+export type AuthScope = 'user' | 'admin'
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    authScope?: AuthScope
+  }
+}
+
+const getAuthScope = (path: string, config?: Partial<InternalAxiosRequestConfig> & { authScope?: AuthScope }): AuthScope => {
+  if (config?.authScope) return config.authScope
+  if (path.startsWith('/admin')) return 'admin'
+  if (path.startsWith('/users')) return 'user'
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) return 'admin'
+  return 'user'
+}
+
 const logAuthTrace = (event: string, config: Partial<InternalAxiosRequestConfig> & { url?: string; method?: string }, status?: number, details: Record<string, unknown> = {}) => {
   const requestId = config.headers?.['X-Correlation-Id'] || config.headers?.['x-correlation-id'] || 'n/a'
   const method = config.method?.toUpperCase() || 'UNKNOWN'
@@ -40,21 +56,28 @@ export const http = axios.create({
   },
 })
 
-let isRefreshing = false
-let failedQueue: Array<{
-  resolve: () => void
-  reject: (err: unknown) => void
-}> = []
+const refreshPromises: Record<AuthScope, Promise<void> | null> = {
+  user: null,
+  admin: null,
+}
 
-const processQueue = (error: unknown) => {
-  failedQueue.forEach((promise) => {
-    if (error) {
-      promise.reject(error)
-    } else {
-      promise.resolve()
-    }
-  })
-  failedQueue = []
+const refreshEndpoints: Record<AuthScope, string> = {
+  user: '/auth/user/refresh',
+  admin: '/admin/refresh',
+}
+
+const refreshScope = (scope: AuthScope): Promise<void> => {
+  if (!refreshPromises[scope]) {
+    refreshPromises[scope] = axios.post(
+      `${BASE_URL}${refreshEndpoints[scope]}`,
+      {},
+      { withCredentials: true },
+    ).then(() => undefined).finally(() => {
+      refreshPromises[scope] = null
+    })
+  }
+
+  return refreshPromises[scope] as Promise<void>
 }
 
 const PUBLIC_ROUTES = [
@@ -90,9 +113,12 @@ http.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = originalRequest?.url || ""
     const isAuthEndpoint =
-      requestUrl.includes("/auth/refresh") ||
+        requestUrl.includes("/auth/user/refresh") ||
+        requestUrl.includes("/admin/refresh") ||
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/admin/login") ||
+        requestUrl.includes("/auth/user/logout") ||
+        requestUrl.includes("/admin/logout") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/verify-email") ||
       requestUrl.includes("/auth/resend-otp") ||
@@ -138,43 +164,19 @@ http.interceptors.response.use(
         return Promise.reject(error)
       }
 
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: () => resolve(http(originalRequest)),
-            reject: (err: unknown) => reject(err),
-          })
-        })
-      }
-
       originalRequest._retry = true
-      isRefreshing = true
+      const scope = getAuthScope(requestUrl, originalRequest as any)
       logAuthTrace('refresh-attempt', originalRequest, status, { requestId, scope, reason: '401-on-protected-request', triggeredRefresh: true, triggeredLogout: false })
 
       try {
-        await axios.post(
-          `${BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true, headers: { 'X-Correlation-Id': requestId } }
-        )
-
-        processQueue(null)
+        await refreshScope(scope)
         return http(originalRequest)
       } catch (refreshError) {
-        processQueue(refreshError)
-
-        if (!isPublicPage) {
-          toast.error("جلسة العمل انتهت، يرجى إعادة التسجيل", {
-            id: "session-expired-toast",
-          })
-          setTimeout(() => {
-            window.location.href = "/login"
-          }, 800)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent<AuthScope>('auth:session-expired', { detail: scope }))
         }
 
         return Promise.reject(refreshError)
-      } finally {
-        isRefreshing = false
       }
     }
 
@@ -238,6 +240,19 @@ export function extractFieldErrors(error: unknown): Record<string, string> {
     }
   }
   return fieldErrors
+}
+
+export const adminHttp = {
+  get: <T = any>(url: string, config?: import("axios").AxiosRequestConfig) =>
+    http.get<T>(url, { ...config, authScope: "admin" }),
+  post: <T = any>(url: string, data?: any, config?: import("axios").AxiosRequestConfig) =>
+    http.post<T>(url, data, { ...config, authScope: "admin" }),
+  put: <T = any>(url: string, data?: any, config?: import("axios").AxiosRequestConfig) =>
+    http.put<T>(url, data, { ...config, authScope: "admin" }),
+  patch: <T = any>(url: string, data?: any, config?: import("axios").AxiosRequestConfig) =>
+    http.patch<T>(url, data, { ...config, authScope: "admin" }),
+  delete: <T = any>(url: string, config?: import("axios").AxiosRequestConfig) =>
+    http.delete<T>(url, { ...config, authScope: "admin" }),
 }
 
 export default http

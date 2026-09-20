@@ -53,7 +53,7 @@ export default function LoginPage() {
         role: "DONOR",
       }
 
-      login(user)
+      login(user, "user")
       toast.success("تم تسجيل الدخول بنجاح!")
 
       if (user.role === "SUPER_ADMIN" || user.role === "ADMIN") {

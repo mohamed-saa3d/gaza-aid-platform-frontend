@@ -1,46 +1,42 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
-import { Radio, Search } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { AlertCircle, Loader2, Radio, RefreshCw, Search } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 import { CreateLivestreamDialog } from "./create-livestream-dialog"
 import { UpdateLivestreamDialog } from "./update-livestream-dialog"
 import { DeleteLivestreamDialog } from "./delete-livestream-dialog"
+import { getLiveStreams } from "./api"
 import type { LivestreamItemData } from "./types"
 export type { LivestreamItemData }
 
-
-const initialLivestreams: LivestreamItemData[] = [
-  {
-    id: "1",
-    titleAr: "البث المباشر - حفل افتتاح مشروع بئر الرحمة",
-    titleEn: "Live Stream - Well Opening Ceremony",
-    youtubeUrl: "https://www.youtube.com/watch?v=abc12345678",
-    isActive: true,
-  },
-  {
-    id: "2",
-    titleAr: "البث المباشر - توزيع كراتين رمضان",
-    titleEn: "Live Stream - Ramadan Food Boxes Distribution",
-    youtubeUrl: "https://www.youtube.com/watch?v=def45678901",
-    isActive: true,
-  },
-  {
-    id: "3",
-    titleAr: "البث المباشر - محاضرة عن فضل الصدقة",
-    titleEn: "Live Stream - Charity Virtues Lecture",
-    youtubeUrl: "https://www.youtube.com/watch?v=ghi78901234",
-    isActive: false,
-  },
-]
-
 export function LivestreamsSection() {
-  const [streams, setStreams] = useState<LivestreamItemData[]>(initialLivestreams)
+  const [streams, setStreams] = useState<LivestreamItemData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+
+  const fetchStreams = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await getLiveStreams()
+      setStreams(Array.isArray(response.data?.data) ? response.data.data : [])
+    } catch {
+      setError("فشل تحميل روابط البث من الخادم.")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchStreams()
+  }, [fetchStreams])
 
   const handleAddSuccess = (newItem: LivestreamItemData) => {
     setStreams((prev) => [newItem, ...prev])
@@ -87,6 +83,28 @@ export function LivestreamsSection() {
         </div>
 
         <div className="flex flex-col gap-2">
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              جاري تحميل روابط البث...
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center">
+              <AlertCircle className="size-6 text-destructive" />
+              <p className="text-sm text-destructive">{error}</p>
+              <Button variant="outline" size="sm" onClick={fetchStreams}>
+                <RefreshCw className="ml-2 size-3" />
+                إعادة المحاولة
+              </Button>
+            </div>
+          ) : null}
+
+          {!loading && !error && filteredStreams.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              لا توجد روابط بث مطابقة.
+            </div>
+          ) : null}
+
           {filteredStreams.map((item) => (
             <div
               key={item.id}

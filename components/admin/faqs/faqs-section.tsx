@@ -1,53 +1,43 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
-import { HelpCircle, Search } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { AlertCircle, HelpCircle, Loader2, RefreshCw, Search } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 import { CreateFaqDialog } from "./create-faq-dialog"
 import { UpdateFaqDialog } from "./update-faq-dialog"
 import { DeleteFaqDialog } from "./delete-faq-dialog"
+import { getFaqs } from "./api"
 import type { FAQItemData } from "./types"
 export type { FAQItemData }
 
-
-const initialFaqs: FAQItemData[] = [
-  {
-    id: "1",
-    questionAr: "كيف يمكنني التبرع للمشاريع؟",
-    questionEn: "How can I donate to projects?",
-    answerAr: "يمكنك التبرع بكل سهولة عبر البطاقات الائتمانية أو التحويل المباشر عن طريق اختيار المشروع ثم إدخال المبلغ.",
-    answerEn: "You can donate easily using credit cards or direct transfers by selecting a project and entering the amount.",
-    isActive: true,
-    createdAt: "2024-05-10",
-  },
-  {
-    id: "2",
-    questionAr: "هل التبرع يصل لمستحقيه المباشرين؟",
-    questionEn: "Does donation reach direct beneficiaries?",
-    answerAr: "نعم، نلتزم بأعلى معايير الشفافية ونرسل تقارير ميدانية دورية لجميع المتبرعين.",
-    answerEn: "Yes, we adhere to highest transparency standards and send periodic field reports to all donors.",
-    isActive: true,
-    createdAt: "2024-05-09",
-  },
-  {
-    id: "3",
-    questionAr: "هل يمكنني التبرع بشكل شهري؟",
-    questionEn: "Can I donate on a monthly basis?",
-    answerAr: "نعم، يوفر النظام خاصية التبرع الدوري الشهري التلقائي لرعاية الأسر والأيتام.",
-    answerEn: "Yes, the system provides automatic monthly recurring donations to support families and orphans.",
-    isActive: true,
-    createdAt: "2024-05-08",
-  },
-]
-
 export function FaqsSection() {
-  const [faqs, setFaqs] = useState<FAQItemData[]>(initialFaqs)
+  const [faqs, setFaqs] = useState<FAQItemData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+
+  const fetchFaqs = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await getFaqs()
+      setFaqs(Array.isArray(response.data?.data) ? response.data.data : [])
+    } catch {
+      setError("فشل تحميل الأسئلة الشائعة من الخادم.")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchFaqs()
+  }, [fetchFaqs])
 
   const handleAddSuccess = (newItem: FAQItemData) => {
     setFaqs((prev) => [newItem, ...prev])
@@ -94,6 +84,28 @@ export function FaqsSection() {
         </div>
 
         <div className="flex flex-col gap-3">
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              جاري تحميل الأسئلة...
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center">
+              <AlertCircle className="size-6 text-destructive" />
+              <p className="text-sm text-destructive">{error}</p>
+              <Button variant="outline" size="sm" onClick={fetchFaqs}>
+                <RefreshCw className="ml-2 size-3" />
+                إعادة المحاولة
+              </Button>
+            </div>
+          ) : null}
+
+          {!loading && !error && filteredFaqs.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              لا توجد أسئلة شائعة مطابقة.
+            </div>
+          ) : null}
+
           {filteredFaqs.map((faq) => (
             <div
               key={faq.id}

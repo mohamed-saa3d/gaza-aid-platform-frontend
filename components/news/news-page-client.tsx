@@ -5,7 +5,7 @@ import { RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FeaturedArticleCard } from '@/components/news/featured-article-card'
 import { NewsArticleCard } from '@/components/news/news-article-card'
-import { getNews } from '@/components/admin/news/api'
+import { getPublicNews } from "@/lib/api/public"
 import type { NewsItemData } from '@/components/admin/news/types'
 
 export function NewsPageClient() {
@@ -17,7 +17,7 @@ export function NewsPageClient() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const response = await getNews();
+        const response = await getPublicNews();
         // Assuming response is an object with data array according to our API wrapper
         const responseData = response as any;
         const data: NewsItemData[] = Array.isArray(responseData?.data?.data)

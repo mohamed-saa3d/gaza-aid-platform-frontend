@@ -5,26 +5,22 @@ import type { AdminUser, AdminRole } from './types'
 import type { CreateAdminInput, UpdateAdminInput } from './schema'
 import { getErrorMessage } from '@/lib/http'
 
-const initialMockAdmins: AdminUser[] = [
-  { id: '1', name: 'أحمد عبد الله', email: 'ahmed@gaza.org', role: 'SUPER_ADMIN', createdAt: '2024-03-15' },
-  { id: '2', name: 'فاطمة حسن', email: 'fatima@gaza.org', role: 'ADMIN', createdAt: '2024-03-10' },
-  { id: '3', name: 'محمد يوسف', email: 'mohamed@gaza.org', role: 'ADMIN', createdAt: '2024-03-05' },
-  { id: '4', name: 'سارة خالد', email: 'sara@gaza.org', role: 'ADMIN', createdAt: '2024-03-01' },
-]
-
 export function useAdmins() {
-  const [admins, setAdmins] = useState<AdminUser[]>(initialMockAdmins)
+  const [admins, setAdmins] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(false)
 
   const fetchAdminsList = useCallback(async () => {
     setLoading(true)
     try {
       const res = await getAdmins()
-      if (res.data && Array.isArray(res.data.data)) {
-        setAdmins(res.data.data)
+      if (Array.isArray(res.data)) {
+        setAdmins(res.data)
+      } else if (res.data && Array.isArray((res.data as any).data)) {
+        setAdmins((res.data as any).data)
       }
     } catch (err) {
-      // Fallback to initial local list if offline
+      setAdmins([])
+      toast.error(getErrorMessage(err) || 'فشل تحميل قائمة المسؤولين')
     } finally {
       setLoading(false)
     }

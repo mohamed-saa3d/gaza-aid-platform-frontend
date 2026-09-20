@@ -19,7 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { livestreamFormSchema, updateLiveStreamSchema } from "./schema"
+import { updateLiveStream } from "./api"
+import { livestreamFormSchema } from "./schema"
 import type { LivestreamItemData } from "./types"
 
 interface UpdateLivestreamDialogProps {
@@ -51,7 +52,7 @@ export function UpdateLivestreamDialog({
     }
   }, [open, stream])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
 
@@ -77,20 +78,16 @@ export function UpdateLivestreamDialog({
     }
 
     setIsSubmitting(true)
-    setTimeout(() => {
-      const updatedStream: LivestreamItemData = {
-        ...stream,
-        titleAr: validation.data.titleAr,
-        titleEn: validation.data.titleEn,
-        youtubeUrl: validation.data.youtubeUrl,
-        isActive: validation.data.isActive ?? isActive,
-      }
-
-      onSuccess(updatedStream)
+    try {
+      const response = await updateLiveStream(stream.id, validation.data)
+      onSuccess(response.data)
       toast.success("تم تحديث البث المباشر بنجاح!")
       setOpen(false)
+    } catch {
+      toast.error("فشل تحديث البث المباشر")
+    } finally {
       setIsSubmitting(false)
-    }, 300)
+    }
   }
 
   return (

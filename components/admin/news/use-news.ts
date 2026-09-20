@@ -18,11 +18,13 @@ export const useNews = () => {
     const fetchNews = async () => {
       try {
         const response = await getNews();
-        // Ensure we get an array of news items regardless of API shape
-        const fetched = Array.isArray((response as any).news)
+        const payload = (response as any).data;
+        const fetched = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+          ? payload
+          : Array.isArray((response as any).news)
           ? (response as any).news
-          : Array.isArray((response as any).data)
-          ? (response as any).data
           : [];
         setNews(fetched);
       } catch (err) {

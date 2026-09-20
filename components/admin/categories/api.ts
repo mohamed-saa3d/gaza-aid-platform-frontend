@@ -1,9 +1,9 @@
-import { http, type ApiResponse } from "@/lib/http"
+import { adminHttp, type ApiResponse } from "@/lib/http"
 import type { Category, CategoryListResponse } from "./types"
 import type { CategoryFormInput } from "./schema"
 
 export async function getCategories(params?: { page?: number; limit?: number; search?: string }): Promise<CategoryListResponse> {
-  const response = await http.get<CategoryListResponse>("/categories", { params })
+  const response = await adminHttp.get<CategoryListResponse>("/categories", { params })
   const responseData: any = response.data
   return responseData.data && responseData.meta ? responseData : {
     success: true,
@@ -13,16 +13,16 @@ export async function getCategories(params?: { page?: number; limit?: number; se
 }
 
 export async function createCategory(data: CategoryFormInput): Promise<ApiResponse<Category>> {
-  const response = await http.post<ApiResponse<Category>>("/categories", data)
+  const response = await adminHttp.post<ApiResponse<Category>>("/categories", data)
   return response.data
 }
 
 export async function updateCategory(id: string, data: CategoryFormInput): Promise<ApiResponse<Category>> {
-  const response = await http.put<ApiResponse<Category>>(`/categories/${id}`, data)
+  const response = await adminHttp.put<ApiResponse<Category>>(`/categories/${id}`, data)
   return response.data
 }
 
 export async function deleteCategory(id: string): Promise<ApiResponse<null>> {
-  const response = await http.delete<ApiResponse<null>>(`/categories/${id}`)
+  const response = await adminHttp.delete<ApiResponse<null>>(`/categories/${id}`)
   return response.data
 }

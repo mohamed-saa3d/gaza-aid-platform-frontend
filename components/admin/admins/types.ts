@@ -13,7 +13,7 @@ export interface AdminUser {
 export interface AdminListResponse {
   success: boolean
   message?: string
-  data: {
+  data: AdminUser[] | {
     data: AdminUser[]
     total: number
     page: number

@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
         email: admin.email,
         role: admin.role,
         avatar: admin.avatar ?? null,
-      })
+      }, "admin")
 
       toast.success('تم تسجيل الدخول إلى لوحة الإدارة بنجاح!')
       router.push('/admin/content')

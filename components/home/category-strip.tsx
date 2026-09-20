@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { LayoutGrid, Loader2 } from "lucide-react"
-import { getCategories } from "@/components/admin/categories/api"
+import { getPublicCategories } from "@/lib/api/public"
 import type { Category } from "@/components/admin/categories/types"
 
 export function CategoryStrip() {
@@ -13,7 +13,7 @@ export function CategoryStrip() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await getCategories({ limit: 10 })
+        const res = await getPublicCategories({ limit: 10 })
         const data = Array.isArray(res?.data) ? res.data : []
         setCategories(data)
       } catch (err) {

@@ -7,7 +7,7 @@ import { DonationWaysCard } from "@/components/home/donation-ways-card"
 import { FeaturedProjectCarousel } from "@/components/home/featured-project-carousel"
 import { PlatformRatingCard } from "@/components/home/platform-rating-card"
 import { ProjectCard } from "@/components/project-card"
-import { getProjects } from "@/components/admin/projects/api"
+import { getPublicProjects } from "@/lib/api/public"
 import type { Project } from "@/components/admin/projects/types"
 
 export function LifeSavingProjects() {
@@ -17,7 +17,7 @@ export function LifeSavingProjects() {
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const res = await getProjects({ limit: 6 })
+        const res = await getPublicProjects({ limit: 6 })
         const data = Array.isArray(res?.data) ? res.data : []
         setProjects(data)
       } catch (err) {

@@ -19,7 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { createLiveStreamSchema, livestreamFormSchema } from "./schema"
+import { createLiveStream } from "./api"
+import { livestreamFormSchema } from "./schema"
 import type { LivestreamItemData } from "./types"
 
 interface CreateLivestreamDialogProps {
@@ -44,7 +45,7 @@ export function CreateLivestreamDialog({ onSuccess, trigger }: CreateLivestreamD
     setErrors({})
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
 
@@ -70,23 +71,19 @@ export function CreateLivestreamDialog({ onSuccess, trigger }: CreateLivestreamD
     }
 
     setIsSubmitting(true)
-    setTimeout(() => {
-      const newItem: LivestreamItemData = {
-        id: Date.now().toString(),
-        titleAr: validation.data.titleAr,
-        titleEn: validation.data.titleEn,
-        youtubeUrl: validation.data.youtubeUrl,
-        isActive: validation.data.isActive ?? true,
-      }
-
+    try {
+      const response = await createLiveStream(validation.data)
       if (onSuccess) {
-        onSuccess(newItem)
+        onSuccess(response.data)
       }
       toast.success("تم إضافة البث المباشر بنجاح!")
       resetForm()
       setOpen(false)
+    } catch {
+      toast.error("فشل إضافة البث المباشر")
+    } finally {
       setIsSubmitting(false)
-    }, 300)
+    }
   }
 
   return (

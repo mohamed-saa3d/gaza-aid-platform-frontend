@@ -20,7 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import { faqFormSchema, updateFaqSchema } from "./schema"
+import { updateFaq } from "./api"
+import { faqFormSchema } from "./schema"
 import type { FAQItemData } from "./types"
 
 interface UpdateFaqDialogProps {
@@ -50,7 +51,7 @@ export function UpdateFaqDialog({ faq, onSuccess, trigger }: UpdateFaqDialogProp
     }
   }, [open, faq])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
 
@@ -77,21 +78,16 @@ export function UpdateFaqDialog({ faq, onSuccess, trigger }: UpdateFaqDialogProp
     }
 
     setIsSubmitting(true)
-    setTimeout(() => {
-      const updatedFaq: FAQItemData = {
-        ...faq,
-        questionAr: validation.data.questionAr,
-        questionEn: validation.data.questionEn,
-        answerAr: validation.data.answerAr,
-        answerEn: validation.data.answerEn,
-        isActive: validation.data.isActive ?? isActive,
-      }
-
-      onSuccess(updatedFaq)
+    try {
+      const response = await updateFaq(faq.id, validation.data)
+      onSuccess(response.data)
       toast.success("تم تحديث السؤال بنجاح!")
       setOpen(false)
+    } catch {
+      toast.error("فشل تحديث السؤال")
+    } finally {
       setIsSubmitting(false)
-    }, 300)
+    }
   }
 
   return (

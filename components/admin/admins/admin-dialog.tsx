@@ -68,6 +68,8 @@ export function AdminDialog({
   const [email, setEmail] = useState(targetAdmin?.email || '')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<AdminRole>(targetAdmin?.role || 'ADMIN')
+  const [rootEmail, setRootEmail] = useState('')
+  const [rootPassword, setRootPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -77,6 +79,8 @@ export function AdminDialog({
       setEmail(targetAdmin?.email || '')
       setPassword('')
       setRole(targetAdmin?.role || 'ADMIN')
+      setRootEmail('')
+      setRootPassword('')
       setErrors({})
     }
   }, [open, targetAdmin])
@@ -86,6 +90,8 @@ export function AdminDialog({
     setEmail(targetAdmin?.email || '')
     setPassword('')
     setRole(targetAdmin?.role || 'ADMIN')
+    setRootEmail('')
+    setRootPassword('')
     setErrors({})
   }
 
@@ -97,13 +103,13 @@ export function AdminDialog({
       setIsSubmitting(true)
       try {
         if (onSubmit) {
-          const ok = await onSubmit({ name, email, role })
+          const ok = await onSubmit({ name, role })
           if (ok) {
             handleOpenChange(false)
             if (onSuccess) onSuccess()
           }
         } else {
-          await updateAdmin(targetAdmin.id, { name, email, role })
+          await updateAdmin(targetAdmin.id, { name, role })
           toast.success('تم تحديث بيانات المسؤول بنجاح!')
           handleOpenChange(false)
           if (onSuccess) onSuccess()
@@ -116,7 +122,7 @@ export function AdminDialog({
       return
     }
 
-    const validation = createAdminSchema.safeParse({ name, email, password, role })
+    const validation = createAdminSchema.safeParse({ name, email, password, role, rootEmail, rootPassword })
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {}
       validation.error.issues.forEach((issue) => {
@@ -203,16 +209,43 @@ export function AdminDialog({
             </div>
 
             {!isEditing && (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="admin-password">كلمة المرور المؤقتة</Label>
-                <Input
-                  id="admin-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-              </div>
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="admin-password">كلمة المرور المؤقتة</Label>
+                  <Input
+                    id="admin-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="root-email">بريد الجذر للتأكيد</Label>
+                    <Input
+                      id="root-email"
+                      type="email"
+                      dir="ltr"
+                      value={rootEmail}
+                      onChange={(e) => setRootEmail(e.target.value)}
+                    />
+                    {errors.rootEmail && <p className="text-xs text-destructive">{errors.rootEmail}</p>}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="root-password">كلمة مرور الجذر</Label>
+                    <Input
+                      id="root-password"
+                      type="password"
+                      value={rootPassword}
+                      onChange={(e) => setRootPassword(e.target.value)}
+                    />
+                    {errors.rootPassword && <p className="text-xs text-destructive">{errors.rootPassword}</p>}
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="flex flex-col gap-2">

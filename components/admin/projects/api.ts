@@ -1,4 +1,4 @@
-import { http, type ApiResponse } from "@/lib/http"
+import { adminHttp, type ApiResponse } from "@/lib/http"
 import type { Project, ProjectsListResponse } from "./types"
 import type { CreateProjectInput } from "./schema"
 
@@ -7,12 +7,12 @@ export async function getProjects(params?: {
   limit?: number
   status?: string
 }): Promise<ProjectsListResponse> {
-  const response = await http.get<ProjectsListResponse>("/projects", { params })
+  const response = await adminHttp.get<ProjectsListResponse>("/projects", { params })
   return response.data
 }
 
 export async function getProjectById(id: string): Promise<ApiResponse<Project>> {
-  const response = await http.get<ApiResponse<Project>>(`/projects/${id}`)
+  const response = await adminHttp.get<ApiResponse<Project>>(`/projects/${id}`)
   return response.data
 }
 
@@ -32,7 +32,7 @@ export async function createProject(
     formData.append("image", imageFile)
   }
 
-  const response = await http.post<ApiResponse<Project>>("/projects", formData, {
+  const response = await adminHttp.post<ApiResponse<Project>>("/projects", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -57,7 +57,7 @@ export async function updateProject(
     formData.append("image", imageFile)
   }
 
-  const response = await http.put<ApiResponse<Project>>(`/projects/${id}`, formData, {
+  const response = await adminHttp.put<ApiResponse<Project>>(`/projects/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -66,6 +66,6 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: string): Promise<ApiResponse<null>> {
-  const response = await http.delete<ApiResponse<null>>(`/projects/${id}`)
+  const response = await adminHttp.delete<ApiResponse<null>>(`/projects/${id}`)
   return response.data
 }

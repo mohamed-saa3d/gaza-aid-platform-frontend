@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { deleteFaq } from "./api"
 
 interface DeleteFaqDialogProps {
   faqId: string
@@ -32,14 +33,18 @@ export function DeleteFaqDialog({
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setIsDeleting(true)
-    setTimeout(() => {
+    try {
+      await deleteFaq(faqId)
       onSuccess(faqId)
       toast.success("تم حذف السؤال بنجاح")
       setOpen(false)
+    } catch {
+      toast.error("فشل حذف السؤال")
+    } finally {
       setIsDeleting(false)
-    }, 200)
+    }
   }
 
   return (

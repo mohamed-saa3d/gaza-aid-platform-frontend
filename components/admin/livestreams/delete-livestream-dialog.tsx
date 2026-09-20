@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { deleteLiveStream } from "./api"
 
 interface DeleteLivestreamDialogProps {
   streamId: string
@@ -32,14 +33,18 @@ export function DeleteLivestreamDialog({
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setIsDeleting(true)
-    setTimeout(() => {
+    try {
+      await deleteLiveStream(streamId)
       onSuccess(streamId)
       toast.success("تم حذف البث المباشر بنجاح")
       setOpen(false)
+    } catch {
+      toast.error("فشل حذف البث المباشر")
+    } finally {
       setIsDeleting(false)
-    }, 200)
+    }
   }
 
   return (

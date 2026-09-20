@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/pagination"
 import { ProjectCard } from "@/components/project-card"
 import { CategoryFilterBar, type FilterValue } from "@/components/projects/category-filter-bar"
-import { getProjects } from "@/components/admin/projects/api"
-import { getCategories } from "@/components/admin/categories/api"
+import { getPublicProjects } from "@/lib/api/public"
+import { getPublicCategories } from "@/lib/api/public"
 import type { Project } from "@/components/admin/projects/types"
 import type { Category } from "@/components/admin/categories/types"
 import { Loader2 } from "lucide-react"
@@ -32,8 +32,8 @@ export function ProjectsGrid() {
       setLoading(true)
       try {
         const [projRes, catRes] = await Promise.all([
-          getProjects({ limit: 100 }), // Get all active projects for client-side filtering, or adapt if backend supports it
-          getCategories({ limit: 100 })
+          getPublicProjects({ limit: 100 }),
+          getPublicCategories({ limit: 100 })
         ])
         
         const rawProjects = Array.isArray(projRes?.data) ? projRes.data : []

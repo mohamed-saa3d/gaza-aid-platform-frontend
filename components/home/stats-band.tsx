@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
   CalendarDays,
@@ -8,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { heroStats } from "@/lib/mock-data"
+import { getPublicSettings, type PlatformSettings } from "@/lib/api/public"
 
 const iconMap: Record<string, LucideIcon> = {
   UtensilsCrossed,
@@ -17,12 +21,64 @@ const iconMap: Record<string, LucideIcon> = {
 }
 
 export function StatsBand() {
+  const [settings, setSettings] = useState<PlatformSettings | null>(null)
+
+  useEffect(() => {
+    getPublicSettings()
+      .then((res) => {
+        if (res?.data) setSettings(res.data)
+      })
+      .catch(() => {
+        // silently fall through to heroStats
+      })
+  }, [])
+
+  /**
+   * If the backend returns real stats (any non-zero value), use them.
+   * Otherwise fall back to the mock heroStats so the UI is never empty.
+   * The backend PlatformSettings model confirms these three fields exist.
+   */
+  const hasRealStats =
+    settings !== null &&
+    (settings.totalBeneficiaries > 0 ||
+      settings.foodBaskets > 0 ||
+      settings.yearsOfGiving > 0)
+
+  const displayStats = hasRealStats
+    ? [
+        {
+          id: "1",
+          label: "وجبة غذائية موزعة",
+          value: `${settings!.foodBaskets.toLocaleString()}+`,
+          icon: "UtensilsCrossed",
+        },
+        {
+          id: "2",
+          label: "مستفيد من خدماتنا",
+          value: `${settings!.totalBeneficiaries.toLocaleString()}+`,
+          icon: "Users",
+        },
+        {
+          id: "3",
+          label: "سنوات العطاء",
+          value: `${settings!.yearsOfGiving}+`,
+          icon: "CalendarDays",
+        },
+        {
+          id: "4",
+          label: "مشروع إغاثي مكتمل",
+          value: "100%",
+          icon: "ClipboardCheck",
+        },
+      ]
+    : heroStats
+
   return (
     <section className="bg-primary text-primary-foreground">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 py-10 md:px-8 lg:flex-row lg:justify-between">
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:gap-10">
-          {heroStats.map((stat) => {
-            const Icon = iconMap[stat.icon]
+          {displayStats.map((stat) => {
+            const Icon = iconMap[stat.icon] || Users
             return (
               <div key={stat.id} className="flex flex-col items-center gap-2 text-center">
                 <span className="flex size-12 items-center justify-center rounded-full bg-primary-foreground/10">

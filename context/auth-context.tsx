@@ -1,9 +1,11 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react"
+import { usePathname } from "next/navigation"
 import { http } from "@/lib/http"
 
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "DONOR" | "USER"
+export type AuthScope = "user" | "admin"
 
 export interface UserProfile {
   id: string
@@ -18,193 +20,134 @@ export interface AuthContextType {
   role: UserRole | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (user: UserProfile) => void
-  logout: () => Promise<void>
+  login: (user: UserProfile, scope?: AuthScope) => void
+  logout: (scope?: AuthScope) => Promise<void>
   updateUser: (patch: Partial<UserProfile>) => void
   refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
-let refreshRequestInFlight = false
-const authEpochRef = { current: 0 }
+
+type SessionState = Record<AuthScope, UserProfile | null>
+
+const getPathScope = (pathname: string): AuthScope => pathname.startsWith('/admin') ? 'admin' : 'user'
+
+const getProfileEndpoint = (scope: AuthScope) => scope === 'admin' ? '/admin/profile' : '/users/profile'
+
+const publicAuthPages = [
+  '/login',
+  '/admin/login',
+  '/register',
+  '/verify-otp',
+  '/verify-email',
+  '/forgot-password',
+  '/reset-password',
+]
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(null)
+  const pathname = usePathname()
+  const [sessions, setSessions] = useState<SessionState>({ user: null, admin: null })
   const [isLoading, setIsLoading] = useState(true)
+  const requestIdRef = React.useRef(0)
 
-  const getProfileEndpoint = useCallback((pathname: string) => {
-    if (pathname.startsWith('/admin')) {
-      return '/admin/profile'
-    }
-
-    return '/users/profile'
+  const clearClientSession = useCallback((scope: AuthScope) => {
+    setSessions((current) => ({ ...current, [scope]: null }))
   }, [])
 
-  const getSessionScope = useCallback(() => {
-    if (typeof window === 'undefined') return 'user'
-    const path = window.location.pathname
-    const storedRole = localStorage.getItem('userRole') || localStorage.getItem('adminRole') || ''
-    if (path.startsWith('/admin')) return storedRole === 'ADMIN' || storedRole === 'SUPER_ADMIN' ? 'admin' : 'user'
-    return storedRole === 'ADMIN' || storedRole === 'SUPER_ADMIN' ? 'admin' : 'user'
-  }, [])
-
-  const clearClientSession = useCallback(() => {
-    authEpochRef.current += 1
-    setUser(null)
-
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("userRole")
-      localStorage.removeItem("adminRole")
-      localStorage.removeItem("authScope")
-    }
-  }, [])
-
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (requestedScope?: AuthScope) => {
+    requestIdRef.current += 1
+    const scope = requestedScope || (typeof window !== 'undefined' ? getPathScope(window.location.pathname) : 'user')
     try {
-      await http.post("/auth/logout")
+      await http.post(scope === 'admin' ? '/admin/logout' : '/auth/user/logout')
     } catch (_error) {
       // Keep the app in a logged-out state even if the backend logout call fails.
     } finally {
-      clearClientSession()
+      clearClientSession(scope)
     }
   }, [clearClientSession])
 
   const updateUser = useCallback((patch: Partial<UserProfile>) => {
-    setUser((currentUser) => {
-      if (!currentUser) return currentUser
-      return { ...currentUser, ...patch }
+    const scope = typeof window !== 'undefined' ? getPathScope(window.location.pathname) : 'user'
+    setSessions((current) => {
+      const currentUser = current[scope]
+      if (!currentUser) return current
+      return { ...current, [scope]: { ...currentUser, ...patch } }
     })
   }, [])
 
-  const login = useCallback((newUser: UserProfile) => {
-    authEpochRef.current += 1
-    setUser(newUser)
-
-    if (typeof window !== "undefined") {
-      const isAdmin = newUser.role === 'ADMIN' || newUser.role === 'SUPER_ADMIN'
-      localStorage.setItem(isAdmin ? 'adminRole' : 'userRole', newUser.role)
-      localStorage.setItem('authScope', isAdmin ? 'admin' : 'user')
-      localStorage.removeItem(isAdmin ? 'userRole' : 'adminRole')
-    }
+  const login = useCallback((newUser: UserProfile, requestedScope?: AuthScope) => {
+    const scope = requestedScope || (newUser.role === 'ADMIN' || newUser.role === 'SUPER_ADMIN' ? 'admin' : 'user')
+    setSessions((current) => ({ ...current, [scope]: newUser }))
   }, [])
 
   const refreshProfile = useCallback(async () => {
     if (typeof window === "undefined") return
-    if (refreshRequestInFlight) return
-
-    const bootstrapEpoch = authEpochRef.current
-    refreshRequestInFlight = true
     const path = window.location.pathname
-    const publicPages = ["/login", "/register", "/verify-otp", "/verify-email", "/forgot-password", "/reset-password"]
-    const isPublicPage = publicPages.some((item) => path.startsWith(item))
+    const isPublicPage = publicAuthPages.some((item) => path === item || path.startsWith(`${item}/`))
     const isProtectedRoute = path.startsWith("/admin") || path.startsWith("/profile")
 
     if (!isProtectedRoute && !isPublicPage) {
-      refreshRequestInFlight = false
       setIsLoading(false)
       return
     }
 
     if (isPublicPage) {
       setIsLoading(false)
-      refreshRequestInFlight = false
       return
     }
 
     setIsLoading(true)
-
-    const profileEndpoint = getProfileEndpoint(path)
+    const requestId = ++requestIdRef.current
+    const scope = getPathScope(path)
+    const profileEndpoint = getProfileEndpoint(scope)
 
     try {
       const res = await http.get<{ data?: UserProfile; user?: UserProfile }>(profileEndpoint)
+      if (requestId !== requestIdRef.current) return
       const profile = res.data.data || res.data.user || (res.data as unknown as UserProfile)
 
-      if (bootstrapEpoch !== authEpochRef.current) {
-        return
-      }
-
       if (profile && profile.role) {
-        setUser(profile)
-        if (typeof window !== "undefined") {
-          const isAdmin = profile.role === 'ADMIN' || profile.role === 'SUPER_ADMIN'
-          localStorage.setItem(isAdmin ? 'adminRole' : 'userRole', profile.role)
-          localStorage.setItem('authScope', isAdmin ? 'admin' : 'user')
-          localStorage.removeItem(isAdmin ? 'userRole' : 'adminRole')
-        }
+        setSessions((current) => ({ ...current, [scope]: profile }))
       } else {
-        clearClientSession()
+        clearClientSession(scope)
       }
     } catch (err) {
-      if (bootstrapEpoch !== authEpochRef.current) {
-        return
-      }
-
+      if (requestId !== requestIdRef.current) return
       const status = typeof err === 'object' && err !== null && 'response' in err
         ? Number((err as { response?: { status?: number } }).response?.status)
         : undefined
 
-      if (status === 401 || status === 403) {
-        try {
-          await http.post('/auth/refresh', {}, { withCredentials: true })
-
-          if (bootstrapEpoch !== authEpochRef.current) {
-            return
-          }
-
-          const retryResponse = await http.get<{ data?: UserProfile; user?: UserProfile }>(profileEndpoint)
-          const retryProfile = retryResponse.data.data || retryResponse.data.user || (retryResponse.data as unknown as UserProfile)
-
-          if (bootstrapEpoch !== authEpochRef.current) {
-            return
-          }
-
-          if (retryProfile && retryProfile.role) {
-            setUser(retryProfile)
-            if (typeof window !== "undefined") {
-              const isAdmin = retryProfile.role === 'ADMIN' || retryProfile.role === 'SUPER_ADMIN'
-              localStorage.setItem(isAdmin ? 'adminRole' : 'userRole', retryProfile.role)
-              localStorage.setItem('authScope', isAdmin ? 'admin' : 'user')
-              localStorage.removeItem(isAdmin ? 'userRole' : 'adminRole')
-            }
-          } else {
-            clearClientSession()
-          }
-        } catch (refreshErr) {
-          if (bootstrapEpoch !== authEpochRef.current) {
-            return
-          }
-
-          clearClientSession()
-
-          if (process.env.NODE_ENV !== 'production') {
-            console.error('AuthContext refresh retry failed', refreshErr)
-          }
-        }
-        return
-      }
-
-      if (status !== 404) {
-        clearClientSession()
+      if (status === 401) {
+        clearClientSession(scope)
       }
     } finally {
-      if (bootstrapEpoch === authEpochRef.current) {
-        refreshRequestInFlight = false
-        setIsLoading(false)
-      } else {
-        refreshRequestInFlight = false
+      if (requestId === requestIdRef.current) {
         setIsLoading(false)
       }
     }
   }, [clearClientSession])
 
   useEffect(() => {
+    const handleSessionExpired = (event: Event) => {
+      const scope = (event as CustomEvent<AuthScope>).detail
+      if (scope === 'user' || scope === 'admin') clearClientSession(scope)
+    }
+
+    window.addEventListener('auth:session-expired', handleSessionExpired)
+    return () => window.removeEventListener('auth:session-expired', handleSessionExpired)
+  }, [clearClientSession])
+
+  useEffect(() => {
     refreshProfile()
-  }, [refreshProfile])
+  }, [pathname, refreshProfile])
+
+  const activeScope = getPathScope(pathname || '/')
+  const activeUser = sessions[activeScope]
 
   const value: AuthContextType = {
-    user,
-    role: user?.role || null,
-    isAuthenticated: !!user,
+    user: activeUser,
+    role: activeUser?.role || null,
+    isAuthenticated: Boolean(activeUser),
     isLoading,
     login,
     logout,

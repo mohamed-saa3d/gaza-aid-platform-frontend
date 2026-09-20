@@ -46,7 +46,7 @@ export function ProfileHeader() {
   }
 
   async function handleLogout() {
-    await logout()
+    await logout("user")
     router.push("/login")
   }
 
