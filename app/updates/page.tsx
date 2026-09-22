@@ -1,11 +1,34 @@
-import { Heart, ArrowLeft } from "lucide-react"
+"use client"
+
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { Heart, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CompletionRateCard } from "@/components/updates/completion-rate-card"
 import { ProgressOverTimeChart } from "@/components/updates/progress-over-time-chart"
 import { CompletedUpdateCard } from "@/components/updates/completed-update-card"
-import { completedUpdates } from "@/lib/mock-data"
+import { getPublicProjects } from "@/lib/api/public"
+import type { Project } from "@/components/admin/projects/types"
 
 export default function UpdatesPage() {
+  const [completedProjects, setCompletedProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchCompleted() {
+      try {
+        const res = await getPublicProjects({ status: "COMPLETED" })
+        const data = Array.isArray(res?.data) ? res.data : []
+        setCompletedProjects(data)
+      } catch (err) {
+        console.error("Failed to load completed projects", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCompleted()
+  }, [])
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-10 text-center">
@@ -29,17 +52,33 @@ export default function UpdatesPage() {
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 className="font-heading text-2xl font-bold">أحدث المشاريع المكتملة</h2>
-        <Button variant="outline" className="gap-2 rounded-full">
-          عرض كل المشاريع
-          <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
+        <Button asChild variant="outline" className="gap-2 rounded-full">
+          <Link href="/projects">
+            عرض كل المشاريع
+            <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
+          </Link>
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {completedUpdates.map((update) => (
-          <CompletedUpdateCard key={update.id} update={update} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="animate-spin text-primary size-8" />
+        </div>
+      ) : completedProjects.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {completedProjects.map((project) => (
+            <CompletedUpdateCard key={project.id} project={project} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border p-12 text-center">
+          <CheckCircle2 className="size-10 text-muted-foreground/60 mb-3" />
+          <p className="text-base font-semibold text-foreground">لا توجد مشاريع مكتملة حالياً</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            تتم إضافة المشاريع المكتملة تلقائياً بمجرد الوصول لهدف التمويل أو عند إكمالها من لوحة التحكم.
+          </p>
+        </div>
+      )}
     </main>
   )
 }

@@ -1,16 +1,23 @@
 import Image from "next/image"
-import { CheckCircle2, MapPin, CalendarDays, Users } from "lucide-react"
+import { CheckCircle2, CalendarDays, Users } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import type { CompletedUpdate } from "@/lib/mock-data"
+import type { Project } from "@/components/admin/projects/types"
 
-export function CompletedUpdateCard({ update }: { update: CompletedUpdate }) {
+export function CompletedUpdateCard({ project }: { project: Project }) {
+  const title = project.titleAr || project.titleEn || project.title || ""
+  const description = project.descriptionAr || project.descriptionEn || project.description || ""
+  const image = project.imgUrl || project.imageUrl || project.image || "/placeholder.svg"
+  const beneficiaries = project.beneficiariesCount ?? project.beneficiaries ?? 0
+  const categoryName = typeof project.category === "object" ? (project.category?.nameAr || project.category?.nameEn) : "مشروع مكتمل"
+  const dateStr = project.updatedAt ? new Date(project.updatedAt).toLocaleDateString("ar-EG") : ""
+
   return (
     <Card className="overflow-hidden border-border/60 p-0">
       <div className="relative aspect-video w-full">
         <Image
-          src={update.image || "/placeholder.svg"}
-          alt={update.title}
+          src={image}
+          alt={title}
           fill
           className="object-cover"
         />
@@ -20,27 +27,27 @@ export function CompletedUpdateCard({ update }: { update: CompletedUpdate }) {
           100% مكتمل
         </Badge>
         <div className="absolute bottom-4 right-4 max-w-[80%]">
-          <p className="text-xs font-medium text-primary-foreground/80">{update.subtitle}</p>
+          <p className="text-xs font-medium text-primary-foreground/80">{categoryName}</p>
           <h3 className="font-heading text-lg font-bold text-primary-foreground text-pretty">
-            {update.title}
+            {title}
           </h3>
         </div>
       </div>
-      <CardContent className="flex flex-col gap-4 p-5 pt-0">
-        <p className="text-sm leading-relaxed text-muted-foreground">{update.description}</p>
+      <CardContent className="flex flex-col gap-4 p-5">
+        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-2">{description}</p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/60 pt-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <MapPin className="size-3.5" aria-hidden="true" />
-            {update.location}
-          </span>
-          <span className="flex items-center gap-1">
-            <CalendarDays className="size-3.5" aria-hidden="true" />
-            {update.date}
-          </span>
-          <span className="flex items-center gap-1">
-            <Users className="size-3.5" aria-hidden="true" />
-            {update.beneficiaries}
-          </span>
+          {dateStr && (
+            <span className="flex items-center gap-1">
+              <CalendarDays className="size-3.5" aria-hidden="true" />
+              {dateStr}
+            </span>
+          )}
+          {beneficiaries > 0 && (
+            <span className="flex items-center gap-1">
+              <Users className="size-3.5" aria-hidden="true" />
+              {beneficiaries.toLocaleString("ar-EG")} مستفيد
+            </span>
+          )}
         </div>
       </CardContent>
     </Card>
