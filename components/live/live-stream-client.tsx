@@ -39,11 +39,11 @@ export function LiveStreamClient() {
     setError(null)
     try {
       const res = await getPublicLiveStreams()
-      const rawData = (res as any)?.data
-      const streams: LivestreamItemData[] = Array.isArray(rawData?.data)
-        ? rawData.data
-        : Array.isArray(rawData)
-        ? rawData
+      // LiveStreamListResponse: { success, message, data: { data: LiveStream[], total, page, limit } }
+      const streams: LivestreamItemData[] = Array.isArray(res?.data?.data)
+        ? res.data.data
+        : Array.isArray((res as any)?.data)
+        ? (res as any).data
         : []
 
       const active = streams.find((s) => s.isActive !== false)

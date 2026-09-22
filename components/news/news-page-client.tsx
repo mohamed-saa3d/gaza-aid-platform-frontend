@@ -15,17 +15,17 @@ export function NewsPageClient() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchNews = async () => {
       try {
+        // getPublicNews() returns NewsListResponse:
+        //   { success, message, data: { data: News[], total, page, limit } }
         const response = await getPublicNews();
-        // Assuming response is an object with data array according to our API wrapper
-        const responseData = response as any;
-        const data: NewsItemData[] = Array.isArray(responseData?.data?.data)
-          ? responseData.data.data
-          : Array.isArray(responseData?.data)
-          ? responseData.data
-          : Array.isArray(responseData) ? responseData : [];
-          
+        const data: NewsItemData[] = Array.isArray(response?.data?.data)
+          ? response.data.data
+          : Array.isArray((response as any)?.data)
+          ? (response as any).data
+          : [];
+
         if (data.length > 0) {
           setFeatured(data[0]);
           setArticles(data.slice(1));
@@ -36,7 +36,7 @@ export function NewsPageClient() {
         setLoading(false);
       }
     };
-    fetch();
+    fetchNews();
   }, []);
 
   if (loading) {

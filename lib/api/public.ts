@@ -75,6 +75,19 @@ export async function getPublicCategories(params?: {
   return response.data
 }
 
+// ── Project Stats ──────────────────────────────────────────────────
+
+export interface ProjectStats {
+  totalProjects: number
+  completedProjects: number
+  completionPercentage: number
+}
+
+export async function getPublicProjectStats(): Promise<ApiResponse<ProjectStats>> {
+  const response = await http.get<ApiResponse<ProjectStats>>("/projects/stats")
+  return response.data
+}
+
 // ── Settings ───────────────────────────────────────────────────────
 
 export interface PlatformSettings {
