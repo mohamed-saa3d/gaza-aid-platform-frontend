@@ -1,4 +1,5 @@
 import { AboutHero } from "@/components/about/about-hero"
+import { Breadcrumb } from "@/components/breadcrumb"
 import { FoundationInfoCard } from "@/components/about/foundation-info-card"
 import { WartimeMission } from "@/components/about/wartime-mission"
 import { AboutCta } from "@/components/about/about-cta"
@@ -8,6 +9,7 @@ export default function AboutPage() {
     <main>
       <AboutHero />
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <Breadcrumb label="about" />
         <FoundationInfoCard />
       </div>
 

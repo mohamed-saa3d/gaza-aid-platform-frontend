@@ -11,7 +11,7 @@ import { useLocale } from "@/components/locale-provider"
 import type { FAQItemData } from "@/components/admin/faqs/types"
 
 export function FaqAccordion() {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [faqs, setFaqs] = useState<FAQItemData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -32,11 +32,11 @@ export function FaqAccordion() {
           : []
       setFaqs(fetched.filter((item) => item.isActive !== false))
     } catch {
-      setError("فشل تحميل الأسئلة الشائعة من الخادم.")
+      setError(t.faq.loadFailed)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [t.faq.loadFailed])
 
   useEffect(() => {
     fetchFaqsList()
@@ -62,16 +62,16 @@ export function FaqAccordion() {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث عن سؤالك..."
+          placeholder={t.faq.searchPlaceholder}
           className="h-11 rounded-full ps-10"
-          aria-label="البحث في الأسئلة الشائعة"
+          aria-label={t.faq.searchAriaLabel}
         />
       </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
           <Loader2 className="size-6 animate-spin text-primary" />
-          جاري تحميل الأسئلة الشائعة...
+          {t.faq.loading}
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-8 text-center">
@@ -79,12 +79,12 @@ export function FaqAccordion() {
           <p className="text-sm font-medium text-destructive">{error}</p>
           <Button variant="outline" size="sm" onClick={fetchFaqsList} className="gap-2">
             <RefreshCw className="size-4" />
-            إعادة المحاولة
+            {t.common.retry}
           </Button>
         </div>
       ) : filteredFaqs.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          {query ? "لا توجد نتائج مطابقة لبحثك." : "لا توجد أسئلة شائعة متاحة حالياً."}
+          {query ? t.faq.noMatches : t.faq.empty}
         </p>
       ) : (
         <Card>
@@ -93,7 +93,7 @@ export function FaqAccordion() {
               <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <HelpCircle className="size-5" aria-hidden="true" />
               </div>
-              <CardTitle className="font-heading text-xl">الأسئلة والإجابات العامة</CardTitle>
+              <CardTitle className="font-heading text-xl">{t.faq.cardTitle}</CardTitle>
             </div>
           </CardHeader>
           <CardContent>

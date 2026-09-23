@@ -144,7 +144,7 @@ export function SiteFooter() {
               </Button>
               <Input
                 type="email"
-                placeholder="أدخل بريدك الإلكتروني"
+                placeholder={t.footer.emailPlaceholder}
                 className="border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50"
               />
             </form>
@@ -157,7 +157,7 @@ export function SiteFooter() {
               © 2026 {siteName}. {t.footer.rights}
             </p>
             <div className="flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1.5">
-              <span>مرخصة من المركز الوطني لتنمية القطاع غير الربحي (رقم 1234)</span>
+              <span>{t.footer.license}</span>
             </div>
           </div>
 

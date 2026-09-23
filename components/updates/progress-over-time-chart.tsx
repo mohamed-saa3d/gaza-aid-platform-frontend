@@ -15,27 +15,23 @@ import { useIsMounted } from "@/hooks/use-is-mounted"
 import { useLocale } from "@/components/locale-provider"
 import { getPublicProjectHistory, type ProjectHistoryPoint } from "@/lib/api/public"
 
-const chartConfig: ChartConfig = {
-  total: {
-    label: "إجمالي المشاريع",
-    color: "var(--chart-2)",
-  },
-  completed: {
-    label: "المشاريع المكتملة",
-    color: "var(--chart-1)",
-  },
-}
-
 const ranges = [
-  { id: "6", label: "6 أشهر", count: 6 },
-  { id: "12", label: "12 شهر", count: 12 },
-  { id: "24", label: "24 شهر", count: 24 },
+  { id: "6", count: 6 },
+  { id: "12", count: 12 },
+  { id: "24", count: 24 },
 ] as const
 
 export function ProgressOverTimeChart() {
   const isMounted = useIsMounted()
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [range, setRange] = useState<(typeof ranges)[number]["id"]>("12")
+
+  // Chart series labels are static UI copy, so they are built from the dictionary
+  // (and rebuilt when the locale changes) rather than hardcoded at module scope.
+  const chartConfig: ChartConfig = {
+    total: { label: t.updates.chartTotal, color: "var(--chart-2)" },
+    completed: { label: t.updates.chartCompleted, color: "var(--chart-1)" },
+  }
 
   const [series, setSeries] = useState<ProjectHistoryPoint[]>([])
   const [loading, setLoading] = useState(true)
@@ -79,7 +75,7 @@ export function ProgressOverTimeChart() {
       <Card className="border-border/60">
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">
           <CardTitle className="font-heading text-lg font-bold">
-            نسبة تقدم المشاريع مع مرور الوقت
+            {t.updates.progressOverTimeTitle}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -93,7 +89,7 @@ export function ProgressOverTimeChart() {
     <Card className="border-border/60">
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-4">
         <CardTitle className="font-heading text-lg font-bold">
-          نسبة تقدم المشاريع مع مرور الوقت
+          {t.updates.progressOverTimeTitle}
         </CardTitle>
         <ToggleGroup
           value={[range]}
@@ -106,7 +102,7 @@ export function ProgressOverTimeChart() {
         >
           {ranges.map((r) => (
             <ToggleGroupItem key={r.id} value={r.id} className="rounded-full px-4">
-              {r.label}
+              {t.updates.rangeMonths.replace("{count}", String(r.count))}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -118,11 +114,11 @@ export function ProgressOverTimeChart() {
           </div>
         ) : error ? (
           <p className="flex h-[320px] items-center justify-center rounded-md border border-amber-300 bg-amber-50 p-3 text-center text-sm text-amber-900">
-            تعذّر تحميل سجل تقدم المشاريع حالياً. يرجى تحديث الصفحة للمحاولة مرة أخرى.
+            {t.updates.progressFailed}
           </p>
         ) : data.length === 0 ? (
           <p className="flex h-[320px] items-center justify-center text-center text-sm text-muted-foreground">
-            لا توجد بيانات مشاريع كافية لعرض المخطط بعد.
+            {t.updates.progressEmpty}
           </p>
         ) : (
         <ChartContainer config={chartConfig} className="h-[320px] w-full">

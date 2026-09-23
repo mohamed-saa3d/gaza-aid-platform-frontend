@@ -4,8 +4,10 @@ import { useState, useRef, useEffect } from "react"
 import { Search, Clock, AlertCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/locale-provider"
 
 export function TrackDonationWidget() {
+  const { t } = useLocale()
   const [donationNumber, setDonationNumber] = useState("")
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -33,12 +35,12 @@ export function TrackDonationWidget() {
 
     // Validation: Strictly 6 digits
     if (donationNumber.length !== 6) {
-      setError("أدخل رقم التبرع المكون من 6 أرقام")
+      setError(t.home.trackCodeRequired)
       return
     }
 
     setError(null)
-    setStatusMessage("قيد الانتظار")
+    setStatusMessage(t.home.trackPending)
     setDonationNumber("")
 
     // Clear any existing timer
@@ -54,9 +56,9 @@ export function TrackDonationWidget() {
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-      <h3 className="font-heading text-base font-bold text-foreground">تتبع تبرعك</h3>
+      <h3 className="font-heading text-base font-bold text-foreground">{t.home.trackTitle}</h3>
       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-        ادخل رقم التبرع لتعرف أين وصل تبرعك وأثره على المستفيدين
+        {t.home.trackSubtitle}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
@@ -67,7 +69,7 @@ export function TrackDonationWidget() {
             inputMode="numeric"
             pattern="[0-9]*"
             maxLength={6}
-            placeholder="أدخل رقم التبرع"
+            placeholder={t.home.trackPlaceholder}
             value={donationNumber}
             onChange={handleInputChange}
             className="h-11 rounded-xl pr-9 pl-3 text-sm placeholder:text-muted-foreground/70"
@@ -85,7 +87,7 @@ export function TrackDonationWidget() {
           <div className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-500/10 px-3.5 py-2.5 text-xs font-medium text-amber-800 dark:text-amber-300 animate-in fade-in slide-in-from-top-1 duration-300">
             <div className="flex items-center gap-2">
               <Clock className="size-4 shrink-0 text-amber-600 dark:text-amber-400 animate-pulse" />
-              <span>حالة التبرع:</span>
+              <span>{t.home.trackStatusLabel}</span>
             </div>
             <span className="rounded-md bg-amber-500/20 px-2 py-0.5 font-bold text-amber-700 dark:text-amber-300">
               {statusMessage}
@@ -97,7 +99,7 @@ export function TrackDonationWidget() {
           type="submit"
           className="h-11 w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm transition-colors"
         >
-          تتبع الآن
+          {t.home.trackNow}
         </Button>
       </form>
     </div>

@@ -1,39 +1,43 @@
-import Image from "next/image"
+"use client"
+
 import { ShieldCheck } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { featuredDonationProject } from "@/lib/mock-data"
 import { useLocale } from "@/components/locale-provider"
 import { formatCurrency } from "@/lib/currency"
 import type { DonationState } from "@/components/donate/donation-flow"
 
+/**
+ * Live donation summary.
+ *
+ * Shows only real, visitor-driven values (amount, frequency). The previous version
+ * rendered a hardcoded `featuredDonationProject` (a fabricated project image,
+ * title and description) as if it were the donation target — i.e. mock domain
+ * data presented as real. The selected cause now comes from the real categories
+ * chosen in the amount step.
+ */
 export function DonationSummaryCard({ state }: { state: DonationState }) {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
+
   return (
     <Card className="overflow-hidden border-border/60 p-0">
-      <div className="relative aspect-[16/10] w-full">
-        <Image
-          src={featuredDonationProject.image || "/placeholder.svg"}
-          alt={featuredDonationProject.title}
-          fill
-          className="object-cover"
-        />
-      </div>
       <CardContent className="flex flex-col gap-4 p-5">
-        <div>
-          <h3 className="font-heading text-lg font-bold">{featuredDonationProject.title}</h3>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {featuredDonationProject.description}
-          </p>
+        <div className="flex items-center justify-between rounded-lg bg-secondary/40 p-3">
+          <span className="text-sm text-muted-foreground">{t.donate.yourAmount}</span>
+          <span className="font-heading text-xl font-bold text-primary">
+            {formatCurrency(state.amount || 0, locale)}
+          </span>
         </div>
 
         <div className="flex items-center justify-between rounded-lg bg-secondary/40 p-3">
-          <span className="text-sm text-muted-foreground">مبلغ تبرعك</span>
-          <span className="font-heading text-xl font-bold text-primary">{formatCurrency(state.amount || 0, locale)}</span>
+          <span className="text-sm text-muted-foreground">{t.donate.donationType}</span>
+          <span className="text-sm font-medium">
+            {state.frequency === "monthly" ? t.donate.monthlyRecurring : t.donate.oneTimeLabel}
+          </span>
         </div>
 
         <div className="flex items-start gap-2 text-xs text-muted-foreground">
           <ShieldCheck className="size-4 shrink-0 text-primary" aria-hidden="true" />
-          <span>معاملة مشفرة وآمنة بالكامل، تبرعك يصل مباشرة للمستفيدين دون أي رسوم إضافية.</span>
+          <span>{t.donate.secureNote}</span>
         </div>
       </CardContent>
     </Card>

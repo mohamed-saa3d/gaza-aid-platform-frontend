@@ -7,9 +7,11 @@ import { Share2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ProjectProgress } from "@/components/project-progress"
+import { useLocale } from "@/components/locale-provider"
 import type { Project } from "@/components/admin/projects/types"
 
 export function ProjectCard({ project }: { project: Project }) {
+  const { t } = useLocale()
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -67,7 +69,11 @@ export function ProjectCard({ project }: { project: Project }) {
           className="absolute end-3 top-3"
           variant={project.status === "ACTIVE" ? "secondary" : "default"}
         >
-          {project.status === "ACTIVE" ? "مستمر" : project.status === "PAUSED" ? "متوقف" : "مكتمل"}
+          {project.status === "ACTIVE"
+            ? t.common.statusOngoing
+            : project.status === "PAUSED"
+            ? t.common.statusPaused
+            : t.common.statusCompleted}
         </Badge>
       </div>
 
@@ -89,19 +95,19 @@ export function ProjectCard({ project }: { project: Project }) {
               variant="outline"
               size="icon"
               className="rounded-full"
-              aria-label="مشاركة المشروع"
+              aria-label={t.common.shareProject}
               onClick={handleShare}
             >
               <Share2 className="size-4" />
             </Button>
             {copied && (
               <span className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[10px] font-medium text-background shadow-sm">
-                تم نسخ رابط المشاركة
+                {t.common.shareLinkCopied}
               </span>
             )}
           </div>
           <Button asChild className="flex-1 rounded-full">
-            <Link href={`/donate?project=${project.id}`}>ساهم الآن</Link>
+            <Link href={`/donate?project=${project.id}`}>{t.common.contributeNow}</Link>
           </Button>
         </div>
       </div>

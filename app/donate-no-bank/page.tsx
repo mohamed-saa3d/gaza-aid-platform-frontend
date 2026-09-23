@@ -1,29 +1,31 @@
-import type { Metadata } from "next"
+"use client"
+
 import { Leaf, ShieldCheck, Zap } from "lucide-react"
+import { Breadcrumb } from "@/components/breadcrumb"
+import { useLocale } from "@/components/locale-provider"
 import { TransferMethodCard } from "@/components/donate-no-bank/transfer-method-card"
 
-export const metadata: Metadata = {
-  title: "تبرع مباشر - بدون حساب بنكي | مؤسسة قدس للإغاثة",
-  description: "اختر وسيلة التبرع المناسبة لك وقم بتحويل المبلغ مباشرة إلى مؤسسة قدس للإغاثة.",
-}
-
-const trustPoints = [
-  { icon: ShieldCheck, label: "آمن وموثوق", description: "حماية بياناتك وضمان خصوصيتك" },
-  { icon: Zap, label: "بدون عمولات", description: "يصل تبرعك كاملاً للمستحقين" },
-  { icon: Leaf, label: "تأكيد فوري", description: "تصلك رسالة عند اعتماد تبرعك" },
-]
-
 export default function DonateNoBankPage() {
+  const { t } = useLocale()
+
+  const trustPoints = [
+    { icon: ShieldCheck, label: t.donateNoBank.trustSecure, description: t.donateNoBank.trustSecureDesc },
+    { icon: Zap, label: t.donateNoBank.trustNoFees, description: t.donateNoBank.trustNoFeesDesc },
+    { icon: Leaf, label: t.donateNoBank.trustInstant, description: t.donateNoBank.trustInstantDesc },
+  ]
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb label="donateNoBank" />
+
       <div className="mb-10 text-center">
         <h1 className="flex items-center justify-center gap-2 font-heading text-3xl font-bold text-balance sm:text-4xl">
           <Leaf className="size-7 text-primary" aria-hidden="true" />
-          تبرع مباشر - بدون حساب بنكي
+          {t.donateNoBank.title}
           <Leaf className="size-7 rotate-180 text-primary" aria-hidden="true" />
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-pretty text-muted-foreground">
-          اختر وسيلة التبرع المناسبة لك وقم بتحويل المبلغ مباشرة
+          {t.donateNoBank.subtitle}
         </p>
       </div>
 
@@ -31,19 +33,19 @@ export default function DonateNoBankPage() {
         <TransferMethodCard
           order="01"
           image="/images/instapay-transfer.png"
-          imageAlt="تحويل عبر إنستاباي"
-          secondaryLabel="اسم الحساب"
+          imageAlt={t.donateNoBank.instapayAlt}
+          secondaryLabel={t.donateNoBank.accountNameLabel}
           secondaryIcon="user"
-          secondaryValue="مؤسسة قدس للإغاثة"
-          fieldLabel="عنوان الدفع (IPA)"
+          secondaryValue={t.donateNoBank.accountNameValue}
+          fieldLabel={t.donateNoBank.ipaLabel}
           fieldIcon="link"
           fieldValue="quds@instapay"
         />
         <TransferMethodCard
           order="02"
           image="/images/mobile-wallet-transfer.png"
-          imageAlt="تحويل عبر المحفظة الإلكترونية"
-          fieldLabel="رقم الهاتف"
+          imageAlt={t.donateNoBank.walletAlt}
+          fieldLabel={t.donateNoBank.phoneLabel}
           fieldIcon="phone"
           fieldValue="010XXXXXXX"
         />

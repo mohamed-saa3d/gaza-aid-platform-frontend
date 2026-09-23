@@ -6,6 +6,7 @@ import { Check, Copy, LinkIcon, Phone, User } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/locale-provider"
 
 interface TransferMethodCardProps {
   order: string
@@ -36,6 +37,7 @@ export function TransferMethodCard({
   secondaryValue,
   secondaryIcon,
 }: TransferMethodCardProps) {
+  const { t } = useLocale()
   const [copied, setCopied] = useState(false)
   const FieldIcon = iconMap[fieldIcon]
   const SecondaryIcon = secondaryIcon ? iconMap[secondaryIcon] : null
@@ -98,7 +100,7 @@ export function TransferMethodCard({
             copied && "border-primary bg-primary/10",
           )}
         >
-          {copied ? "تم النسخ" : "نسخ"}
+          {copied ? t.common.copied : t.common.copy}
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </Button>
       </CardContent>

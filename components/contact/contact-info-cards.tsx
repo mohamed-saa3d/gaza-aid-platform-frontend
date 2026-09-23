@@ -7,7 +7,7 @@ import { getPublicSettings, type PlatformSettings } from "@/lib/api/public"
 import { useLocale } from "@/components/locale-provider"
 
 export function ContactInfoCards() {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [settings, setSettings] = useState<PlatformSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -47,17 +47,17 @@ export function ContactInfoCards() {
   const infoItems = [
     {
       icon: MapPin,
-      title: "المقر الرئيسي",
-      lines: ["فلسطين"],
+      title: t.contact.headquarters,
+      lines: [t.footer.location],
     },
     {
       icon: Phone,
-      title: "خدمة العملاء",
-      lines: phone ? [phone, "متاح من 9 صباحاً حتى 5 مساءً"] : [],
+      title: t.contact.customerService,
+      lines: phone ? [phone, t.contact.phoneHours] : [],
     },
     {
       icon: Mail,
-      title: "البريد الإلكتروني",
+      title: t.contact.emailLabel,
       lines: email ? [email] : [],
     },
   ]
@@ -66,7 +66,7 @@ export function ContactInfoCards() {
     <div className="flex flex-col gap-4">
       {contactUnavailable && !loading && (
         <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-          تعذّر تحميل بيانات التواصل حالياً، يرجى تحديث الصفحة أو المحاولة لاحقاً.
+          {t.contact.unavailable}
         </p>
       )}
       {infoItems.map((item) => (
@@ -78,7 +78,7 @@ export function ContactInfoCards() {
                 <Loader2 className="size-3 animate-spin text-primary" />
               </div>
             ) : item.lines.length === 0 ? (
-              <span className="text-sm text-muted-foreground">—</span>
+              <span className="text-sm text-muted-foreground">{t.contact.noValue}</span>
             ) : (
               item.lines.map((line) => (
                 <span key={line} className="text-sm text-muted-foreground">

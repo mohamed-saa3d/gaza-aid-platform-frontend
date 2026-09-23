@@ -7,7 +7,7 @@ import { AmountStep } from "@/components/donate/amount-step"
 import { PaymentStep } from "@/components/donate/payment-step"
 import { ConfirmationStep } from "@/components/donate/confirmation-step"
 import { DonationSummaryCard } from "@/components/donate/donation-summary-card"
-import { featuredDonationProject } from "@/lib/mock-data"
+import { quickAmounts } from "@/lib/mock-data"
 
 export interface DonationState {
   reasonId: string
@@ -24,9 +24,11 @@ export type QuickDonationState = DonationState
 export function DonationFlow() {
   const [step, setStep] = useState(1)
   const [state, setState] = useState<DonationState>({
-    reasonId: "orphans",
+    // Empty until the real categories load; `AmountStep` fills it with the first
+    // category id so a donation is never tied to a hardcoded mock reason id.
+    reasonId: "",
     frequency: "once",
-    amount: featuredDonationProject.amount,
+    amount: quickAmounts[1],
     donorName: "",
     donorEmail: "",
     donorPhone: "",

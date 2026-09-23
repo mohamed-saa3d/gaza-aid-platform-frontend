@@ -3,15 +3,18 @@
 import { use, useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Home, ChevronLeft, CalendarDays, Loader2, AlertCircle, Newspaper, ExternalLink } from "lucide-react"
+import { CalendarDays, Loader2, AlertCircle, Newspaper, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { BreadcrumbWithDetail } from "@/components/breadcrumb"
+import { useLocale } from "@/components/locale-provider"
 import { getPublicNewsById } from "@/lib/api/public"
 import type { NewsItemData } from "@/components/admin/news/types"
 
 export default function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const { locale } = useLocale()
   const [news, setNews] = useState<NewsItemData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -65,19 +68,8 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Breadcrumbs */}
-      <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
-        <Link href="/" className="flex items-center gap-1 hover:text-foreground">
-          <Home className="size-4" />
-          <span>الرئيسية</span>
-        </Link>
-        <ChevronLeft className="size-4 ltr:rotate-180" />
-        <Link href="/news" className="hover:text-foreground">
-          <span>الأخبار</span>
-        </Link>
-        <ChevronLeft className="size-4 ltr:rotate-180" />
-        <span className="font-medium text-foreground truncate max-w-xs">{title}</span>
-      </nav>
+      {/* Breadcrumbs — localized via the shared client Breadcrumb component */}
+      <BreadcrumbWithDetail sectionLabel="news" sectionHref="/news" detail={title} className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground" />
 
       <Card className="overflow-hidden border-border/80 shadow-md">
         <CardContent className="flex flex-col gap-6 p-6 sm:p-8">
@@ -91,7 +83,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
               {news.createdAt && (
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <CalendarDays className="size-3.5" />
-                  {new Date(news.createdAt).toLocaleDateString("ar-EG", {
+                  {new Date(news.createdAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",

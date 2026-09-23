@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { paymentMethodIcons } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/components/locale-provider"
 import { formatCurrency } from "@/lib/currency"
@@ -26,8 +25,15 @@ interface PaymentStepProps {
 }
 
 export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepProps) {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [submitting, setSubmitting] = useState(false)
+
+  // Static payment-method labels come from the dictionary (the ids are stable keys).
+  const paymentMethods = [
+    { id: "cards", label: t.donate.methodCards, icon: "CreditCard" },
+    { id: "bank", label: t.donate.methodBank, icon: "Landmark" },
+    { id: "applepay", label: t.donate.methodApplepay, icon: "Smartphone" },
+  ]
 
   const canSubmit =
     state.donorName.trim().length > 1 &&
@@ -46,19 +52,19 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
   return (
     <div className="flex flex-col gap-8">
       <section>
-        <h2 className="mb-4 font-heading text-lg font-bold">بيانات المتبرع</h2>
+        <h2 className="mb-4 font-heading text-lg font-bold">{t.donate.donorDetailsTitle}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="donor-name">الاسم الكامل</Label>
+            <Label htmlFor="donor-name">{t.donate.fullName}</Label>
             <Input
               id="donor-name"
-              placeholder="محمد سعد"
+              placeholder={t.donate.fullNamePlaceholder}
               value={state.donorName}
               onChange={(e) => onChange({ donorName: e.target.value })}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="donor-email">البريد الإلكتروني</Label>
+            <Label htmlFor="donor-email">{t.donate.emailLabel}</Label>
             <Input
               id="donor-email"
               type="email"
@@ -71,13 +77,13 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
       </section>
 
       <section>
-        <h2 className="mb-4 font-heading text-lg font-bold">طريقة الدفع</h2>
+        <h2 className="mb-4 font-heading text-lg font-bold">{t.donate.paymentMethodTitle}</h2>
         <RadioGroup
           value={state.method}
           onValueChange={(v) => onChange({ method: v })}
           className="flex flex-col gap-3"
         >
-          {paymentMethodIcons.map((pm) => {
+          {paymentMethods.map((pm) => {
             const Icon = iconMap[pm.icon] ?? CreditCard
             const active = state.method === pm.id
             return (
@@ -101,11 +107,11 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
       {state.method === "cards" && (
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="card-number">رقم البطاقة</Label>
+            <Label htmlFor="card-number">{t.donate.cardNumber}</Label>
             <Input id="card-number" placeholder="•••• •••• •••• ••••" inputMode="numeric" />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="card-expiry">تاريخ الانتهاء</Label>
+            <Label htmlFor="card-expiry">{t.donate.cardExpiry}</Label>
             <Input id="card-expiry" placeholder="MM/YY" />
           </div>
           <div className="flex flex-col gap-2">
@@ -118,7 +124,7 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
       <div className="flex items-center gap-3">
         <Button variant="outline" size="lg" className="rounded-full" onClick={onBack}>
           <ChevronRight className="size-4 rotate-180 rtl:rotate-0" aria-hidden="true" />
-          رجوع
+          {t.donate.back}
         </Button>
         <Button
           size="lg"
@@ -129,10 +135,10 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
           {submitting ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              جارٍ إتمام التبرع...
+              {t.donate.processing}
             </>
           ) : (
-            `تأكيد التبرع بمبلغ ${formatCurrency(state.amount, locale)}`
+            t.donate.confirmAmount.replace("{amount}", formatCurrency(state.amount, locale))
           )}
         </Button>
       </div>

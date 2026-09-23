@@ -2,9 +2,11 @@ import Image from "next/image"
 import { CheckCircle2, CalendarDays, Users } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useLocale } from "@/components/locale-provider"
 import type { Project } from "@/components/admin/projects/types"
 
 export function CompletedUpdateCard({ project }: { project: Project }) {
+  const { locale, t } = useLocale()
   const title = project.title || project.titleAr || project.titleEn || ""
   const description = project.description || project.descriptionAr || project.descriptionEn || ""
   const image = project.imgUrl || project.imageUrl || project.image || "/placeholder.svg"
@@ -12,8 +14,10 @@ export function CompletedUpdateCard({ project }: { project: Project }) {
   const categoryName =
     project.categoryName ||
     (typeof project.category === "object" ? project.category?.name : undefined) ||
-    "مشروع مكتمل"
-  const dateStr = project.updatedAt ? new Date(project.updatedAt).toLocaleDateString("ar-EG") : ""
+    t.updates.completedBadge
+  const dateStr = project.updatedAt
+    ? new Date(project.updatedAt).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US")
+    : ""
 
   return (
     <Card className="overflow-hidden border-border/60 p-0">
@@ -27,7 +31,7 @@ export function CompletedUpdateCard({ project }: { project: Project }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
         <Badge className="absolute right-4 top-4 gap-1 rounded-full bg-primary text-primary-foreground">
           <CheckCircle2 className="size-3.5" aria-hidden="true" />
-          100% مكتمل
+          {t.updates.completedPercent}
         </Badge>
         <div className="absolute bottom-4 right-4 max-w-[80%]">
           <p className="text-xs font-medium text-primary-foreground/80">{categoryName}</p>
@@ -48,7 +52,7 @@ export function CompletedUpdateCard({ project }: { project: Project }) {
           {beneficiaries > 0 && (
             <span className="flex items-center gap-1">
               <Users className="size-3.5" aria-hidden="true" />
-              {beneficiaries.toLocaleString("ar-EG")} مستفيد
+              {beneficiaries.toLocaleString(locale === "ar" ? "ar-EG" : "en-US")} {t.updates.beneficiariesSuffix}
             </span>
           )}
         </div>

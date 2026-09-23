@@ -1,15 +1,20 @@
+"use client"
+
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const steps = [
-  { id: 1, label: "المبلغ والسبب" },
-  { id: 2, label: "الدفع" },
-  { id: 3, label: "التأكيد" },
-] as const
+import { useLocale } from "@/components/locale-provider"
 
 export function DonationStepper({ current }: { current: number }) {
+  const { t } = useLocale()
+
+  const steps = [
+    { id: 1, label: t.donate.stepAmount },
+    { id: 2, label: t.donate.stepPayment },
+    { id: 3, label: t.donate.stepConfirm },
+  ] as const
+
   return (
-    <ol className="mx-auto flex max-w-md items-center justify-between" aria-label="خطوات التبرع">
+    <ol className="mx-auto flex max-w-md items-center justify-between" aria-label={t.donate.stepsAria}>
       {steps.map((step, i) => {
         const done = current > step.id
         const active = current === step.id

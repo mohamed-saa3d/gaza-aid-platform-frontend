@@ -2,8 +2,11 @@ import Image from "next/image"
 import { CalendarDays } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import type { News } from "@/components/admin/news/types"
+import { useLocale } from "@/components/locale-provider"
 
 export function NewsArticleCard({ article }: { article: News }) {
+  const { t } = useLocale()
+
   return (
     <Card className="overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden">
@@ -25,7 +28,7 @@ export function NewsArticleCard({ article }: { article: News }) {
         <p className="line-clamp-2 text-pretty text-sm leading-relaxed text-muted-foreground">
           {article.description || article.descriptionAr || article.descriptionEn}
         </p>
-        <button className="mt-1 self-start text-sm font-semibold text-primary hover:underline">اقرأ المزيد</button>
+        <button className="mt-1 self-start text-sm font-semibold text-primary hover:underline">{t.news.readMore}</button>
       </CardContent>
     </Card>
   )

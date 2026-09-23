@@ -7,6 +7,7 @@ import { Home, ChevronLeft, Sprout, Loader2, AlertCircle, Share2, Heart } from "
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { BreadcrumbWithDetail } from "@/components/breadcrumb"
 import { ProjectProgress } from "@/components/project-progress"
 import { getPublicProjectById } from "@/lib/api/public"
 import { useLocale } from "@/components/locale-provider"
@@ -100,19 +101,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Breadcrumb Navigation */}
-      <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
-        <Link href="/" className="flex items-center gap-1 hover:text-foreground">
-          <Home className="size-4" />
-          <span>الرئيسية</span>
-        </Link>
-        <ChevronLeft className="size-4 ltr:rotate-180" />
-        <Link href="/projects" className="hover:text-foreground">
-          <span>المشاريع</span>
-        </Link>
-        <ChevronLeft className="size-4 ltr:rotate-180" />
-        <span className="font-medium text-foreground truncate max-w-xs">{title}</span>
-      </nav>
+      {/* Breadcrumb Navigation — localized via the shared client Breadcrumb component */}
+      <BreadcrumbWithDetail sectionLabel="projects" sectionHref="/projects" detail={title} className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground" />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
         {/* Main Project Details */}

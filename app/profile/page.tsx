@@ -1,7 +1,8 @@
 "use client"
 
-import { Home, ChevronLeft, Loader2 } from "lucide-react"
-import Link from "next/link"
+import { Loader2 } from "lucide-react"
+import { Breadcrumb } from "@/components/breadcrumb"
+import { useLocale } from "@/components/locale-provider"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { NotificationsCard } from "@/components/profile/notifications-card"
 import { WalletCard } from "@/components/profile/wallet-card"
@@ -15,13 +16,14 @@ import { GuestProfilePrompt } from "@/components/profile/guest-profile-prompt"
 
 export default function ProfilePage() {
   const { isAuthenticated, isLoading } = useAuth()
+  const { t } = useLocale()
 
   if (isLoading) {
     return (
       <main className="mx-auto flex min-h-[420px] max-w-7xl items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm">
           <Loader2 className="size-4 animate-spin text-primary" aria-hidden="true" />
-          جاري تحميل الملف الشخصي...
+          {t.profile.loading}
         </div>
       </main>
     )
@@ -33,14 +35,7 @@ export default function ProfilePage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
-        <Link href="/" className="flex items-center gap-1 hover:text-foreground">
-          <Home className="size-4" />
-          <span>الرئيسية</span>
-        </Link>
-        <ChevronLeft className="size-4 ltr:rotate-180" />
-        <span className="font-medium text-foreground">الملف الشخصي</span>
-      </nav>
+      <Breadcrumb label="profile" />
 
       <div className="mb-8">
         <ProfileHeader />
@@ -48,9 +43,9 @@ export default function ProfilePage() {
 
       <Tabs defaultValue="settings">
         <TabsList className="mb-6">
-          <TabsTrigger value="history">سجل التبرعات</TabsTrigger>
-          <TabsTrigger value="projects">مشاريعي</TabsTrigger>
-          <TabsTrigger value="settings">إعدادات الحساب</TabsTrigger>
+          <TabsTrigger value="history">{t.profile.tabHistory}</TabsTrigger>
+          <TabsTrigger value="projects">{t.profile.tabProjects}</TabsTrigger>
+          <TabsTrigger value="settings">{t.profile.tabSettings}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="history">

@@ -41,7 +41,7 @@ function keysForSection(sectionName) {
   return keys;
 }
 
-const SECTIONS = ['nav', 'footer', 'common', 'rating', 'home', 'hero', 'quickDonate', 'why', 'live', 'branding', 'currency'];
+const SECTIONS = ['nav', 'footer', 'common', 'rating', 'home', 'hero', 'quickDonate', 'why', 'live', 'branding', 'breadcrumb', 'pages', 'profile', 'updates', 'faq', 'donate', 'donateNoBank', 'about', 'news', 'contact', 'currency'];
 const defined = Object.fromEntries(SECTIONS.map((s) => [s, keysForSection(s)]));
 
 // Collect every file under components/ and app/.
@@ -63,7 +63,7 @@ const files = [...walk(path.join(ROOT, 'components')), ...walk(path.join(ROOT, '
 const used = new Map(); // "section.key" -> Set(files)
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');
-  for (const match of content.matchAll(/\bt\.(nav|footer|common|rating|home|hero|quickDonate|why|live|branding|currency)\.([A-Za-z0-9_]+)/g)) {
+  for (const match of content.matchAll(/\bt\.(nav|footer|common|rating|home|hero|quickDonate|why|live|branding|breadcrumb|pages|profile|updates|faq|donate|donateNoBank|about|news|contact|currency)\.([A-Za-z0-9_]+)/g)) {
     const key = `${match[1]}.${match[2]}`;
     if (!used.has(key)) used.set(key, new Set());
     used.get(key).add(path.relative(ROOT, file));
@@ -99,7 +99,7 @@ const enBlock = source.slice(enStart);
 
 function sectionsIn(block) {
   const result = {};
-  const re = /(nav|footer|common|rating|home|hero|quickDonate|why|live|branding|currency):\s*\{([\s\S]*?)\n    \}/g;
+  const re = /(nav|footer|common|rating|home|hero|quickDonate|why|live|branding|breadcrumb|pages|profile|updates|faq|donate|donateNoBank|about|news|contact|currency):\s*\{([\s\S]*?)\n    \}/g;
   let match;
   while ((match = re.exec(block))) {
     const keys = [];

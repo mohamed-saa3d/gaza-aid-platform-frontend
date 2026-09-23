@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Heart, ArrowLeft, Loader2, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Breadcrumb } from "@/components/breadcrumb"
+import { useLocale } from "@/components/locale-provider"
 import { CompletionRateCard } from "@/components/updates/completion-rate-card"
 import { ProgressOverTimeChart } from "@/components/updates/progress-over-time-chart"
 import { CompletedUpdateCard } from "@/components/updates/completed-update-card"
@@ -11,6 +13,7 @@ import { getPublicProjects } from "@/lib/api/public"
 import type { Project } from "@/components/admin/projects/types"
 
 export default function UpdatesPage() {
+  const { locale, t } = useLocale()
   const [completedProjects, setCompletedProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -27,16 +30,18 @@ export default function UpdatesPage() {
       }
     }
     fetchCompleted()
-  }, [])
+  }, [locale])
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumb label="updates" />
+
       <div className="mb-10 text-center">
         <h1 className="font-heading text-3xl font-bold text-balance sm:text-4xl">
-          تحديثات مشاريعنا
+          {t.pages.updatesTitle}
         </h1>
         <p className="mx-auto mt-3 max-w-2xl text-pretty text-muted-foreground">
-          نواصل العمل بروح الفريق الواحد لأثر مستدام يغيّر حياة المحتاجين نحو الأفضل.
+          {t.pages.updatesSubtitle}
         </p>
         <div className="mx-auto mt-5 flex items-center justify-center gap-3">
           <span className="h-px w-16 bg-border" aria-hidden="true" />
@@ -51,10 +56,10 @@ export default function UpdatesPage() {
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h2 className="font-heading text-2xl font-bold">أحدث المشاريع المكتملة</h2>
+        <h2 className="font-heading text-2xl font-bold">{t.updates.latestCompleted}</h2>
         <Button asChild variant="outline" className="gap-2 rounded-full">
           <Link href="/projects">
-            عرض كل المشاريع
+            {t.home.viewAllProjects}
             <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
           </Link>
         </Button>
@@ -73,9 +78,9 @@ export default function UpdatesPage() {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border p-12 text-center">
           <CheckCircle2 className="size-10 text-muted-foreground/60 mb-3" />
-          <p className="text-base font-semibold text-foreground">لا توجد مشاريع مكتملة حالياً</p>
+          <p className="text-base font-semibold text-foreground">{t.updates.noneTitle}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            تتم إضافة المشاريع المكتملة تلقائياً بمجرد الوصول لهدف التمويل أو عند إكمالها من لوحة التحكم.
+            {t.updates.noneBody}
           </p>
         </div>
       )}

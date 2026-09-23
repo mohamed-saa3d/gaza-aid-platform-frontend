@@ -4,13 +4,16 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { News } from "@/components/admin/news/types"
+import { useLocale } from "@/components/locale-provider"
 
 export function FeaturedArticleCard({ article }: { article: News }) {
+  const { t } = useLocale()
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2 lg:items-center lg:gap-10">
         <div className="flex flex-col gap-4">
-          {article.isUrgent ? <Badge className="w-fit rounded-full bg-destructive/10 text-destructive">عاجل</Badge> : null}
+          {article.isUrgent ? <Badge className="w-fit rounded-full bg-destructive/10 text-destructive">{t.news.urgent}</Badge> : null}
           <h2 className="text-balance font-heading text-xl font-bold leading-snug text-foreground sm:text-2xl">
             {article.title || article.titleAr || article.titleEn}
           </h2>
@@ -21,7 +24,7 @@ export function FeaturedArticleCard({ article }: { article: News }) {
           <p className="text-pretty leading-relaxed text-muted-foreground">
             {article.description || article.descriptionAr || article.descriptionEn}
           </p>
-          <Button className="w-fit rounded-full">اقرأ التفاصيل</Button>
+          <Button className="w-fit rounded-full">{t.news.readDetails}</Button>
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-xl lg:aspect-auto lg:h-full lg:min-h-[280px]">
           <Image
