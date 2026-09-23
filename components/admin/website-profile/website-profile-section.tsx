@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
-import { Globe, ImageUp, Loader2, Save } from "lucide-react"
+import { ImageUp, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,31 +14,28 @@ import { adminHttp, getErrorMessage } from "@/lib/http"
 import type { PlatformSettings } from "@/lib/api/public"
 
 /**
- * Website Profile — site name + site logo only.
+ * Website Profile — the site LOGO only.
  *
- * This is branding for the public website, NOT an administrator profile.
- * Both fields are persisted on the single PlatformSettings record and are read
- * back by the public settings endpoint that the public header/footer consume.
+ * The site NAME is no longer editable here. It is fixed, localized branding that
+ * lives in the frontend dictionary (`t.branding.siteName`), so it can never be
+ * left blank or drift from what the header, footer and metadata render. Only the
+ * logo is Admin-controlled: uploaded to Cloudinary and read back by the public
+ * settings endpoint the header and footer consume.
  */
 export function WebsiteProfileSection() {
   const [settings, setSettings] = useState<PlatformSettings | null>(null)
-  const [siteNameAr, setSiteNameAr] = useState("")
-  const [siteNameEn, setSiteNameEn] = useState("")
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
 
   const fetchSettings = useCallback(async () => {
     setLoading(true)
     try {
       const response = await adminHttp.get<{ data: PlatformSettings }>("/settings")
-      const data = response.data.data
-      setSettings(data)
-      setSiteNameAr(data.siteNameAr ?? "")
-      setSiteNameEn(data.siteNameEn ?? "")
-      setLogoPreview(data.logoUrl ?? null)
+      const settings = response.data.data
+      setSettings(settings)
+      setLogoPreview(settings.logoUrl ?? null)
     } catch (error) {
       toast.error(getErrorMessage(error) || "فشل تحميل بيانات الموقع")
     } finally {
@@ -66,23 +63,6 @@ export function WebsiteProfileSection() {
     setLogoPreview(URL.createObjectURL(file))
   }
 
-  const handleSave = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setSaving(true)
-    try {
-      const response = await adminHttp.put<{ data: PlatformSettings }>("/settings", {
-        siteNameAr: siteNameAr.trim(),
-        siteNameEn: siteNameEn.trim(),
-      })
-      setSettings(response.data.data)
-      toast.success("تم حفظ بيانات الموقع بنجاح")
-    } catch (error) {
-      toast.error(getErrorMessage(error) || "فشل حفظ بيانات الموقع")
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const handleLogoUpload = async () => {
     if (!logoFile) {
       toast.error("يرجى اختيار صورة الشعار أولاً")
@@ -98,11 +78,11 @@ export function WebsiteProfileSection() {
         headers: { "Content-Type": "multipart/form-data" },
       })
 
-      const data = response.data.data
-      setSettings(data)
+      const uploaded = response.data.data
+      setSettings(uploaded)
       setLogoFile(null)
       if (logoPreview?.startsWith("blob:")) URL.revokeObjectURL(logoPreview)
-      setLogoPreview(data.logoUrl ?? null)
+      setLogoPreview(uploaded.logoUrl ?? null)
       toast.success("تم رفع شعار الموقع بنجاح")
     } catch (error) {
       toast.error(getErrorMessage(error) || "فشل رفع شعار الموقع")
@@ -113,44 +93,6 @@ export function WebsiteProfileSection() {
 
   return (
     <section className="flex max-w-2xl flex-col gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="text-primary" />
-            اسم الموقع
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="flex flex-col gap-4" onSubmit={handleSave}>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="siteNameAr">اسم الموقع (بالعربية)</Label>
-              <Input
-                id="siteNameAr"
-                value={siteNameAr}
-                onChange={(event) => setSiteNameAr(event.target.value)}
-                placeholder="أدخل اسم الموقع بالعربية"
-                disabled={loading}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="siteNameEn">اسم الموقع (بالإنجليزية)</Label>
-              <Input
-                id="siteNameEn"
-                dir="ltr"
-                value={siteNameEn}
-                onChange={(event) => setSiteNameEn(event.target.value)}
-                placeholder="Enter the website name in English"
-                disabled={loading}
-              />
-            </div>
-            <Button className="mt-2 w-full" disabled={loading || saving}>
-              {saving ? <Loader2 className="ml-2 size-4 animate-spin" /> : <Save className="ml-2 size-4" />}
-              حفظ الاسم
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

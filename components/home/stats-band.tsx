@@ -80,14 +80,14 @@ export function StatsBand() {
   const stats: StatItem[] = [
     {
       id: "meals",
-      label: locale === "ar" ? "وجبة غذائية موزعة" : "Meals distributed",
+      label: t.home.impactMeals,
       value:
         settings && settings.foodBaskets > 0 ? `${formatNumber(settings.foodBaskets, locale)}+` : dash,
       icon: "UtensilsCrossed",
     },
     {
       id: "beneficiaries",
-      label: locale === "ar" ? "مستفيد من خدماتنا" : "People reached",
+      label: t.home.impactBeneficiaries,
       value:
         settings && settings.totalBeneficiaries > 0
           ? `${formatNumber(settings.totalBeneficiaries, locale)}+`
@@ -96,13 +96,13 @@ export function StatsBand() {
     },
     {
       id: "years",
-      label: locale === "ar" ? "سنوات العطاء" : "Years of giving",
+      label: t.home.impactYears,
       value: settings && settings.yearsOfGiving > 0 ? `${settings.yearsOfGiving}+` : dash,
       icon: "CalendarDays",
     },
     {
       id: "completed",
-      label: locale === "ar" ? "مشروع مكتمل" : "Completed projects",
+      label: t.home.impactCompleted,
       value:
         completedProjects !== null && completedProjects > 0
           ? formatNumber(completedProjects, locale)
@@ -139,13 +139,13 @@ export function StatsBand() {
 
         <div className="flex items-center gap-4 lg:flex-row-reverse">
           <h2 className="text-center font-heading text-xl font-bold md:text-2xl">
-            {locale === "ar" ? "أثر عطائكم في أرقام" : "Your impact in numbers"}
+            {t.home.impactHeading}
           </h2>
           <Link
             href="/updates"
             className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary-foreground/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-foreground/20"
           >
-            {locale === "ar" ? "عرض المزيد" : "View more"}
+            {t.home.viewMore}
             <ChevronLeft className="size-4 ltr:rotate-180" />
           </Link>
         </div>

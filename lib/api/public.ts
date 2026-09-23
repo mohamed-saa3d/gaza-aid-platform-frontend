@@ -127,8 +127,6 @@ export async function getPublicProjectHistory(
 
 export interface PlatformSettings {
   id: string
-  siteNameAr: string
-  siteNameEn: string
   aboutUsTextAr: string
   aboutUsTextEn: string
   logoUrl: string | null

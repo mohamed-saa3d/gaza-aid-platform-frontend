@@ -15,7 +15,9 @@ export function SiteHeader() {
   const { t, locale, toggleLocale } = useLocale()
   const pathname = usePathname()
   const { user, isAuthenticated } = useAuth()
-  const { logoUrl, siteName } = useSiteBranding(locale, t.footer.orgName)
+  // Site name is static, localized branding (never DB-driven); logo is DB-backed.
+  const { logoUrl } = useSiteBranding()
+  const siteName = t.branding.siteName
   if (pathname.startsWith('/admin')) return null
 
   const navItems = [

@@ -1,39 +1,59 @@
 "use client"
 
-import { useState } from "react"
-import {
-  Droplet,
-  Droplets,
-  HandCoins,
-  Home,
-  Lock,
-  UtensilsCrossed,
-  Users,
-  type LucideIcon,
-} from "lucide-react"
+import { useEffect, useState } from "react"
+import { LayoutGrid, Loader2, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { donationReasons, quickAmounts } from "@/lib/mock-data"
+import { quickAmounts } from "@/lib/mock-data"
 import { useLocale } from "@/components/locale-provider"
 import { formatCurrency } from "@/lib/currency"
+import { getPublicCategories } from "@/lib/api/public"
+import { resolveCategoryIcon } from "@/lib/category-icons"
+import type { Category } from "@/components/admin/categories/types"
 
-const iconMap: Record<string, LucideIcon> = {
-  Droplet,
-  UtensilsCrossed,
-  Home,
-  Users,
-  HandCoins,
-  Droplets,
-}
-
-type DonationReasonId = (typeof donationReasons)[number]["id"]
+/**
+ * Quick Donate cause picker.
+ *
+ * The causes are the SAME six categories the Home Category Strip shows — both
+ * read the real Categories API and take the first `PRIMARY_CATEGORY_COUNT`
+ * entries, which the backend already orders defaults-first. There is deliberately
+ * NO second hardcoded list here.
+ */
+const PRIMARY_CATEGORY_COUNT = 6
 
 export function QuickDonateWidget() {
-  const { locale } = useLocale()
-  const [reason, setReason] = useState<DonationReasonId>(donationReasons[0].id)
+  const { locale, t } = useLocale()
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [amount, setAmount] = useState<number | null>(quickAmounts[2])
   const [customAmount, setCustomAmount] = useState<number | "">("")
+
+  useEffect(() => {
+    let cancelled = false
+    setLoadingCategories(true)
+
+    getPublicCategories({ limit: 100 })
+      .then((res) => {
+        if (cancelled) return
+        const list = Array.isArray(res?.data) ? res.data : []
+        const primary = list.slice(0, PRIMARY_CATEGORY_COUNT)
+        setCategories(primary)
+        setSelectedId((prev) => prev ?? primary[0]?.id ?? null)
+      })
+      .catch((error) => {
+        console.error("Failed to load quick-donate categories", error)
+        if (!cancelled) setCategories([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingCategories(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [locale])
 
   const selectedAmount = amount ?? (customAmount === "" ? 0 : Number(customAmount))
   const isDonateDisabled = !(selectedAmount > 0)
@@ -71,30 +91,42 @@ export function QuickDonateWidget() {
 
   return (
     <div className="w-full max-w-xs sm:max-w-sm rounded-3xl border border-border bg-card p-6 shadow-xl">
-      <h3 className="text-center font-heading text-lg font-bold text-foreground">تبرع بسهولة وأمان</h3>
-      <p className="mt-1 text-center text-xs text-muted-foreground">اختر سبب تبرعك</p>
+      <h3 className="text-center font-heading text-lg font-bold text-foreground">{t.quickDonate.heading}</h3>
+      <p className="mt-1 text-center text-xs text-muted-foreground">{t.quickDonate.chooseReason}</p>
 
       <div className="mt-4 grid grid-cols-3 gap-2.5">
-        {donationReasons.map((item) => {
-          const Icon = iconMap[item.icon]
-          const active = reason === item.id
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setReason(item.id)}
-              className={cn(
-                "flex flex-col items-center gap-1.5 rounded-2xl border p-3 text-xs font-medium transition-colors",
-                active
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/40 hover:bg-secondary",
-              )}
-            >
-              <Icon className="size-5" />
-              {item.label}
-            </button>
-          )
-        })}
+        {loadingCategories ? (
+          <div className="col-span-3 flex items-center justify-center py-6">
+            <Loader2 className="size-5 animate-spin text-primary" />
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="col-span-3 flex flex-col items-center gap-1.5 py-6 text-center text-xs text-muted-foreground">
+            <LayoutGrid className="size-5" />
+            {t.common.noResults}
+          </div>
+        ) : (
+          categories.map((category) => {
+            const Icon = resolveCategoryIcon(category.icon)
+            const active = selectedId === category.id
+            const label = category.name || category.nameAr || category.nameEn
+            return (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => setSelectedId(category.id)}
+                className={cn(
+                  "flex flex-col items-center gap-1.5 rounded-2xl border p-3 text-xs font-medium transition-colors",
+                  active
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:border-primary/40 hover:bg-secondary",
+                )}
+              >
+                <Icon className="size-5" />
+                {label}
+              </button>
+            )
+          })
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2.5">
@@ -122,7 +154,7 @@ export function QuickDonateWidget() {
         <Input
           type="number"
           inputMode="numeric"
-          placeholder="اضف مبلغ للتبرع"
+          placeholder={t.quickDonate.customAmountPlaceholder}
           value={customAmount}
           onChange={handleCustomAmountChange}
           className="h-11 rounded-xl text-center"
@@ -135,10 +167,10 @@ export function QuickDonateWidget() {
         onClick={handleDonate}
       >
         <Lock className="size-4" data-icon="inline-start" />
-        تبرع الآن
+        {t.quickDonate.donateNow}
       </Button>
 
-      <p className="mt-3 text-center text-[11px] text-muted-foreground">تجربة دفع آمنة 100%</p>
+      <p className="mt-3 text-center text-[11px] text-muted-foreground">{t.quickDonate.secureNote}</p>
     </div>
   )
 }

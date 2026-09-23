@@ -1,5 +1,7 @@
+"use client"
+
 import { BarChart3, HeartHandshake, ShieldCheck, Users2, type LucideIcon } from "lucide-react"
-import { whyChooseUs } from "@/lib/mock-data"
+import { useLocale } from "@/components/locale-provider"
 
 const iconMap: Record<string, LucideIcon> = {
   HeartHandshake,
@@ -8,15 +10,30 @@ const iconMap: Record<string, LucideIcon> = {
   ShieldCheck,
 }
 
+/**
+ * "Why choose us" — the heading and every tile are STATIC UI copy and therefore
+ * come from the i18n dictionary, not from `mock-data`. The previous version
+ * imported hardcoded Arabic from mock-data, which is why an Arabic heading stayed
+ * visible in English mode.
+ */
 export function WhyChooseUs() {
+  const { t } = useLocale()
+
+  const items = [
+    { id: "reach", title: t.why.reachTitle, description: t.why.reachDescription, icon: "HeartHandshake" },
+    { id: "transparency", title: t.why.transparencyTitle, description: t.why.transparencyDescription, icon: "BarChart3" },
+    { id: "execution", title: t.why.executionTitle, description: t.why.executionDescription, icon: "Users2" },
+    { id: "trust", title: t.why.trustTitle, description: t.why.trustDescription, icon: "ShieldCheck" },
+  ]
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
       <h2 className="text-center font-heading text-2xl font-bold text-foreground md:text-3xl">
-        لماذا تختار مؤسسة قدس للإغاثة؟
+        {t.home.whyHeading}
       </h2>
 
       <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {whyChooseUs.map((item) => {
+        {items.map((item) => {
           const Icon = iconMap[item.icon]
           return (
             <div

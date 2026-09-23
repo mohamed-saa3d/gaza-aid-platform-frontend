@@ -1,14 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getPublicSettings, type PlatformSettings } from "@/lib/api/public"
+import { getPublicSettings } from "@/lib/api/public"
 
 /** Static logo shipped with the app, used until an Admin uploads a real one. */
 const FALLBACK_LOGO = "/images/logo-mark.png"
 
 export interface SiteBranding {
-  /** Admin-configured site name for the active language, falling back to the dictionary. */
-  siteName: string
   /** Cloudinary logo URL when set, otherwise the bundled static logo. */
   logoUrl: string
   /** True while the public settings request is still in flight. */
@@ -16,15 +14,15 @@ export interface SiteBranding {
 }
 
 /**
- * Reads the Admin-controlled branding (site name + logo) from the public
- * settings endpoint. Used by both the public header and footer so the two can
- * never disagree about what the site is called or which logo it shows.
+ * Reads the Admin-controlled logo from the public settings endpoint.
  *
- * `fallbackName` is the localized name from the i18n dictionary and is only used
- * when the database has no value yet — never to override a saved one.
+ * The SITE NAME is deliberately NOT read from the database any more: it is fixed
+ * branding that lives in the i18n dictionary (`t.branding.siteName`), so it can
+ * never be left blank by an empty settings row or diverge between the header,
+ * the footer and page metadata. Only the logo remains DB-backed.
  */
-export function useSiteBranding(locale: "ar" | "en", fallbackName: string): SiteBranding {
-  const [settings, setSettings] = useState<PlatformSettings | null>(null)
+export function useSiteBranding(): SiteBranding {
+  const [settings, setSettings] = useState<{ logoUrl?: string | null } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -48,11 +46,9 @@ export function useSiteBranding(locale: "ar" | "en", fallbackName: string): Site
     return () => {
       cancelled = true
     }
-  }, [locale])
+  }, [])
 
-  const configuredName = locale === "ar" ? settings?.siteNameAr : settings?.siteNameEn
-  const siteName = configuredName?.trim() || fallbackName || ""
   const logoUrl = settings?.logoUrl?.trim() || FALLBACK_LOGO
 
-  return { siteName, logoUrl, loading }
+  return { logoUrl, loading }
 }

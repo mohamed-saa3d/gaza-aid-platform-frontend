@@ -8,7 +8,11 @@ export type LocaleDictionary = {
   common: DictionarySection
   rating: DictionarySection
   home: DictionarySection
+  hero: DictionarySection
+  quickDonate: DictionarySection
+  why: DictionarySection
   live: DictionarySection
+  branding: DictionarySection
   currency: DictionarySection
 }
 
@@ -88,6 +92,40 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       platformRating: "تقييم المنصة",
       totalUsers: "إجمالي المستخدمين",
       browseProjects: "تصفح المشاريع",
+      projectsTitle: "مشاريع تنقذ الحياة",
+      viewAllProjects: "عرض جميع المشاريع",
+      whyHeading: "لماذا تختار مؤسسة قدس للإغاثة؟",
+      impactHeading: "أثر عطائكم في أرقام",
+      impactMeals: "وجبة غذائية موزعة",
+      impactBeneficiaries: "مستفيد من خدماتنا",
+      impactYears: "سنوات العطاء",
+      impactCompleted: "مشروع مكتمل",
+      viewMore: "عرض المزيد",
+    },
+    hero: {
+      locationBadge: "غزة تحتاجنا",
+      title: "نخفف المعاناة ونصنع الأمل",
+      subtitle: "معاً من أجل غزة .. معاً من أجل الإنسان",
+      donateNow: "تبرع الآن",
+      browseProjects: "أو تصفح المشاريع",
+      imageAlt: "طفل من غزة يحتاج للدعم",
+    },
+    quickDonate: {
+      heading: "تبرع بسهولة وأمان",
+      chooseReason: "اختر سبب تبرعك",
+      customAmountPlaceholder: "اضف مبلغ للتبرع",
+      donateNow: "تبرع الآن",
+      secureNote: "تجربة دفع آمنة 100%",
+    },
+    why: {
+      reachTitle: "نصل للآخرين",
+      reachDescription: "نصل للمحتاجين في كل مكان",
+      transparencyTitle: "شفافية كاملة",
+      transparencyDescription: "تقارير دورية ووضوح في الأداء",
+      executionTitle: "تنفيذ محترف",
+      executionDescription: "فريق ميداني ذو خبرة",
+      trustTitle: "موثوق ومعتمد",
+      trustDescription: "مرخصة ومعتمدة رسمياً",
     },
     live: {
       checking: "جاري التحقق من وجود بث مباشر...",
@@ -100,6 +138,12 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       unavailableBody:
         "يوجد بث مباشر مجدول حالياً لكن الرابط غير قابل للتشغيل. يرجى المحاولة لاحقاً أو متابعة صفحاتنا على وسائل التواصل الاجتماعي.",
       backHome: "العودة إلى الرئيسية",
+    },
+    // Static, localized brand name. Intentionally NOT database-driven: the site
+    // name is fixed branding that ships with the app, so it can never be left
+    // blank or diverge between the header, footer and metadata.
+    branding: {
+      siteName: "مؤسسة قدس للإغاثة",
     },
     currency: {
       label: "دولار أمريكي",
@@ -182,6 +226,40 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       platformRating: "Platform Rating",
       totalUsers: "Total users",
       browseProjects: "Browse projects",
+      projectsTitle: "Life-saving projects",
+      viewAllProjects: "View all projects",
+      whyHeading: "Why choose Quds Relief Foundation?",
+      impactHeading: "Your impact in numbers",
+      impactMeals: "Meals distributed",
+      impactBeneficiaries: "People reached",
+      impactYears: "Years of giving",
+      impactCompleted: "Completed projects",
+      viewMore: "View more",
+    },
+    hero: {
+      locationBadge: "Gaza needs us",
+      title: "We ease suffering and build hope",
+      subtitle: "Together for Gaza. Together for humanity.",
+      donateNow: "Donate now",
+      browseProjects: "Or browse projects",
+      imageAlt: "A child in Gaza who needs support",
+    },
+    quickDonate: {
+      heading: "Donate easily and securely",
+      chooseReason: "Choose your donation cause",
+      customAmountPlaceholder: "Add a donation amount",
+      donateNow: "Donate now",
+      secureNote: "100% secure payment experience",
+    },
+    why: {
+      reachTitle: "We reach others",
+      reachDescription: "We reach those in need everywhere",
+      transparencyTitle: "Full transparency",
+      transparencyDescription: "Regular reports and clear performance",
+      executionTitle: "Professional execution",
+      executionDescription: "An experienced field team",
+      trustTitle: "Trusted and certified",
+      trustDescription: "Officially licensed and accredited",
     },
     live: {
       checking: "Checking for a live stream...",
@@ -194,6 +272,9 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       unavailableBody:
         "A live stream is scheduled but its link cannot be played right now. Please try again later or follow our social media pages.",
       backHome: "Back to home",
+    },
+    branding: {
+      siteName: "Quds Relief Foundation",
     },
     currency: {
       label: "US Dollar",

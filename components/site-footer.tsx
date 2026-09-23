@@ -13,9 +13,11 @@ import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "@/components/so
 import { getPublicSettings } from "@/lib/api/public"
 
 export function SiteFooter() {
-  const { t, locale } = useLocale()
+  const { t } = useLocale()
   const pathname = usePathname()
-  const { logoUrl, siteName } = useSiteBranding(locale, t.footer.orgName)
+  // Site name is static, localized branding (never DB-driven); logo is DB-backed.
+  const { logoUrl } = useSiteBranding()
+  const siteName = t.branding.siteName
   const [contact, setContact] = useState<{ phone: string | null; email: string | null }>({
     phone: null,
     email: null,

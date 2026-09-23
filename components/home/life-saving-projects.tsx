@@ -8,9 +8,11 @@ import { FeaturedProjectCarousel } from "@/components/home/featured-project-caro
 import { PlatformRatingCard } from "@/components/home/platform-rating-card"
 import { ProjectCard } from "@/components/project-card"
 import { getPublicProjects } from "@/lib/api/public"
+import { useLocale } from "@/components/locale-provider"
 import type { Project } from "@/components/admin/projects/types"
 
 export function LifeSavingProjects() {
+  const { t } = useLocale()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -35,13 +37,13 @@ export function LifeSavingProjects() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 md:px-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-2xl font-bold text-foreground md:text-3xl">مشاريع تنقذ الحياة</h2>
+        <h2 className="font-heading text-2xl font-bold text-foreground md:text-3xl">{t.home.projectsTitle}</h2>
         <Link
           href="/projects"
           className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
         >
           <ChevronLeft className="size-4 ltr:rotate-180" />
-          عرض جميع المشاريع
+          {t.home.viewAllProjects}
         </Link>
       </div>
 
