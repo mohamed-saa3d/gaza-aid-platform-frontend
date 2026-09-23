@@ -29,8 +29,10 @@ import {
 } from "@/components/ui/select"
 
 import { createProject } from "./api"
-import { createProjectSchema, projectFormSchema } from "./schema"
-import { http, getErrorMessage } from "@/lib/http"
+import { projectFormSchema } from "./schema"
+import { getCategories } from "@/components/admin/categories/api"
+import type { Category } from "@/components/admin/categories/types"
+import { getErrorMessage } from "@/lib/http"
 
 interface CreateProjectDialogProps {
   onSuccess?: () => void
@@ -54,25 +56,30 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
   const [imageFile, setImageFile] = useState<File | null>(null)
 
-  const [categories, setCategories] = useState<{ id?: string; _id?: string; nameAr?: string; nameEn?: string; name?: string }[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(false)
 
+  // Category options always come from the real categories API — never hardcoded.
   useEffect(() => {
-    async function fetchCategories() {
-      setIsLoadingCategories(true)
-      try {
-        const res = await http.get("/categories")
-        const rawData = res?.data?.data || res?.data || res;
-        const categoriesList = Array.isArray(rawData) ? rawData : [];
-        setCategories(categoriesList);
-      } catch (error) {
+    if (!open) return
+
+    let cancelled = false
+    setIsLoadingCategories(true)
+
+    getCategories({ page: 1, limit: 100 })
+      .then((res) => {
+        if (!cancelled) setCategories(Array.isArray(res?.data) ? res.data : [])
+      })
+      .catch((error) => {
         console.error("Failed to fetch categories", error)
-      } finally {
-        setIsLoadingCategories(false)
-      }
-    }
-    if (open) {
-      fetchCategories()
+        if (!cancelled) setCategories([])
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingCategories(false)
+      })
+
+    return () => {
+      cancelled = true
     }
   }, [open])
 
@@ -124,8 +131,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
 
     try {
       const validData = validationResult.data
-      console.log("Submitting categoryId:", validData.categoryId)
-      
+
       await createProject(
         {
           titleAr: validData.titleAr,
@@ -301,14 +307,11 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                   {isLoadingCategories ? (
                     <SelectItem value="loading" disabled>جاري تحميل الفئات...</SelectItem>
                   ) : categories.length > 0 ? (
-                    categories.map((cat: any) => {
-                      const catId = cat.id || cat._id
-                      return (
-                        <SelectItem key={catId} value={catId}>
-                          {cat.nameAr || cat.name || cat.nameEn || "فئة بدون اسم"}
-                        </SelectItem>
-                      )
-                    })
+                    categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.nameAr || cat.nameEn || "فئة بدون اسم"}
+                      </SelectItem>
+                    ))
                   ) : (
                     <SelectItem value="empty" disabled>لا توجد فئات</SelectItem>
                   )}

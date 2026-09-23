@@ -8,7 +8,7 @@
 import http from "@/lib/http"
 import type { FAQ, FAQListResponse } from "@/components/admin/faqs/types"
 import type { LiveStream, LiveStreamListResponse } from "@/components/admin/livestreams/types"
-import type { Project, ProjectsListResponse } from "@/components/admin/projects/types"
+import type { Project, ProjectCategory, ProjectsListResponse } from "@/components/admin/projects/types"
 import type { News, NewsListResponse } from "@/components/admin/news/types"
 import type { Category, CategoryListResponse } from "@/components/admin/categories/types"
 import type { ApiResponse } from "@/lib/http"
@@ -39,8 +39,19 @@ export async function getPublicProjects(params?: {
   page?: number
   limit?: number
   status?: string
+  /**
+   * Filters by category. Omit it entirely for "All" so uncategorized projects
+   * (those whose category was deleted) are still returned.
+   */
+  categoryId?: string
 }): Promise<ProjectsListResponse> {
   const response = await http.get<ProjectsListResponse>("/projects", { params })
+  return response.data
+}
+
+/** Categories that still own live projects — powers the public filter bar. */
+export async function getPublicProjectCategories(): Promise<ApiResponse<ProjectCategory[]>> {
+  const response = await http.get<ApiResponse<ProjectCategory[]>>("/projects/categories")
   return response.data
 }
 

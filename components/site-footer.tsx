@@ -6,12 +6,39 @@ import { Mail, MapPin, Phone, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLocale } from "@/components/locale-provider"
+import { useSiteBranding } from "@/hooks/use-site-branding"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "@/components/social-icons"
+import { getPublicSettings } from "@/lib/api/public"
 
 export function SiteFooter() {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const pathname = usePathname()
+  const { logoUrl, siteName } = useSiteBranding(locale, t.footer.orgName)
+  const [contact, setContact] = useState<{ phone: string | null; email: string | null }>({
+    phone: null,
+    email: null,
+  })
+
+  useEffect(() => {
+    let cancelled = false
+    getPublicSettings()
+      .then((res) => {
+        if (cancelled) return
+        setContact({
+          phone: res?.data?.contactPhone?.trim() || null,
+          email: res?.data?.contactEmail?.trim() || null,
+        })
+      })
+      .catch(() => {
+        // The footer simply omits contact rows it could not load.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   if (pathname.startsWith('/admin')) return null
 
   const quickLinks = [
@@ -34,13 +61,14 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <Image
-                src="/images/logo-mark.png"
-                alt="شعار المؤسسة"
+                src={logoUrl}
+                alt={siteName}
                 width={28}
                 height={28}
                 className="size-7 object-contain"
+                unoptimized={!logoUrl.startsWith("/")}
               />
-              <span className="font-heading text-lg font-bold">{t.footer.orgName}</span>
+              <span className="font-heading text-lg font-bold">{siteName}</span>
             </div>
             <p className="text-sm leading-relaxed text-primary-foreground/75">
               {t.footer.description}
@@ -75,14 +103,18 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <h3 className="font-heading text-base font-bold">{t.footer.contactInfo}</h3>
             <ul className="flex flex-col gap-3 text-sm text-primary-foreground/75">
-              <li className="flex items-center gap-2">
-                <Phone className="size-4 shrink-0" />
-                <span>+966 50 123 4567</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="size-4 shrink-0" />
-                <span>info@qudsrelief.org</span>
-              </li>
+              {contact.phone && (
+                <li className="flex items-center gap-2">
+                  <Phone className="size-4 shrink-0" />
+                  <span dir="ltr">{contact.phone}</span>
+                </li>
+              )}
+              {contact.email && (
+                <li className="flex items-center gap-2">
+                  <Mail className="size-4 shrink-0" />
+                  <span dir="ltr">{contact.email}</span>
+                </li>
+              )}
               <li className="flex items-center gap-2">
                 <MapPin className="size-4 shrink-0" />
                 <span>{t.footer.location}</span>
@@ -120,7 +152,7 @@ export function SiteFooter() {
         <div className="mt-10 flex flex-col gap-4 border-t border-primary-foreground/15 pt-6 text-xs text-primary-foreground/60">
           <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
             <p>
-              © 2026 {t.footer.orgName}. {t.footer.rights}
+              © 2026 {siteName}. {t.footer.rights}
             </p>
             <div className="flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1.5">
               <span>مرخصة من المركز الوطني لتنمية القطاع غير الربحي (رقم 1234)</span>

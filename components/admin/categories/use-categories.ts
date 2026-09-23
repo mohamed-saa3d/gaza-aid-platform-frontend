@@ -1,9 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { getCategories, createCategory, updateCategory, deleteCategory } from './api'
-import type { Category } from './types'
+import { isConfirmationRequired, type Category, type CategoryDeleteConfirmationRequired } from './types'
 import type { CategoryFormInput } from './schema'
 import { getErrorMessage } from '@/lib/http'
+
+export type DeleteOutcome =
+  | { status: 'deleted' }
+  | { status: 'confirmation_required'; warning: CategoryDeleteConfirmationRequired }
+  | { status: 'error' }
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -56,15 +61,30 @@ export function useCategories() {
     }
   }
 
-  const handleDeleteCategory = async (id: string, name: string) => {
+  const handleDeleteCategory = async (
+    id: string,
+    name: string,
+    options?: { confirmUnassignProjects?: boolean },
+  ): Promise<DeleteOutcome> => {
     try {
-      await deleteCategory(id)
-      toast.success(`تم حذف الفئة "${name}" بنجاح`)
+      const result = await deleteCategory(id, options)
+
+      if (isConfirmationRequired(result)) {
+        // Nothing was deleted. The backend supplied the real linked count.
+        return { status: 'confirmation_required', warning: result }
+      }
+
+      const affected = result.data?.unassignedProjectCount ?? 0
+      toast.success(
+        affected > 0
+          ? `تم حذف الفئة "${name}" وتحويل ${affected} مشروع إلى "غير مصنف"`
+          : `تم حذف الفئة "${name}" بنجاح`,
+      )
       await fetchCategoriesList(meta.page, meta.limit)
-      return true
+      return { status: 'deleted' }
     } catch (err) {
       toast.error(getErrorMessage(err) || 'فشل حذف الفئة')
-      return false
+      return { status: 'error' }
     }
   }
 

@@ -6,6 +6,67 @@ const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "").replace(/\/api$/, "/api/v1")
 
 const makeRequestId = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `req-${Date.now()}-${Math.random().toString(16).slice(2)}`)
 
+/** Locales the backend can localize its responses into. */
+export const SUPPORTED_LOCALES = ['ar', 'en'] as const
+export type Locale = (typeof SUPPORTED_LOCALES)[number]
+export const DEFAULT_LOCALE: Locale = 'ar'
+export const LOCALE_STORAGE_KEY = 'preferred-locale'
+
+const isSupportedLocale = (value: string | null | undefined): value is Locale =>
+  !!value && (SUPPORTED_LOCALES as readonly string[]).includes(value)
+
+/**
+ * The single source of truth for the active content locale outside React.
+ * `LocaleProvider` keeps this in sync on every change, and the HTTP client reads
+ * it here — so no component has to remember to pass a locale explicitly.
+ */
+export const getActiveLocale = (): Locale => {
+  if (typeof window === 'undefined') return DEFAULT_LOCALE
+
+  try {
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY)
+    return isSupportedLocale(stored) ? stored : DEFAULT_LOCALE
+  } catch {
+    return DEFAULT_LOCALE
+  }
+}
+
+export const setActiveLocale = (locale: Locale): void => {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+  } catch {
+    // Storage can be unavailable (private mode); the request header then falls
+    // back to the Arabic default rather than breaking the call.
+  }
+}
+
+/**
+ * Public, localized content endpoints.
+ *
+ * The locale is injected by the request interceptor for exactly these routes, so
+ * every public consumer gets a backend-localized response without repeating the
+ * parameter. Admin mutations and uploads are untouched: they must keep sending
+ * the raw `titleAr`/`titleEn` fields the forms edit.
+ */
+const LOCALIZED_REQUEST_PATTERNS: RegExp[] = [
+  /^\/projects(\?|$)/,
+  /^\/categories(\?|$)/,
+  /^\/news(\?|$)/,
+  /^\/faqs(\?|$)/,
+  /^\/live-streams(\?|$)/,
+  /^\/settings(\?|$)/,
+]
+
+const isLocalizedRequest = (method: string | undefined, url: string): boolean => {
+  const normalizedMethod = (method ?? 'get').toLowerCase()
+
+  if (normalizedMethod !== 'get') return false
+
+  return LOCALIZED_REQUEST_PATTERNS.some((pattern) => pattern.test(url))
+}
+
 const getScopeFromPath = (path: string) => {
   if (!path) return 'unknown'
   if (path.startsWith('/admin')) return 'admin'
@@ -18,6 +79,11 @@ export type AuthScope = 'user' | 'admin'
 declare module 'axios' {
   export interface AxiosRequestConfig {
     authScope?: AuthScope
+    /**
+     * Status codes whose global toast should be suppressed because the calling
+     * feature handles them itself (e.g. a 409 confirmation prompt).
+     */
+    silentStatuses?: number[]
   }
 }
 
@@ -94,9 +160,20 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const requestId = makeRequestId()
   const headers = { ...(config.headers as Record<string, string> | undefined) }
   headers['X-Correlation-Id'] = requestId
-  config.headers = headers as any
 
   const url = config.url || ''
+
+  // One central place sends the active locale for localized GET responses, so a
+  // component can never forget it. Sent as a query param (the canonical contract)
+  // AND as a header, so URL inspection in devtools shows the locale explicitly.
+  if (isLocalizedRequest(config.method, url)) {
+    const locale = getActiveLocale()
+    headers['X-Locale'] = locale
+    config.params = { ...(config.params as Record<string, unknown> | undefined), locale }
+  }
+
+  config.headers = headers as any
+
   const scope = getScopeFromPath(url)
   const credentialsIncluded = Boolean(config.withCredentials)
   logAuthTrace('request-start', config, undefined, { scope, credentialsIncluded, authEndpoint: url.includes('/auth/') || url.includes('/admin/') || url.includes('/users/') })
@@ -113,12 +190,12 @@ http.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = originalRequest?.url || ""
     const isAuthEndpoint =
-        requestUrl.includes("/auth/user/refresh") ||
-        requestUrl.includes("/admin/refresh") ||
+      requestUrl.includes("/auth/user/refresh") ||
+      requestUrl.includes("/admin/refresh") ||
       requestUrl.includes("/auth/login") ||
       requestUrl.includes("/admin/login") ||
-        requestUrl.includes("/auth/user/logout") ||
-        requestUrl.includes("/admin/logout") ||
+      requestUrl.includes("/auth/user/logout") ||
+      requestUrl.includes("/admin/logout") ||
       requestUrl.includes("/auth/register") ||
       requestUrl.includes("/auth/verify-email") ||
       requestUrl.includes("/auth/resend-otp") ||
@@ -185,10 +262,16 @@ http.interceptors.response.use(
         id: "rate-limit-warning",
       })
     } else if (status === 400) {
+      if (originalRequest.silentStatuses?.includes(400)) {
+        return Promise.reject(error)
+      }
       toast.error(responseData?.message || "يرجى مراجعة البيانات المدخلة", {
         id: "validation-error",
       })
     } else if (status === 403 || status === 404 || status === 409 || status >= 500) {
+      if (originalRequest.silentStatuses?.includes(status)) {
+        return Promise.reject(error)
+      }
       const isSilentProfileError = requestUrl.includes("/users/profile") && (status === 401 || status === 403)
       if (!isSilentProfileError) {
         toast.error(responseData?.message || "حدث خطأ غير متوقع", {

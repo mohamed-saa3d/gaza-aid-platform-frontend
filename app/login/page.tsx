@@ -56,7 +56,7 @@ export default function LoginPage() {
       login(user, "user")
       toast.success("تم تسجيل الدخول بنجاح!")
 
-      if (user.role === "SUPER_ADMIN" || user.role === "ADMIN") {
+      if (user.role === "ADMIN") {
         router.push("/admin/content")
       } else {
         router.push("/profile")

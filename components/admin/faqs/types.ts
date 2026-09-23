@@ -4,6 +4,9 @@ export interface FAQ {
   questionEn: string
   answerAr: string
   answerEn: string
+  /** Locale-resolved values returned by the backend for the requested locale. */
+  question?: string
+  answer?: string
   isActive: boolean
   createdAt?: string
   updatedAt?: string

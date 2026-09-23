@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import type { Category } from "@/components/admin/categories/types"
+import type { ProjectCategory } from "@/components/admin/projects/types"
 
 export type FilterValue = string | "all" | "urgent"
 
@@ -12,7 +12,7 @@ export function CategoryFilterBar({
 }: {
   active: FilterValue
   onChange: (value: FilterValue) => void
-  categories?: Category[]
+  categories?: ProjectCategory[]
 }) {
   return (
     <div className="-mx-4 px-4 md:-mx-8 md:px-8">
@@ -57,7 +57,7 @@ export function CategoryFilterBar({
                   : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary",
               )}
             >
-              {item.nameAr || item.nameEn}
+              {item.name || item.nameAr || item.nameEn}
             </button>
           )
         })}

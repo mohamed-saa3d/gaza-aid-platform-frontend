@@ -6,38 +6,47 @@ import { Button } from '@/components/ui/button'
 import { FeaturedArticleCard } from '@/components/news/featured-article-card'
 import { NewsArticleCard } from '@/components/news/news-article-card'
 import { getPublicNews } from "@/lib/api/public"
+import { useLocale } from "@/components/locale-provider"
 import type { NewsItemData } from '@/components/admin/news/types'
 
 export function NewsPageClient() {
+  const { locale } = useLocale()
   const [featured, setFeatured] = useState<NewsItemData | null>(null);
   const [articles, setArticles] = useState<NewsItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false
+
     const fetchNews = async () => {
+      setLoading(true)
+      setError(null)
       try {
-        // getPublicNews() returns NewsListResponse:
-        //   { success, message, data: { data: News[], total, page, limit } }
+        // Backend contract: { success, message, data: { data: News[], total, page, limit } }
         const response = await getPublicNews();
+        if (cancelled) return
+
         const data: NewsItemData[] = Array.isArray(response?.data?.data)
           ? response.data.data
-          : Array.isArray((response as any)?.data)
-          ? (response as any).data
           : [];
 
-        if (data.length > 0) {
-          setFeatured(data[0]);
-          setArticles(data.slice(1));
-        }
+        setFeatured(data[0] ?? null);
+        setArticles(data.slice(1));
       } catch (err) {
+        if (cancelled) return
+        console.error("Failed to load news", err);
         setError('فشل تحميل الأخبار');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchNews();
-  }, []);
+
+    return () => {
+      cancelled = true
+    }
+  }, [locale]);
 
   if (loading) {
     return (

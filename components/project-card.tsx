@@ -37,10 +37,18 @@ export function ProjectCard({ project }: { project: Project }) {
     }
   }
 
-  const title = project.titleAr || project.titleEn || ""
-  const description = project.descriptionAr || project.descriptionEn || ""
+  // `title`/`description`/`categoryName` are already localized by the backend for
+// the locale the visitor selected, so they take precedence. The raw `titleAr`
+  // fields remain only as a fallback for non-localized (admin/legacy) payloads.
+  const title = project.title || project.titleAr || project.titleEn || ""
+  const description = project.description || project.descriptionAr || project.descriptionEn || ""
   const image = project.imgUrl || project.imageUrl || project.image || "/placeholder.svg"
-  
+  // Populated by the API as an object; `null` means the project lost its category
+  // when that category was deleted, in which case the badge is simply omitted.
+  const categoryName =
+    project.categoryName ||
+    (typeof project.category === "object" ? project.category?.name : undefined)
+
   const target = project.targetAmount || 0
   const collected = project.collectedAmount || 0
   const progress = target > 0 ? Math.min((collected / target) * 100, 100) : 0
@@ -64,6 +72,11 @@ export function ProjectCard({ project }: { project: Project }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-5">
+        {categoryName ? (
+          <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            {categoryName}
+          </span>
+        ) : null}
         <h3 className="font-heading text-lg font-bold text-foreground">{title}</h3>
         <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
 

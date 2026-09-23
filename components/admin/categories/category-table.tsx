@@ -21,12 +21,17 @@ import {
 
 import { CategoryFormDialog } from "./category-form-dialog"
 import { CategoryDeleteDialog } from "./category-delete-dialog"
+import type { DeleteOutcome } from "./use-categories"
 import type { Category } from "./types"
 
 interface CategoryTableProps {
   categories: Category[]
   loading: boolean
-  onDelete: (id: string, name: string) => Promise<boolean | void>
+  onDelete: (
+    id: string,
+    name: string,
+    options?: { confirmUnassignProjects?: boolean },
+  ) => Promise<DeleteOutcome>
   onEditSuccess?: () => void
 }
 

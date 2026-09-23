@@ -9,9 +9,9 @@ import {
   LogOut,
   Megaphone,
   Newspaper,
-  Users,
   Menu,
   Tags,
+  Globe,
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -21,20 +21,21 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/auth-context'
 import { Loader2 } from 'lucide-react'
 
+// Admin is the only dashboard role, so every item is always visible.
 const allNavItems = [
-  { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText, superAdminOnly: false },
-  { href: '/admin/categories', label: 'إدارة الفئات', icon: Tags, superAdminOnly: false },
-  { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper, superAdminOnly: false },
-  { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell, superAdminOnly: false },
-  { href: '/admin/admins', label: 'إدارة المديرين', icon: Users, superAdminOnly: true },
+  { href: '/admin/content', label: 'إدارة المحتوى', icon: FileText },
+  { href: '/admin/categories', label: 'إدارة الفئات', icon: Tags },
+  { href: '/admin/newsletter', label: 'النشرة البريدية', icon: Newspaper },
+  { href: '/admin/notifications', label: 'الإشعارات والتقارير', icon: Bell },
+  { href: '/admin/website-profile', label: 'ملف الموقع', icon: Globe },
 ]
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, role, logout, isAuthenticated, isLoading } = useAuth()
+  const { user, logout, isAuthenticated, isLoading } = useAuth()
   const [sheetOpen, setSheetOpen] = useState(false)
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
+  const isAdmin = user?.role === 'ADMIN'
   const shouldBypassLoginScreen = pathname === '/admin/login'
 
   useEffect(() => {
@@ -56,9 +57,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>
   }
 
-  const isSuperAdmin = role === 'SUPER_ADMIN'
-
-  const visibleNavItems = allNavItems.filter(item => !item.superAdminOnly || isSuperAdmin)
+  const visibleNavItems = allNavItems
 
   const handleLogout = async () => {
     await logout('admin')
@@ -125,9 +124,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <p className='font-heading text-lg font-bold text-primary'>للأدمن فقط</p>
-            <p className='text-xs text-muted-foreground'>
-              {isSuperAdmin ? 'Super Admin' : 'مدير النظام'}
-            </p>
+            <p className='text-xs text-muted-foreground'>مدير النظام</p>
           </div>
         </div>
         <nav aria-label='القائمة الرئيسية' className='flex flex-1 flex-col gap-1 p-4'>
@@ -162,9 +159,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </Avatar>
             <div className='hidden sm:block'>
               <p className='text-sm font-bold'>{user?.name || 'أمن المنصة'}</p>
-              <p className='text-xs text-muted-foreground'>
-                {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'مسؤول النظام'}
-              </p>
+              <p className='text-xs text-muted-foreground'>مسؤول النظام</p>
             </div>
           </div>
           <div className='flex items-center gap-3'>

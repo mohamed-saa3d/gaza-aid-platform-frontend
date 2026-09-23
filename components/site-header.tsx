@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useLocale } from "@/components/locale-provider"
 import { useAuth } from "@/context/auth-context"
+import { useSiteBranding } from "@/hooks/use-site-branding"
 import { cn } from "@/lib/utils"
 
 export function SiteHeader() {
   const { t, locale, toggleLocale } = useLocale()
   const pathname = usePathname()
   const { user, isAuthenticated } = useAuth()
+  const { logoUrl, siteName } = useSiteBranding(locale, t.footer.orgName)
   if (pathname.startsWith('/admin')) return null
 
   const navItems = [
@@ -30,14 +32,18 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 md:px-8">
         {/* Right side (start): logo + avatar */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2" aria-label={t.common.home}>
+          <Link href="/" className="flex items-center gap-2" aria-label={siteName}>
             <Image
-              src="/images/logo-mark.png"
-              alt="شعار المؤسسة"
+              src={logoUrl}
+              alt={siteName}
               width={36}
               height={36}
               className="size-9 object-contain"
+              unoptimized={!logoUrl.startsWith("/")}
             />
+            <span className="hidden font-heading text-base font-bold text-primary sm:inline">
+              {siteName}
+            </span>
           </Link>
           <Link
             href="/profile"

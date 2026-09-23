@@ -5,11 +5,14 @@ import { Badge } from "@/components/ui/badge"
 import type { Project } from "@/components/admin/projects/types"
 
 export function CompletedUpdateCard({ project }: { project: Project }) {
-  const title = project.titleAr || project.titleEn || project.title || ""
-  const description = project.descriptionAr || project.descriptionEn || project.description || ""
+  const title = project.title || project.titleAr || project.titleEn || ""
+  const description = project.description || project.descriptionAr || project.descriptionEn || ""
   const image = project.imgUrl || project.imageUrl || project.image || "/placeholder.svg"
   const beneficiaries = project.beneficiariesCount ?? project.beneficiaries ?? 0
-  const categoryName = typeof project.category === "object" ? (project.category?.nameAr || project.category?.nameEn) : "مشروع مكتمل"
+  const categoryName =
+    project.categoryName ||
+    (typeof project.category === "object" ? project.category?.name : undefined) ||
+    "مشروع مكتمل"
   const dateStr = project.updatedAt ? new Date(project.updatedAt).toLocaleDateString("ar-EG") : ""
 
   return (

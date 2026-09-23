@@ -4,35 +4,57 @@ import { useEffect, useState } from "react"
 import { CheckCircle2, Layers, Info, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { getPublicProjectStats } from "@/lib/api/public"
-
-const FALLBACK = { overallRate: 85, completedCount: 72, activeCount: 85 }
+import { getPublicProjectStats, type ProjectStats } from "@/lib/api/public"
 
 export function CompletionRateCard() {
-  const [overallRate, setOverallRate] = useState<number | null>(null)
-  const [completedCount, setCompletedCount] = useState<number | null>(null)
-  const [activeCount, setActiveCount] = useState<number | null>(null)
+  const [stats, setStats] = useState<ProjectStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
+
     getPublicProjectStats()
       .then((res) => {
-        const d = res?.data
-        if (d) {
-          setOverallRate(d.completionPercentage)
-          setCompletedCount(d.completedProjects)
-          setActiveCount(d.totalProjects)
-        }
+        if (cancelled) return
+        setStats(res?.data ?? null)
+        setError(!res?.data)
       })
-      .catch(() => {
-        // silently fall through to fallback values below
+      .catch((err) => {
+        if (cancelled) return
+        console.error("Failed to load project stats", err)
+        // No invented numbers: show an honest empty state instead.
+        setStats(null)
+        setError(true)
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  const displayRate = overallRate ?? FALLBACK.overallRate
-  const displayCompleted = completedCount ?? FALLBACK.completedCount
-  const displayActive = activeCount ?? FALLBACK.activeCount
+  if (error || !stats) {
+    return (
+      <Card className="flex flex-col justify-between border-border/60">
+        <CardContent className="flex flex-1 flex-col gap-4 p-6">
+          <h3 className="font-heading text-lg font-bold">نسبة الإنجاز العام</h3>
+          {loading ? (
+            <div className="flex items-center gap-2 py-1">
+              <Loader2 className="size-5 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">جاري تحميل الإحصائيات...</span>
+            </div>
+          ) : (
+            <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+              تعذّر تحميل إحصائيات المشاريع حالياً. يرجى تحديث الصفحة للمحاولة مرة أخرى.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="flex flex-col justify-between border-border/60">
@@ -43,32 +65,24 @@ export function CompletionRateCard() {
         </div>
 
         <div>
-          {loading ? (
-            <div className="flex items-center gap-2 py-1">
-              <Loader2 className="size-5 animate-spin text-primary" />
-            </div>
-          ) : (
-            <p className="font-heading text-5xl font-bold text-primary">{displayRate}%</p>
-          )}
-          <p className="mt-2 text-sm text-muted-foreground">من إجمالي المشاريع النشطة</p>
+          <p className="font-heading text-5xl font-bold text-primary">
+            {stats.completionPercentage}%
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">من إجمالي المشاريع</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
             <CheckCircle2 className="size-5 text-primary" aria-hidden="true" />
             <div>
-              <p className="font-heading text-xl font-bold">
-                {loading ? <Loader2 className="size-4 animate-spin" /> : displayCompleted}
-              </p>
+              <p className="font-heading text-xl font-bold">{stats.completedProjects}</p>
               <p className="text-xs text-muted-foreground">مشروع مكتمل</p>
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
             <Layers className="size-5 text-accent-foreground" aria-hidden="true" />
             <div>
-              <p className="font-heading text-xl font-bold">
-                {loading ? <Loader2 className="size-4 animate-spin" /> : displayActive}
-              </p>
+              <p className="font-heading text-xl font-bold">{stats.totalProjects}</p>
               <p className="text-xs text-muted-foreground">إجمالي المشاريع</p>
             </div>
           </div>

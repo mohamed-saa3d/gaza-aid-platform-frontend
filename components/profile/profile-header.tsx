@@ -17,7 +17,7 @@ export function ProfileHeader() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
   const displayName = user?.name || "مستخدم"
-  const displayRole = user?.role === "SUPER_ADMIN" ? "مدير النظام" : user?.role === "ADMIN" ? "مدير" : "مستخدم"
+  const displayRole = user?.role === "ADMIN" ? "مدير" : "مستخدم"
 
   async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]

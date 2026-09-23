@@ -22,10 +22,10 @@ export function FeaturedProjectCarousel({ projects }: { projects: Project[] }) {
 
   const project = projects[active]
 
-  const title = project.titleAr || project.titleEn || ""
-  const description = project.descriptionAr || project.descriptionEn || ""
+  const title = project.title || project.titleAr || project.titleEn || ""
+  const description = project.description || project.descriptionAr || project.descriptionEn || ""
   const image = project.imgUrl || project.imageUrl || project.image || "/placeholder.svg"
-  
+
   const target = project.targetAmount || 0
   const collected = project.collectedAmount || 0
   const progress = target > 0 ? Math.min((collected / target) * 100, 100) : 0
@@ -58,7 +58,7 @@ export function FeaturedProjectCarousel({ projects }: { projects: Project[] }) {
         {projects.length > 1 && (
           <div className="flex items-center justify-center gap-2 pt-2">
             {projects.map((p, i) => {
-              const pTitle = p.titleAr || p.titleEn || p.id
+              const pTitle = p.title || p.titleAr || p.titleEn || p.id
               return (
                 <button
                   key={p.id}

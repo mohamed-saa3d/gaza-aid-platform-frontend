@@ -9,7 +9,7 @@ export function NewsArticleCard({ article }: { article: News }) {
       <div className="relative aspect-[16/10] overflow-hidden">
         <Image
           src={article.imageUrl || "/placeholder.svg"}
-          alt={article.titleAr || article.titleEn}
+          alt={article.title || article.titleAr || article.titleEn}
           fill
           className="object-cover"
         />
@@ -20,10 +20,10 @@ export function NewsArticleCard({ article }: { article: News }) {
           <CalendarDays className="size-3.5" aria-hidden="true" />
         </span>
         <h3 className="text-balance font-heading text-lg font-bold leading-snug text-foreground">
-          {article.titleAr || article.titleEn}
+          {article.title || article.titleAr || article.titleEn}
         </h3>
         <p className="line-clamp-2 text-pretty text-sm leading-relaxed text-muted-foreground">
-          {article.descriptionAr || article.descriptionEn}
+          {article.description || article.descriptionAr || article.descriptionEn}
         </p>
         <button className="mt-1 self-start text-sm font-semibold text-primary hover:underline">اقرأ المزيد</button>
       </CardContent>

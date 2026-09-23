@@ -4,7 +4,9 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { usePathname } from "next/navigation"
 import { http } from "@/lib/http"
 
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "DONOR" | "USER"
+// Visitor (no session) | User (DONOR) | Admin (ADMIN).
+// There is no Super Admin / Root Admin tier.
+export type UserRole = "ADMIN" | "DONOR"
 export type AuthScope = "user" | "admin"
 
 export interface UserProfile {
@@ -76,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = useCallback((newUser: UserProfile, requestedScope?: AuthScope) => {
-    const scope = requestedScope || (newUser.role === 'ADMIN' || newUser.role === 'SUPER_ADMIN' ? 'admin' : 'user')
+    const scope = requestedScope || (newUser.role === 'ADMIN' ? 'admin' : 'user')
     setSessions((current) => ({ ...current, [scope]: newUser }))
   }, [])
 

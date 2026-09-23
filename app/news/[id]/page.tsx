@@ -59,8 +59,8 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
     )
   }
 
-  const title = news.titleAr || news.titleEn || ""
-  const description = news.descriptionAr || news.descriptionEn || ""
+  const title = news.title || news.titleAr || news.titleEn || ""
+  const description = news.description || news.descriptionAr || news.descriptionEn || ""
   const image = news.imageUrl || "/placeholder.svg"
 
   return (

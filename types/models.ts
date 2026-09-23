@@ -26,8 +26,9 @@ export type {
 } from "@/components/admin/faqs/types"
 
 // Shared Enums & Identifiers
-export type Role = "USER" | "ADMIN" | "SUPER_ADMIN"
-export type AdminRole = "SUPER_ADMIN" | "CONTENT_MANAGER" | "FINANCE_MANAGER"
+// Visitor (no session) | User (DONOR) | Admin (ADMIN). No Super Admin tier.
+export type Role = "DONOR" | "ADMIN"
+export type AdminRole = "ADMIN"
 export type DonationStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED"
 export type CategoryId = "water" | "food" | "shelter" | "orphans" | "health" | "education" | "other" | string
 

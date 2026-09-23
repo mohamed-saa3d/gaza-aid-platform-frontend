@@ -12,21 +12,21 @@ export function FeaturedArticleCard({ article }: { article: News }) {
         <div className="flex flex-col gap-4">
           {article.isUrgent ? <Badge className="w-fit rounded-full bg-destructive/10 text-destructive">عاجل</Badge> : null}
           <h2 className="text-balance font-heading text-xl font-bold leading-snug text-foreground sm:text-2xl">
-            {article.titleAr || article.titleEn}
+            {article.title || article.titleAr || article.titleEn}
           </h2>
           <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
             {article.createdAt ?? ""}
             <CalendarDays className="size-3.5" aria-hidden="true" />
           </span>
           <p className="text-pretty leading-relaxed text-muted-foreground">
-            {article.descriptionAr || article.descriptionEn}
+            {article.description || article.descriptionAr || article.descriptionEn}
           </p>
           <Button className="w-fit rounded-full">اقرأ التفاصيل</Button>
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-xl lg:aspect-auto lg:h-full lg:min-h-[280px]">
           <Image
             src={article.imageUrl || "/placeholder.svg"}
-            alt={article.titleAr || article.titleEn}
+            alt={article.title || article.titleAr || article.titleEn}
             fill
             className="object-cover"
           />

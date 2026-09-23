@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { VideoOff, Loader2, AlertCircle, RefreshCw, Radio } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getPublicLiveStreams } from "@/lib/api/public"
+import { useLocale } from "@/components/locale-provider"
 import type { LivestreamItemData } from "@/components/admin/livestreams/types"
 
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -30,34 +31,38 @@ function getYouTubeEmbedUrl(url: string): string | null {
 }
 
 export function LiveStreamClient() {
+  const { locale } = useLocale()
   const [activeStream, setActiveStream] = useState<LivestreamItemData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchStreams = async () => {
+  const fetchStreams = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
       const res = await getPublicLiveStreams()
-      // LiveStreamListResponse: { success, message, data: { data: LiveStream[], total, page, limit } }
+      // Backend contract: { success, message, data: { data: LiveStream[], total, page, limit } }
       const streams: LivestreamItemData[] = Array.isArray(res?.data?.data)
         ? res.data.data
-        : Array.isArray((res as any)?.data)
-        ? (res as any).data
         : []
 
       const active = streams.find((s) => s.isActive !== false)
       setActiveStream(active || null)
-    } catch {
+    } catch (err) {
+      console.error("Failed to load live streams", err)
       setError("فشل تحميل معلومات البث المباشر.")
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchStreams()
-  }, [])
+  }, [fetchStreams, locale])
+
+  const title = activeStream
+    ? activeStream.title || activeStream.titleAr || activeStream.titleEn
+    : ""
 
   if (loading) {
     return (
@@ -94,7 +99,7 @@ export function LiveStreamClient() {
               بث مباشر الآن
             </span>
             <h1 className="font-heading text-xl font-bold sm:text-2xl text-foreground">
-              {activeStream.titleAr || activeStream.titleEn}
+              {title}
             </h1>
           </div>
         </div>
@@ -102,7 +107,7 @@ export function LiveStreamClient() {
         <div className="relative aspect-video w-full overflow-hidden rounded-2xl border bg-black shadow-lg">
           <iframe
             src={embedUrl}
-            title={activeStream.titleAr || activeStream.titleEn}
+            title={title}
             className="absolute inset-0 size-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen

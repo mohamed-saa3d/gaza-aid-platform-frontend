@@ -1,21 +1,25 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Search, HelpCircle, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { getPublicFaqs } from "@/lib/api/public"
+import { useLocale } from "@/components/locale-provider"
 import type { FAQItemData } from "@/components/admin/faqs/types"
 
 export function FaqAccordion() {
+  const { locale } = useLocale()
   const [faqs, setFaqs] = useState<FAQItemData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
 
-  const fetchFaqsList = async () => {
+  // Re-runs when the visitor switches language, so question/answer come back
+  // localized from the backend rather than staying in the old language.
+  const fetchFaqsList = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -24,19 +28,19 @@ export function FaqAccordion() {
       const fetched: FAQItemData[] = Array.isArray(rawData?.data)
         ? rawData.data
         : Array.isArray(rawData)
-        ? rawData
-        : []
+          ? rawData
+          : []
       setFaqs(fetched.filter((item) => item.isActive !== false))
     } catch {
       setError("فشل تحميل الأسئلة الشائعة من الخادم.")
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchFaqsList()
-  }, [])
+  }, [fetchFaqsList, locale])
 
   const filteredFaqs = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -97,11 +101,11 @@ export function FaqAccordion() {
               {filteredFaqs.map((item) => (
                 <AccordionItem key={item.id} value={item.id}>
                   <AccordionTrigger className="text-right text-base font-semibold">
-                    {item.questionAr || item.questionEn}
+                    {item.question || item.questionAr || item.questionEn}
                   </AccordionTrigger>
                   <AccordionContent>
                     <p className="text-pretty leading-relaxed text-muted-foreground">
-                      {item.answerAr || item.answerEn}
+                      {item.answer || item.answerAr || item.answerEn}
                     </p>
                   </AccordionContent>
                 </AccordionItem>

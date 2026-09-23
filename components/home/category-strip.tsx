@@ -52,7 +52,7 @@ export function CategoryStrip() {
               <LayoutGrid className="size-6" />
             </span>
             <span className="text-xs font-medium text-foreground/80 sm:text-sm">
-              {category.nameAr || category.nameEn}
+              {category.name || category.nameAr || category.nameEn}
             </span>
           </Link>
         ))}
