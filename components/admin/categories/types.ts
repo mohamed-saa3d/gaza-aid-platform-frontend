@@ -8,6 +8,13 @@ export interface Category {
   description?: string
   descriptionAr?: string
   descriptionEn?: string
+  /**
+   * Icon key resolved through the frontend icon registry
+   * (`@/lib/category-icons`). Unknown keys degrade to a generic icon.
+   */
+  icon?: string | null
+  /** Display order; lower sorts first. Default categories use 0-5. */
+  order?: number
   createdAt?: string
   updatedAt?: string
 }

@@ -211,13 +211,6 @@ export const projects: Project[] = [
   },
 ]
 
-export const heroStats = [
-  { id: "meals", value: "+120K", label: "وجبة غذائية", icon: "UtensilsCrossed" },
-  { id: "beneficiaries", value: "+85K", label: "مستفيد", icon: "Users" },
-  { id: "projects", value: "+250", label: "مشروع منفذ", icon: "ClipboardCheck" },
-  { id: "years", value: "+15", label: "عام من العطاء", icon: "CalendarDays" },
-] as const
-
 export const donationReasons = [
   { id: "water", label: "المياه", icon: "Droplet" },
   { id: "food", label: "الطعام", icon: "UtensilsCrossed" },
@@ -243,26 +236,9 @@ export const paymentMethodIcons = [
 ] as const
 
 // Projects page updates / progress dashboard
-export const projectProgressSeries = [
-  { month: "أكتوبر 2025", total: 40, completed: 24 },
-  { month: "نوفمبر 2025", total: 46, completed: 30 },
-  { month: "ديسمبر 2025", total: 52, completed: 36 },
-  { month: "يناير 2026", total: 58, completed: 42 },
-  { month: "فبراير 2026", total: 62, completed: 46 },
-  { month: "مارس 2026", total: 66, completed: 50 },
-  { month: "أبريل 2026", total: 69, completed: 54 },
-  { month: "مايو 2026", total: 71, completed: 58 },
-  { month: "يونيو 2026", total: 75, completed: 64 },
-  { month: "يوليو 2026", total: 78, completed: 68 },
-  { month: "أغسطس 2026", total: 82, completed: 72 },
-  { month: "سبتمبر 2026", total: 85, completed: 76 },
-]
-
-export const projectCompletionSummary = {
-  overallRate: 85,
-  completedCount: 72,
-  activeCount: 85,
-}
+// NOTE: the monthly progress series and completion summary that used to live here
+// were fabricated history. They are now served by `GET /projects/history`, which
+// derives the series from real `createdAt`/`status` values in MongoDB.
 
 export interface CompletedUpdate {
   id: string
@@ -275,38 +251,9 @@ export interface CompletedUpdate {
   beneficiaries: string
 }
 
-export const completedUpdates: CompletedUpdate[] = [
-  {
-    id: "u1",
-    title: "إنشاء مدرسة الأمل الأساسية",
-    subtitle: "بدعم أهل الخير",
-    description: "تم بناء مدرسة متكاملة تضم 12 فصلاً دراسياً، لتوفر التعليم الجيد لأكثر من 600 طالب وطالبة.",
-    image: "/images/update-school.png",
-    location: "تعز - اليمن",
-    date: "1 سبتمبر 2026",
-    beneficiaries: "600 طالب",
-  },
-  {
-    id: "u2",
-    title: "توزيع 1,000 سلة غذائية - غزة",
-    subtitle: "بدعم أهل الخير",
-    description: "تم توزيع 1,000 سلة غذائية متكاملة على الأسر المتعففة في قطاع غزة لمساعدتهم على تجاوز الظروف الصعبة.",
-    image: "/images/update-distribution.png",
-    location: "قطاع غزة - فلسطين",
-    date: "5 سبتمبر 2026",
-    beneficiaries: "1,000 مستفيد",
-  },
-  {
-    id: "u3",
-    title: "بئر ماء ارتوازي - قرية النخيل",
-    subtitle: "بدعم أهل الخير",
-    description: "تم توفير مصدر مياه نظيف وآمن لأكثر من 350 عائلة في القرية، مما ساهم في تحسين الصحة وتقليل الأمراض.",
-    image: "/images/project-well.png",
-    location: "الحديدة - اليمن",
-    date: "10 سبتمبر 2026",
-    beneficiaries: "350 عائلة",
-  },
-]
+// The hardcoded `completedUpdates` array that used to live here was fabricated
+// "completed project" content. The public updates page now renders real COMPLETED
+// projects from the Project collection (`GET /projects?status=COMPLETED`).
 
 // Donation flow
 export const featuredDonationProject = {
@@ -379,10 +326,9 @@ export const monthlyDonationSettings = {
   nextChargeDate: "1 سبتمبر",
 }
 
-export const platformRating = {
-  score: 4.8,
-  count: 12540,
-}
+// The fabricated `platformRating` object ({ score: 4.8, count: 12540 }) that used
+// to live here has been removed. The home rating card now reads the real average
+// and count from `GET /ratings/stats` and lets visitors submit their own score.
 
 export interface DonationHistoryItem {
   id: string

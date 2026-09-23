@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { donationReasons, quickAmounts } from "@/lib/mock-data"
+import { useLocale } from "@/components/locale-provider"
+import { formatCurrency } from "@/lib/currency"
 
 const iconMap: Record<string, LucideIcon> = {
   Droplet,
@@ -28,6 +30,7 @@ const iconMap: Record<string, LucideIcon> = {
 type DonationReasonId = (typeof donationReasons)[number]["id"]
 
 export function QuickDonateWidget() {
+  const { locale } = useLocale()
   const [reason, setReason] = useState<DonationReasonId>(donationReasons[0].id)
   const [amount, setAmount] = useState<number | null>(quickAmounts[2])
   const [customAmount, setCustomAmount] = useState<number | "">("")
@@ -110,7 +113,7 @@ export function QuickDonateWidget() {
                 : "border-border text-foreground hover:border-primary/40",
             )}
           >
-            {value} ر.س
+            {formatCurrency(value, locale)}
           </button>
         ))}
       </div>

@@ -30,8 +30,13 @@ import {
 
 import { updateProject } from "./api"
 import type { Project } from "./types"
-import { projectFormSchema, updateProjectSchema } from "./schema"
+import { projectFormSchema } from "./schema"
+import { getCategories } from "@/components/admin/categories/api"
+import type { Category } from "@/components/admin/categories/types"
 import { getErrorMessage } from "@/lib/http"
+
+/** Sentinel option value representing a project whose category was deleted. */
+const UNCATEGORIZED_VALUE = "__uncategorized__"
 
 interface UpdateProjectDialogProps {
   project: Project
@@ -54,10 +59,19 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
   const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">(
     project.beneficiariesCount ?? project.beneficiaries ?? 0
   )
-  const getCategoryId = (cat: typeof project.category, catId?: string) => {
+  /**
+   * Resolves the project's current category to a select value.
+   *
+   * - a populated relation object -> its real id (this is what displays the
+   *   CURRENT category when the admin opens Edit);
+   * - a plain string id (legacy/admin payloads) -> that id;
+   * - `null`/missing -> the explicit "Uncategorized" sentinel, so an uncategorized
+   *   project is represented safely instead of defaulting to a real category.
+   */
+  const getCategoryId = (cat: typeof project.category, catId?: string): string => {
     if (typeof cat === "string") return cat
     if (cat && typeof cat === "object" && cat.id) return cat.id
-    return catId || "water"
+    return catId || UNCATEGORIZED_VALUE
   }
 
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">(
@@ -69,6 +83,36 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
   )
   const [categoryId, setCategoryId] = useState<string>(getCategoryId(project.category, project.categoryId))
   const [imageFile, setImageFile] = useState<File | null>(null)
+
+  // Category options ALWAYS come from the real categories API — never a
+  // hardcoded list. An earlier version hardcoded fake ids ("water", "food", ...)
+  // which are not MongoDB ObjectIds: the current category never displayed, and
+  // saving sent an invalid id the backend correctly rejected.
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+
+    let cancelled = false
+    setIsLoadingCategories(true)
+
+    getCategories({ page: 1, limit: 100 })
+      .then((res) => {
+        if (!cancelled) setCategories(Array.isArray(res?.data) ? res.data : [])
+      })
+      .catch((error) => {
+        console.error("Failed to fetch categories", error)
+        if (!cancelled) setCategories([])
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingCategories(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [open])
 
   useEffect(() => {
     if (open) {
@@ -95,6 +139,11 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
     e.preventDefault()
     setErrors({})
 
+    // `isUncategorized` maps to the backend's explicit "unassign" contract (an
+    // empty string). Every other value is a real, already-validated category id.
+    const isUncategorized = categoryId === UNCATEGORIZED_VALUE
+    const resolvedCategoryId = categoryId === "" ? UNCATEGORIZED_VALUE : categoryId
+
     const rawData = {
       titleAr,
       titleEn,
@@ -103,7 +152,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       targetAmount: targetAmount === "" ? 0 : Number(targetAmount),
       beneficiariesCount: beneficiariesCount === "" ? 0 : Number(beneficiariesCount),
       status,
-      categoryId,
+      categoryId: resolvedCategoryId,
       imageUrl: "",
     }
 
@@ -136,7 +185,11 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
           targetAmount: validData.targetAmount,
           beneficiariesCount: validData.beneficiariesCount,
           status: validData.status,
-          categoryId: validData.categoryId,
+          // `''` is the backend's explicit "disconnect category" signal; a real id
+          // reassigns the project. This is what makes an uncategorized project
+          // safe: we only ever send an empty string when the admin chose the
+          // "Uncategorized" option, never because a value was merely missing.
+          categoryId: isUncategorized ? "" : validData.categoryId,
         },
         imageFile || undefined
       )
@@ -261,7 +314,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
 
           {/* Target Amount */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor={`targetAmount-${project.id}`}>المبلغ المستهدف (ر.س) *</Label>
+            <Label htmlFor={`targetAmount-${project.id}`}>المبلغ المستهدف (دولار أمريكي) *</Label>
             <Input
               id={`targetAmount-${project.id}`}
               type="number"
@@ -294,16 +347,52 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
                 disabled={isSubmitting}
               >
                 <SelectTrigger id={`categoryId-${project.id}`}>
-                  <SelectValue placeholder="اختر الفئة" />
+                  {/* Base UI renders the raw value here unless we map it, so the
+                      trigger would show the ObjectId once categories load after
+                      the dialog opens. Resolve the label explicitly. */}
+                  <SelectValue>
+                    {() => {
+                      if (categoryId === UNCATEGORIZED_VALUE) return "بدون فئة (غير مصنّف)"
+                      const match = categories.find((c) => c.id === categoryId)
+                      if (match) return match.nameAr || match.nameEn || "فئة"
+                      if (typeof project.category === "object" && project.category) {
+                        return project.category.nameAr || project.category.nameEn || project.categoryName || "الفئة الحالية"
+                      }
+                      return project.categoryName || "الفئة الحالية"
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="water">سقيا ماء</SelectItem>
-                  <SelectItem value="food">سلال غذائية</SelectItem>
-                  <SelectItem value="shelter">إيواء</SelectItem>
-                  <SelectItem value="orphans">رعاية أيتام</SelectItem>
-                  <SelectItem value="health">صحة</SelectItem>
-                  <SelectItem value="education">تعليم</SelectItem>
-                  <SelectItem value="other">أخرى</SelectItem>
+                  {isLoadingCategories ? (
+                    <SelectItem value="loading" disabled>جاري تحميل الفئات...</SelectItem>
+                  ) : (
+                    <>
+                      {/* The project lost its category when that category was
+                          deleted. Showing an explicit option keeps the state
+                          visible instead of silently defaulting to a real
+                          category (which would overwrite the project). */}
+                      <SelectItem value={UNCATEGORIZED_VALUE}>بدون فئة (غير مصنّف)</SelectItem>
+                      {/* The project's current category may reference a
+                          category not present in the loaded list (e.g. the
+                          list is still settling). Render it explicitly so the
+                          trigger never falls back to the placeholder and hides
+                          the real current category. */}
+                      {categoryId !== UNCATEGORIZED_VALUE &&
+                        categoryId !== "" &&
+                        !categories.some((c) => c.id === categoryId) && (
+                          <SelectItem value={categoryId}>
+                            {typeof project.category === "object" && project.category
+                              ? project.category.nameAr || project.category.nameEn || project.categoryName
+                              : project.categoryName || "الفئة الحالية"}
+                          </SelectItem>
+                        )}
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.nameAr || cat.nameEn || "فئة بدون اسم"}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
               {errors.categoryId && <span className="text-xs text-destructive">{errors.categoryId}</span>}

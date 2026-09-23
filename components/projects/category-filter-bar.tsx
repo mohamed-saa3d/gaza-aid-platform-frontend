@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { resolveCategoryIcon } from "@/lib/category-icons"
 import type { ProjectCategory } from "@/components/admin/projects/types"
 
 export type FilterValue = string | "all" | "urgent"
@@ -45,18 +46,20 @@ export function CategoryFilterBar({
 
         {categories.map((item) => {
           const isActive = active === item.id
+          const Icon = resolveCategoryIcon(item.icon)
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => onChange(item.id as FilterValue)}
               className={cn(
-                "shrink-0 whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors",
+                "flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors",
                 isActive
                   ? "border-primary bg-primary text-primary-foreground shadow-sm"
                   : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary",
               )}
             >
+              <Icon className="size-4" aria-hidden="true" />
               {item.name || item.nameAr || item.nameEn}
             </button>
           )

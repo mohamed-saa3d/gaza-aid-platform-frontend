@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { liveQuickAmounts, liveStreamData } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/locale-provider"
+import { formatCurrency } from "@/lib/currency"
 
 export function LiveDonationCard() {
+  const { locale } = useLocale()
   const [amount, setAmount] = useState<number>(liveQuickAmounts[1])
   const isCustom = !(liveQuickAmounts as readonly number[]).includes(amount)
 
@@ -24,14 +27,14 @@ export function LiveDonationCard() {
       <CardContent className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">هدف الحملة: {liveStreamData.goal.toLocaleString("ar")} ر.س</span>
+            <span className="text-muted-foreground">هدف الحملة: {formatCurrency(liveStreamData.goal, locale)}</span>
             <span className="font-heading font-bold text-primary">{liveStreamData.progress}%</span>
           </div>
           <Progress value={liveStreamData.progress} className="h-2" />
           <span className="text-xs text-muted-foreground">
             تم جمعه{" "}
-            <span className="font-semibold text-foreground">{liveStreamData.funded.toLocaleString("ar")}</span> من{" "}
-            {liveStreamData.goal.toLocaleString("ar")} ر.س
+            <span className="font-semibold text-foreground">{formatCurrency(liveStreamData.funded, locale)}</span> من{" "}
+            {formatCurrency(liveStreamData.goal, locale)}
           </span>
         </div>
 
@@ -51,7 +54,7 @@ export function LiveDonationCard() {
                 )}
                 aria-pressed={!isCustom && amount === val}
               >
-                {val} ر.س
+                {formatCurrency(val, locale)}
               </button>
             ))}
           </div>

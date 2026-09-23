@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { Suspense, useCallback, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Pagination,
   PaginationContent,
@@ -18,17 +19,29 @@ import { Loader2 } from "lucide-react"
 
 const PAGE_SIZE = 6
 
-export function ProjectsGrid() {
-  // `locale` is a dependency of both loaders: switching language re-fetches the
-  // localized content from the backend instead of only re-labelling the UI.
+/**
+ * Reads the `?category=` query so the Home category strip (and any shared link)
+ * deep-links straight into a filtered project list.
+ */
+function ProjectsGridInner() {
   const { locale } = useLocale()
-  const [filter, setFilter] = useState<FilterValue>("all")
+  const searchParams = useSearchParams()
+  const categoryParam = searchParams.get("category")
+
+  const [filter, setFilter] = useState<FilterValue>(categoryParam || "all")
   const [page, setPage] = useState(1)
 
   const [projects, setProjects] = useState<Project[]>([])
   const [total, setTotal] = useState(0)
   const [categories, setCategories] = useState<ProjectCategory[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Keep the active filter in sync with the URL, so navigating from the Home
+  // strip to /projects?category=... actually selects that category.
+  useEffect(() => {
+    setFilter(categoryParam || "all")
+    setPage(1)
+  }, [categoryParam])
 
   // The filter bar is loaded independently of the project list so changing the
   // filter never re-fetches (and never flickers) the category buttons.
@@ -133,5 +146,25 @@ export function ProjectsGrid() {
         </Pagination>
       )}
     </div>
+  )
+}
+
+/**
+ * Public entry point.
+ *
+ * `useSearchParams` requires a Suspense boundary in the App Router, so the inner
+ * component is wrapped here rather than forcing every caller to remember it.
+ */
+export function ProjectsGrid() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <ProjectsGridInner />
+    </Suspense>
   )
 }

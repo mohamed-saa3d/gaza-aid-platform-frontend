@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { paymentMethodIcons } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/locale-provider"
+import { formatCurrency } from "@/lib/currency"
 import type { DonationState } from "@/components/donate/donation-flow"
 
 const iconMap: Record<string, LucideIcon> = {
@@ -24,6 +26,7 @@ interface PaymentStepProps {
 }
 
 export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepProps) {
+  const { locale } = useLocale()
   const [submitting, setSubmitting] = useState(false)
 
   const canSubmit =
@@ -129,7 +132,7 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
               جارٍ إتمام التبرع...
             </>
           ) : (
-            `تأكيد التبرع بمبلغ ${state.amount} ر.س`
+            `تأكيد التبرع بمبلغ ${formatCurrency(state.amount, locale)}`
           )}
         </Button>
       </div>

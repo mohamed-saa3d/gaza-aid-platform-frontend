@@ -6,6 +6,9 @@ export async function getProjects(params?: {
   page?: number
   limit?: number
   status?: string
+  /** Real category id (MongoDB ObjectId) to filter by. */
+  categoryId?: string
+  search?: string
 }): Promise<ProjectsListResponse> {
   const response = await adminHttp.get<ProjectsListResponse>("/projects", { params })
   return response.data

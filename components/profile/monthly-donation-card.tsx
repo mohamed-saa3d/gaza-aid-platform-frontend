@@ -6,8 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { monthlyDonationSettings } from "@/lib/mock-data"
+import { useLocale } from "@/components/locale-provider"
+import { formatCurrency } from "@/lib/currency"
 
 export function MonthlyDonationCard() {
+  const { locale } = useLocale()
   const [active, setActive] = useState(monthlyDonationSettings.isActive)
   const [amount, setAmount] = useState(monthlyDonationSettings.amount)
 
@@ -42,8 +45,9 @@ export function MonthlyDonationCard() {
               <Pencil className="size-3.5 text-muted-foreground" />
             </Button>
             <div className="flex flex-1 items-center justify-center gap-1">
-              <span className="font-heading text-lg font-bold text-foreground">{amount}</span>
-              <span className="text-sm text-muted-foreground">ر.س</span>
+              <span className="font-heading text-lg font-bold text-foreground">
+                {formatCurrency(amount, locale)}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <Button

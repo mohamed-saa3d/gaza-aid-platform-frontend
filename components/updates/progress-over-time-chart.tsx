@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ChartContainer,
@@ -11,7 +12,8 @@ import {
 } from "@/components/ui/chart"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useIsMounted } from "@/hooks/use-is-mounted"
-import { projectProgressSeries } from "@/lib/mock-data"
+import { useLocale } from "@/components/locale-provider"
+import { getPublicProjectHistory, type ProjectHistoryPoint } from "@/lib/api/public"
 
 const chartConfig: ChartConfig = {
   total: {
@@ -32,16 +34,45 @@ const ranges = [
 
 export function ProgressOverTimeChart() {
   const isMounted = useIsMounted()
+  const { locale } = useLocale()
   const [range, setRange] = useState<(typeof ranges)[number]["id"]>("12")
 
-  const data = useMemo(() => {
-    const count = ranges.find((r) => r.id === range)?.count ?? 12
-    const slice = projectProgressSeries.slice(-Math.min(count, projectProgressSeries.length))
-    return slice.map((d) => ({
-      ...d,
-      rate: Math.round((d.completed / d.total) * 100),
-    }))
-  }, [range])
+  const [series, setSeries] = useState<ProjectHistoryPoint[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  const requestedMonths = ranges.find((r) => r.id === range)?.count ?? 12
+
+  // The series comes from the real Project collection (`GET /projects/history`).
+  // There is deliberately no mock fallback: if the request fails the chart shows
+  // an honest error state instead of inventing a plausible-looking curve.
+  const loadHistory = useCallback(async () => {
+    setLoading(true)
+    setError(false)
+    try {
+      const res = await getPublicProjectHistory(requestedMonths)
+      setSeries(Array.isArray(res?.data) ? res.data : [])
+    } catch (err) {
+      console.error("Failed to load project history", err)
+      setSeries([])
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [requestedMonths, locale])
+
+  useEffect(() => {
+    loadHistory()
+  }, [loadHistory])
+
+  const data = useMemo(
+    () =>
+      series.map((point) => ({
+        ...point,
+        rate: point.total > 0 ? Math.round((point.completed / point.total) * 100) : 0,
+      })),
+    [series]
+  )
 
   if (!isMounted) {
     return (
@@ -81,6 +112,19 @@ export function ProgressOverTimeChart() {
         </ToggleGroup>
       </CardHeader>
       <CardContent>
+        {loading ? (
+          <div className="flex h-[320px] items-center justify-center">
+            <Loader2 className="size-6 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <p className="flex h-[320px] items-center justify-center rounded-md border border-amber-300 bg-amber-50 p-3 text-center text-sm text-amber-900">
+            تعذّر تحميل سجل تقدم المشاريع حالياً. يرجى تحديث الصفحة للمحاولة مرة أخرى.
+          </p>
+        ) : data.length === 0 ? (
+          <p className="flex h-[320px] items-center justify-center text-center text-sm text-muted-foreground">
+            لا توجد بيانات مشاريع كافية لعرض المخطط بعد.
+          </p>
+        ) : (
         <ChartContainer config={chartConfig} className="h-[320px] w-full">
           <AreaChart data={data} margin={{ left: 0, right: 0, top: 8, bottom: 0 }}>
             <defs>
@@ -101,8 +145,7 @@ export function ProgressOverTimeChart() {
               tickMargin={8}
               tickFormatter={(value: string) => value.split(" ")[0]}
               fontSize={11}
-            />
-            <YAxis
+            />            <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -143,6 +186,7 @@ export function ProgressOverTimeChart() {
             />
           </AreaChart>
         </ChartContainer>
+        )}
       </CardContent>
     </Card>
   )

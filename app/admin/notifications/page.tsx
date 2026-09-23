@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { getPublicProjects, getPublicProjectStats, type ProjectStats } from '@/lib/api/public'
+import { useLocale } from '@/components/locale-provider'
+import { formatCurrency, formatNumber } from '@/lib/currency'
 import type { Project } from '@/components/admin/projects/types'
 
 const PLACEHOLDER_IMAGE = '/placeholder.svg'
@@ -14,15 +16,17 @@ const PLACEHOLDER_IMAGE = '/placeholder.svg'
 const readNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0
 
-const formatAmount = (value: number): string => value.toLocaleString('ar-EG')
-
-const formatDate = (value?: string): string => {
-  if (!value) return 'â€”'
+const formatDate = (value: string | undefined, locale: 'ar' | 'en'): string => {
+  if (!value) return '—'
 
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'â€”'
+  if (Number.isNaN(date.getTime())) return '—'
 
-  return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })
+  return date.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 }
 
 const getCategoryLabel = (project: Project): string | null => {
@@ -36,9 +40,10 @@ const getCategoryLabel = (project: Project): string | null => {
  *
  * The completed-projects section is sourced from the real Project collection via
  * the public projects API filtered by `status=COMPLETED`. There is deliberately
- * no mock array and no final-report upload â€” the platform has no such feature.
+ * no mock array and no final-report upload — the platform has no such feature.
  */
 export default function NotificationsPage() {
+  const { locale } = useLocale()
   const [completedProjects, setCompletedProjects] = useState<Project[]>([])
   const [stats, setStats] = useState<ProjectStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -63,7 +68,7 @@ export default function NotificationsPage() {
       } catch (err) {
         if (cancelled) return
         console.error('Failed to load completed projects', err)
-        setError('ØªØ¹Ø°Ù‘Ø± ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹ Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.')
+        setError('تعذّر تحميل بيانات المشاريع المكتملة حالياً.')
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -84,10 +89,10 @@ export default function NotificationsPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="text-sm font-medium text-primary">Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ©</p>
-        <h1 className="mt-2 font-heading text-3xl font-bold">Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ÙˆØ§Ù„ØªÙ‚Ø§Ø±ÙŠØ±</h1>
+        <p className="text-sm font-medium text-primary">المتابعة المالية</p>
+        <h1 className="mt-2 font-heading text-3xl font-bold">الإشعارات والتقارير</h1>
         <p className="mt-2 text-muted-foreground">
-          Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹ Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø© ÙˆÙ†Ø³Ø¨ Ø§Ù„Ø¥Ù†Ø¬Ø§Ø² Ø§Ù„ÙØ¹Ù„ÙŠØ©.
+          نظرة عامة على المشاريع المكتملة ونسب الإنجاز الفعلية.
         </p>
       </div>
 
@@ -125,27 +130,27 @@ export default function NotificationsPage() {
                         className="object-cover"
                         unoptimized
                       />
-                      <Badge className="absolute end-3 top-3">Ù…ÙƒØªÙ…Ù„ Ø¨Ù†Ø¬Ø§Ø­</Badge>
+                      <Badge className="absolute end-3 top-3">مكتمل بنجاح</Badge>
                     </div>
                     <CardContent className="flex flex-col gap-3 p-4">
                       <div>
                         <h2 className="font-heading font-bold">{title}</h2>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {category ?? 'ØºÙŠØ± Ù…ØµÙ†ÙØ©'} Â· ØªÙ… Ø§Ù„ØªÙ…ÙˆÙŠÙ„: {formatAmount(collected)} Ø±.Ø³ Ù…Ù†{' '}
-                          {formatAmount(target)} Ø±.Ø³
+                          {category ?? 'غير مصنفة'} · تم التمويل: {formatCurrency(collected, locale)} من{' '}
+                          {formatCurrency(target, locale)}
                         </p>
                       </div>
                       <Progress value={progress} className="h-2" />
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <CalendarDays className="size-3" />
-                          {formatDate(project.updatedAt)}
+                          {formatDate(project.updatedAt, locale)}
                         </span>
                         <span className="text-primary">{progress.toFixed(0)}%</span>
                       </div>
                       {readNumber(project.beneficiariesCount) > 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ø³ØªÙÙŠØ¯ÙŠÙ†: {formatAmount(readNumber(project.beneficiariesCount))}
+                          عدد المستفيدين: {formatNumber(readNumber(project.beneficiariesCount), locale)}
                         </p>
                       )}
                     </CardContent>
@@ -154,7 +159,7 @@ export default function NotificationsPage() {
               })
             ) : (
               <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground xl:col-span-3">
-                Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø´Ø§Ø±ÙŠØ¹ Ù…ÙƒØªÙ…Ù„Ø© Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.
+                لا توجد مشاريع مكتملة حتى الآن.
               </p>
             )}
           </div>
@@ -163,33 +168,33 @@ export default function NotificationsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="text-primary" />
-                Ù…Ù„Ø®Øµ Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²
+                ملخص الإنجاز
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <p className="text-sm text-muted-foreground">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹</p>
+                <p className="text-sm text-muted-foreground">إجمالي المشاريع</p>
                 <p className="font-heading text-2xl font-bold">
-                  {formatAmount(stats?.totalProjects ?? 0)}
+                  {formatNumber(stats?.totalProjects ?? 0, locale)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹ Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø©</p>
+                <p className="text-sm text-muted-foreground">المشاريع المكتملة</p>
                 <p className="flex items-center gap-2 font-heading text-2xl font-bold text-primary">
                   <CheckCircle2 className="size-5" />
-                  {formatAmount(stats?.completedProjects ?? 0)}
+                  {formatNumber(stats?.completedProjects ?? 0, locale)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Ù†Ø³Ø¨Ø© Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²</p>
+                <p className="text-sm text-muted-foreground">نسبة الإنجاز</p>
                 <p className="font-heading text-2xl font-bold">
                   {(stats?.completionPercentage ?? 0).toFixed(0)}%
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Ø¥Ø¬Ù…Ø§Ù„ÙŠ ØªÙ…ÙˆÙŠÙ„ Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹ Ø§Ù„Ù…ÙƒØªÙ…Ù„Ø©</p>
+                <p className="text-sm text-muted-foreground">إجمالي تمويل المشاريع المكتملة</p>
                 <p className="font-heading text-2xl font-bold">
-                  {formatAmount(totalCompletedFunding)} Ø±.Ø³
+                  {formatCurrency(totalCompletedFunding, locale)}
                 </p>
               </div>
             </CardContent>

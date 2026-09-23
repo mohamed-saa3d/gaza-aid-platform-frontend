@@ -99,6 +99,30 @@ export async function getPublicProjectStats(): Promise<ApiResponse<ProjectStats>
   return response.data
 }
 
+// ── Project history (real monthly series for the progress chart) ───
+
+export interface ProjectHistoryPoint {
+  /** Month bucket in `YYYY-MM` form, computed from real `createdAt` values. */
+  month: string
+  /** Cumulative projects existing by the end of that month. */
+  total: number
+  /** Of those, how many are now COMPLETED. */
+  completed: number
+}
+
+/**
+ * Real monthly project history derived from the database — not a mock series.
+ * `months` is server-clamped to 1..24.
+ */
+export async function getPublicProjectHistory(
+  months = 12
+): Promise<ApiResponse<ProjectHistoryPoint[]>> {
+  const response = await http.get<ApiResponse<ProjectHistoryPoint[]>>("/projects/history", {
+    params: { months },
+  })
+  return response.data
+}
+
 // ── Settings ───────────────────────────────────────────────────────
 
 export interface PlatformSettings {
@@ -119,5 +143,43 @@ export interface PlatformSettings {
 
 export async function getPublicSettings(): Promise<ApiResponse<PlatformSettings>> {
   const response = await http.get<ApiResponse<PlatformSettings>>("/settings")
+  return response.data
+}
+
+// ── Platform Ratings ───────────────────────────────────────────────
+
+export interface PlatformRatingAggregate {
+  /** Real database average, rounded to one decimal. `0` when no ratings exist. */
+  average: number
+  /** Real number of stored ratings. */
+  totalRatings: number
+  /** Whether the current viewer (user or guest) has already rated. */
+  hasRated: boolean
+  /** The viewer's own score, or `null` when they have not rated. */
+  viewerRating: number | null
+}
+
+/**
+ * Public aggregate for the home page rating card.
+ * Works for guests: the guest identity travels in an httpOnly cookie that the
+ * browser attaches automatically (`withCredentials: true` on the shared client).
+ */
+export async function getPublicRatingAggregate(): Promise<ApiResponse<PlatformRatingAggregate>> {
+  const response = await http.get<ApiResponse<PlatformRatingAggregate>>("/ratings/stats")
+  return response.data
+}
+
+/**
+ * Submits (or updates) the viewer's platform rating.
+ * Allowed for both guests and authenticated users — no login required.
+ */
+export async function submitPlatformRating(
+  value: number,
+  comment?: string
+): Promise<ApiResponse<{ value: number; aggregate: PlatformRatingAggregate }>> {
+  const response = await http.post<ApiResponse<{ value: number; aggregate: PlatformRatingAggregate }>>(
+    "/ratings",
+    { value, ...(comment ? { comment } : {}) }
+  )
   return response.data
 }

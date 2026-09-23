@@ -8,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { donationReasons, quickAmounts } from "@/lib/mock-data"
+import { useLocale } from "@/components/locale-provider"
+import { formatCurrency } from "@/lib/currency"
 import type { DonationState } from "@/components/donate/donation-flow"
 
 const iconMap: Record<string, LucideIcon> = {
@@ -26,6 +28,7 @@ interface AmountStepProps {
 }
 
 export function AmountStep({ state, onChange, onNext }: AmountStepProps) {
+  const { locale } = useLocale()
   const isCustom = !(quickAmounts as readonly number[]).includes(state.amount)
 
   return (
@@ -88,7 +91,7 @@ export function AmountStep({ state, onChange, onNext }: AmountStepProps) {
       </section>
 
       <section>
-        <h2 className="mb-4 font-heading text-lg font-bold">حدد المبلغ (ر.س)</h2>
+        <h2 className="mb-4 font-heading text-lg font-bold">حدد المبلغ (دولار أمريكي)</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {quickAmounts.map((amount) => (
             <button
@@ -123,7 +126,9 @@ export function AmountStep({ state, onChange, onNext }: AmountStepProps) {
 
       <Card className="flex items-center justify-between border-border/60 bg-secondary/40 p-4">
         <span className="text-sm font-medium text-muted-foreground">إجمالي التبرع</span>
-        <span className="font-heading text-2xl font-bold text-primary">{state.amount || 0} ر.س</span>
+        <span className="font-heading text-2xl font-bold text-primary">
+          {formatCurrency(state.amount || 0, locale)}
+        </span>
       </Card>
 
       <Button

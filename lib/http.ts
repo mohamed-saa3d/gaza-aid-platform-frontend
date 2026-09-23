@@ -51,12 +51,17 @@ export const setActiveLocale = (locale: Locale): void => {
  * the raw `titleAr`/`titleEn` fields the forms edit.
  */
 const LOCALIZED_REQUEST_PATTERNS: RegExp[] = [
-  /^\/projects(\?|$)/,
-  /^\/categories(\?|$)/,
-  /^\/news(\?|$)/,
-  /^\/faqs(\?|$)/,
-  /^\/live-streams(\?|$)/,
-  /^\/settings(\?|$)/,
+  // `/` or a sub-path or a query — so `/projects`, `/projects?page=1`,
+  // `/projects/categories`, `/projects/stats` and `/projects/history` all match.
+  // An earlier version used `(\?|$)`, which silently excluded every sub-path and
+  // let the browser's Accept-Language win — producing English category names in
+  // an Arabic UI.
+  /^\/projects(\/|\?|$)/,
+  /^\/categories(\/|\?|$)/,
+  /^\/news(\/|\?|$)/,
+  /^\/faqs(\/|\?|$)/,
+  /^\/live-streams(\/|\?|$)/,
+  /^\/settings(\/|\?|$)/,
 ]
 
 const isLocalizedRequest = (method: string | undefined, url: string): boolean => {

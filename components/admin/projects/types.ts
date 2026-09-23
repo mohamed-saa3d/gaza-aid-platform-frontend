@@ -6,6 +6,10 @@ export interface ProjectCategory {
   nameEn: string
   /** Locale-resolved name produced by the backend for public responses. */
   name?: string
+  /** Icon key for the frontend icon registry (`@/lib/category-icons`). */
+  icon?: string | null
+  /** Display order; lower sorts first. Default categories use 0-5. */
+  order?: number
 }
 
 export interface Project {

@@ -268,7 +268,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
 
           {/* Target Amount */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="targetAmount">المبلغ المستهدف (ر.س) *</Label>
+            <Label htmlFor="targetAmount">المبلغ المستهدف (دولار أمريكي) *</Label>
             <Input
               id="targetAmount"
               type="number"
@@ -301,7 +301,14 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
                 disabled={isSubmitting}
               >
                 <SelectTrigger id="categoryId">
-                  <SelectValue placeholder="اختر الفئة" />
+                  {/* Resolve the label explicitly: Base UI falls back to the raw
+                      value when the matching item has not mounted yet. */}
+                  <SelectValue placeholder="اختر الفئة">
+                    {() => {
+                      const match = categories.find((c) => c.id === categoryId)
+                      return match ? match.nameAr || match.nameEn || "فئة" : undefined
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingCategories ? (

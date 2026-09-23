@@ -33,9 +33,12 @@ import {
 } from "@/components/ui/pagination"
 
 import { getProjects } from "./api"
+import { getCategories } from "@/components/admin/categories/api"
+import type { Category } from "@/components/admin/categories/types"
 import type { Project } from "./types"
 import type { PaginatedResponse } from "@/types/models"
 import { useDebounce } from "@/hooks/use-debounce"
+import { formatCurrency } from "@/lib/currency"
 import { CreateProjectDialog } from "./create-project-dialog"
 import { UpdateProjectDialog } from "./update-project-dialog"
 import { DeleteProjectDialog } from "./delete-project-dialog"
@@ -49,7 +52,11 @@ export function ProjectsSection() {
   const [page, setPage] = useState(1)
   const [limit] = useState(6)
   const [search, setSearch] = useState("")
+  // The filter value is a REAL category id (or "all"). It is never a hardcoded
+  // slug — an earlier version used fake ids like "water"/"food" which the backend
+  // rejected, since they are neither MongoDB ObjectIds nor valid statuses.
   const [category, setCategory] = useState<string>("all")
+  const [categories, setCategories] = useState<Category[]>([])
 
   // 🔴 DEBOUNCED SEARCH: Prevents API flooding on rapid keystrokes (350ms delay)
   const debouncedSearch = useDebounce(search, 350)
@@ -58,6 +65,18 @@ export function ProjectsSection() {
   useEffect(() => {
     setPage(1)
   }, [debouncedSearch, category])
+
+  useEffect(() => {
+    let cancelled = false
+    getCategories({ page: 1, limit: 100 })
+      .then((res) => {
+        if (!cancelled) setCategories(Array.isArray(res?.data) ? res.data : [])
+      })
+      .catch((error) => console.error("Failed to load categories for filter", error))
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Fetch Projects Callback
   const fetchProjects = useCallback(async () => {
@@ -68,7 +87,8 @@ export function ProjectsSection() {
       const response = await getProjects({
         page,
         limit,
-        status: category !== "all" ? category : undefined,
+        // "all" sends no category, so uncategorized projects stay visible too.
+        categoryId: category !== "all" ? category : undefined,
       })
       setProjectsData(response)
     } catch (err: unknown) {
@@ -131,13 +151,11 @@ export function ProjectsSection() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">كل التصنيفات</SelectItem>
-                <SelectItem value="water">سقيا ماء</SelectItem>
-                <SelectItem value="food">سلال غذائية</SelectItem>
-                <SelectItem value="shelter">إيواء</SelectItem>
-                <SelectItem value="orphans">رعاية أيتام</SelectItem>
-                <SelectItem value="health">صحة</SelectItem>
-                <SelectItem value="education">تعليم</SelectItem>
-                <SelectItem value="other">أخرى</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.nameAr || cat.nameEn}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -195,8 +213,8 @@ export function ProjectsSection() {
                           {itemTitle}
                         </h3>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          المستهدف: {targetVal.toLocaleString("ar-SA")} ر.س · تم جمع:{" "}
-                          {fundedVal.toLocaleString("ar-SA")} ر.س
+                          المستهدف: {formatCurrency(targetVal, "ar")} · تم جمع:{" "}
+                          {formatCurrency(fundedVal, "ar")}
                         </p>
                       </div>
 

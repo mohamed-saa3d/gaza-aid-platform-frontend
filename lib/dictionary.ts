@@ -6,6 +6,10 @@ export type LocaleDictionary = {
   nav: DictionarySection
   footer: DictionarySection
   common: DictionarySection
+  rating: DictionarySection
+  home: DictionarySection
+  live: DictionarySection
+  currency: DictionarySection
 }
 
 export const dictionary: Record<Locale, LocaleDictionary> = {
@@ -27,6 +31,19 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       home: "الصفحة الرئيسية",
       navigation: "التنقل الرئيسي",
       mobileNavigation: "التنقل - جوال",
+      remaining: "المتبقي",
+      funded: "الممول",
+      target: "المستهدف",
+      loading: "جاري التحميل...",
+      retry: "إعادة المحاولة",
+      cancel: "إلغاء",
+      confirm: "تأكيد",
+      save: "حفظ",
+      error: "حدث خطأ غير متوقع",
+      noResults: "لا توجد نتائج",
+      share: "مشاركة",
+      copyLink: "نسخ الرابط",
+      linkCopied: "تم نسخ الرابط",
     },
     footer: {
       about: "من نحن",
@@ -49,6 +66,46 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       location: "فلسطين",
       socialMedia: "رابط شبكة اجتماعية",
     },
+    rating: {
+      title: "تقييم المنصة",
+      subtitle: "شاركنا تقييمك لتحسين تجربتك",
+      yourRating: "تقييمك",
+      selectRating: "اختر تقييمك من 1 إلى 5 نجوم",
+      submit: "إرسال التقييم",
+      submitting: "جاري إرسال التقييم...",
+      submitted: "تم إرسال تقييمك بنجاح، شكراً لك!",
+      updated: "تم تحديث تقييمك بنجاح",
+      alreadyRated: "لقد قيّمت المنصة بـ",
+      stars: "نجوم",
+      outOfFive: "/5",
+      ratingCount: "من {count} تقييم",
+      noRatings: "كن أول من يقيّم المنصة",
+      loadFailed: "تعذّر تحميل تقييمات المنصة حالياً.",
+      starLabel: "تقييم {value} من 5",
+    },
+    home: {
+      otherCategories: "فئات مشاريع أخرى",
+      platformRating: "تقييم المنصة",
+      totalUsers: "إجمالي المستخدمين",
+      browseProjects: "تصفح المشاريع",
+    },
+    live: {
+      checking: "جاري التحقق من وجود بث مباشر...",
+      loadFailed: "فشل تحميل معلومات البث المباشر.",
+      liveNow: "بث مباشر الآن",
+      emptyTitle: "لا يوجد بث مباشر حالياً",
+      emptyBody:
+        "نحن لا نقوم بأي بث مباشر في الوقت الحالي. يرجى متابعة صفحاتنا على وسائل التواصل الاجتماعي لمعرفة مواعيد البث القادمة.",
+      unavailableTitle: "البث المباشر غير متاح مؤقتاً",
+      unavailableBody:
+        "يوجد بث مباشر مجدول حالياً لكن الرابط غير قابل للتشغيل. يرجى المحاولة لاحقاً أو متابعة صفحاتنا على وسائل التواصل الاجتماعي.",
+      backHome: "العودة إلى الرئيسية",
+    },
+    currency: {
+      label: "دولار أمريكي",
+      symbol: "$",
+      code: "USD",
+    },
   },
   en: {
     nav: {
@@ -68,6 +125,19 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       home: "Home",
       navigation: "Main navigation",
       mobileNavigation: "Mobile navigation",
+      remaining: "Remaining",
+      funded: "Funded",
+      target: "Target",
+      loading: "Loading...",
+      retry: "Try again",
+      cancel: "Cancel",
+      confirm: "Confirm",
+      save: "Save",
+      error: "Something went wrong",
+      noResults: "No results",
+      share: "Share",
+      copyLink: "Copy link",
+      linkCopied: "Link copied",
     },
     footer: {
       about: "About Us",
@@ -89,6 +159,46 @@ export const dictionary: Record<Locale, LocaleDictionary> = {
       description: "A charitable organization dedicated to providing relief and support to those in need in Palestine and beyond, and building sustainable communities.",
       location: "Palestine",
       socialMedia: "Social media link",
+    },
+    rating: {
+      title: "Platform Rating",
+      subtitle: "Share your rating to help us improve your experience",
+      yourRating: "Your rating",
+      selectRating: "Select your rating from 1 to 5 stars",
+      submit: "Submit rating",
+      submitting: "Submitting your rating...",
+      submitted: "Your rating was submitted successfully. Thank you!",
+      updated: "Your rating was updated successfully",
+      alreadyRated: "You rated the platform",
+      stars: "stars",
+      outOfFive: "/5",
+      ratingCount: "from {count} ratings",
+      noRatings: "Be the first to rate the platform",
+      loadFailed: "Platform ratings could not be loaded right now.",
+      starLabel: "Rate {value} out of 5",
+    },
+    home: {
+      otherCategories: "Other Project Categories",
+      platformRating: "Platform Rating",
+      totalUsers: "Total users",
+      browseProjects: "Browse projects",
+    },
+    live: {
+      checking: "Checking for a live stream...",
+      loadFailed: "Could not load live stream information.",
+      liveNow: "Live now",
+      emptyTitle: "There is no live stream right now",
+      emptyBody:
+        "We are not streaming at the moment. Please follow our social media pages to learn about upcoming broadcast times.",
+      unavailableTitle: "The live stream is temporarily unavailable",
+      unavailableBody:
+        "A live stream is scheduled but its link cannot be played right now. Please try again later or follow our social media pages.",
+      backHome: "Back to home",
+    },
+    currency: {
+      label: "US Dollar",
+      symbol: "$",
+      code: "USD",
     },
   },
 }

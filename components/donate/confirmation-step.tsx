@@ -5,9 +5,11 @@ import Link from "next/link"
 import { PartyPopper, Download, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useLocale } from "@/components/locale-provider"
+import { formatCurrency } from "@/lib/currency"
 import type { DonationState } from "@/components/donate/donation-flow"
-
 export function ConfirmationStep({ state }: { state: DonationState }) {
+  const { locale } = useLocale()
   const [reference, setReference] = useState("QR-000000")
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function ConfirmationStep({ state }: { state: DonationState }) {
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">المبلغ</span>
-            <span className="font-heading font-bold text-primary">{state.amount} ر.س</span>
+            <span className="font-heading font-bold text-primary">{formatCurrency(state.amount, locale)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">نوع التبرع</span>
