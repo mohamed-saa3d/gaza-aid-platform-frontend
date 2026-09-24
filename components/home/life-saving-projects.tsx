@@ -6,7 +6,6 @@ import { ChevronLeft, Loader2 } from "lucide-react"
 import { DonationWaysCard } from "@/components/home/donation-ways-card"
 import { FeaturedProjectCarousel } from "@/components/home/featured-project-carousel"
 import { PlatformRatingCard } from "@/components/home/platform-rating-card"
-import { ProjectCard } from "@/components/project-card"
 import { getPublicProjects } from "@/lib/api/public"
 import { useLocale } from "@/components/locale-provider"
 import type { Project } from "@/components/admin/projects/types"
@@ -32,7 +31,6 @@ export function LifeSavingProjects() {
   }, [locale])
 
   const featured = projects.slice(0, 3)
-  const secondary = projects.slice(3, 6)
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 md:px-8">
@@ -53,31 +51,18 @@ export function LifeSavingProjects() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr] lg:items-stretch">
             {/* Left Column on Desktop */}
-            <div className="contents lg:flex lg:flex-col lg:gap-8">
-              <div className="order-1 lg:order-none">
-                <DonationWaysCard />
-              </div>
-              <div className="order-3 lg:order-none">
+            <div className="flex flex-col gap-8">
+              <DonationWaysCard />
+              <div className="flex-1">
                 <PlatformRatingCard />
               </div>
             </div>
 
             {/* Right Column on Desktop */}
-            <div className="contents lg:flex lg:flex-col lg:gap-8">
-              <div className="order-2 lg:order-none">
-                <FeaturedProjectCarousel projects={featured} />
-              </div>
-              {secondary.length > 0 && (
-                <div className="order-4 lg:order-none">
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {secondary.map((project) => (
-                      <ProjectCard key={project.id} project={project} />
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="flex flex-col gap-8">
+              <FeaturedProjectCarousel projects={featured} />
             </div>
           </div>
         </>
