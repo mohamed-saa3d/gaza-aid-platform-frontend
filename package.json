@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "check:i18n": "node scripts/check-dictionary-keys.js",
-    "check:mojibake": "node scripts/check-mojibake.js ."
+    "check:mojibake": "node scripts/check-mojibake.js .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

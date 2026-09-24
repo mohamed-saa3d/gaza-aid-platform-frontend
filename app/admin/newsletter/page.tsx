@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
-const stats = { totalSubscribers: 1240 }
+const stats = { totalSubscribers: 0 }
 
 export default function NewsletterPage() {
   return (
@@ -15,7 +15,7 @@ export default function NewsletterPage() {
       <div>
         <p className="text-sm font-medium text-primary">التواصل مع المجتمع</p>
         <h1 className="mt-2 font-heading text-3xl font-bold">إرسال النشرة البريدية</h1>
-        <p className="mt-2 text-muted-foreground">أرسل آخر الأخبار والتحديثات إلى مشتركي المنصة.</p>
+        <p className="mt-2 text-muted-foreground">النشرة البريدية غير متاحة حالياً.</p>
       </div>
 
       <Card className="max-w-xs">
@@ -26,7 +26,7 @@ export default function NewsletterPage() {
           <div>
             <p className="text-sm text-muted-foreground">عدد المشتركين الإجمالي</p>
             <p className="font-heading text-3xl font-bold text-primary">
-              {stats.totalSubscribers.toLocaleString('ar-EG')}
+              {stats.totalSubscribers.toLocaleString('ar-EG')} مشترك
             </p>
           </div>
         </CardContent>
@@ -36,26 +36,27 @@ export default function NewsletterPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="text-primary" />
-            إرسال نشرة بريدية جديدة
+            إرسال نشرة بريدية جديدة (غير متاح)
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form className="flex max-w-3xl flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-col gap-2">
               <Label htmlFor="subject">عنوان الرسالة</Label>
-              <Input id="subject" placeholder="أدخل عنوان النشرة هنا..." />
+              <Input id="subject" placeholder="أدخل عنوان النشرة هنا..." disabled />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="message">محتوى الرسالة</Label>
               <Textarea
                 id="message"
                 className="min-h-48"
-                placeholder="اكتب تفاصيل الرسالة التي سيتم إرسالها لكافة المشتركين..."
+                placeholder="خدمة إرسال النشرة البريدية غير متاحة حالياً."
+                disabled
               />
             </div>
-            <Button className="w-fit">
+            <Button className="w-fit" disabled>
               <Send className="ml-2 size-4" />
-              إرسال النشرة
+              إرسال النشرة (غير متاح)
             </Button>
           </form>
         </CardContent>

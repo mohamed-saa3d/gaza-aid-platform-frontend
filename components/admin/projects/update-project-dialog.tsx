@@ -28,6 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { Checkbox } from "@/components/ui/checkbox"
+import { useLocale } from "@/components/locale-provider"
 import { updateProject } from "./api"
 import type { Project } from "./types"
 import { projectFormSchema } from "./schema"
@@ -46,6 +48,7 @@ interface UpdateProjectDialogProps {
 
 export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProjectDialogProps) {
   const router = useRouter()
+  const { t } = useLocale()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -81,13 +84,10 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       ? "PAUSED"
       : "ACTIVE"
   )
+  const [isUrgent, setIsUrgent] = useState<boolean>(!!project.isUrgent)
   const [categoryId, setCategoryId] = useState<string>(getCategoryId(project.category, project.categoryId))
   const [imageFile, setImageFile] = useState<File | null>(null)
 
-  // Category options ALWAYS come from the real categories API — never a
-  // hardcoded list. An earlier version hardcoded fake ids ("water", "food", ...)
-  // which are not MongoDB ObjectIds: the current category never displayed, and
-  // saving sent an invalid id the backend correctly rejected.
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(false)
 
@@ -129,6 +129,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
           ? "PAUSED"
           : "ACTIVE"
       )
+      setIsUrgent(!!project.isUrgent)
       setCategoryId(getCategoryId(project.category, project.categoryId))
       setImageFile(null)
       setErrors({})
@@ -139,8 +140,6 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
     e.preventDefault()
     setErrors({})
 
-    // `isUncategorized` maps to the backend's explicit "unassign" contract (an
-    // empty string). Every other value is a real, already-validated category id.
     const isUncategorized = categoryId === UNCATEGORIZED_VALUE
     const resolvedCategoryId = categoryId === "" ? UNCATEGORIZED_VALUE : categoryId
 
@@ -152,6 +151,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
       targetAmount: targetAmount === "" ? 0 : Number(targetAmount),
       beneficiariesCount: beneficiariesCount === "" ? 0 : Number(beneficiariesCount),
       status,
+      isUrgent,
       categoryId: resolvedCategoryId,
       imageUrl: "",
     }
@@ -185,10 +185,7 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
           targetAmount: validData.targetAmount,
           beneficiariesCount: validData.beneficiariesCount,
           status: validData.status,
-          // `''` is the backend's explicit "disconnect category" signal; a real id
-          // reassigns the project. This is what makes an uncategorized project
-          // safe: we only ever send an empty string when the admin chose the
-          // "Uncategorized" option, never because a value was merely missing.
+          isUrgent: validData.isUrgent,
           categoryId: isUncategorized ? "" : validData.categoryId,
         },
         imageFile || undefined
@@ -418,6 +415,19 @@ export function UpdateProjectDialog({ project, onSuccess, trigger }: UpdateProje
               </Select>
               {errors.status && <span className="text-xs text-destructive">{errors.status}</span>}
             </div>
+          </div>
+
+          {/* Urgent Relief Checkbox */}
+          <div className="flex items-center gap-2 rounded-lg border border-border p-3 bg-card">
+            <Checkbox
+              id={`isUrgent-${project.id}`}
+              checked={isUrgent}
+              onCheckedChange={(checked) => setIsUrgent(!!checked)}
+              disabled={isSubmitting}
+            />
+            <Label htmlFor={`isUrgent-${project.id}`} className="cursor-pointer text-sm font-medium">
+              {t.projectsFilter.urgent}
+            </Label>
           </div>
 
           {/* 9: Image File Upload Dropzone */}

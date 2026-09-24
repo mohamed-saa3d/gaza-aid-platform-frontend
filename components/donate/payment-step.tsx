@@ -121,6 +121,10 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
         </section>
       )}
 
+      <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-xs font-medium text-amber-800 dark:text-amber-300">
+        {t.donate.unavailableTitle}
+      </div>
+
       <div className="flex items-center gap-3">
         <Button variant="outline" size="lg" className="rounded-full" onClick={onBack}>
           <ChevronRight className="size-4 rotate-180 rtl:rotate-0" aria-hidden="true" />
@@ -129,17 +133,9 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
         <Button
           size="lg"
           className="flex-1 rounded-full"
-          disabled={!canSubmit || submitting}
-          onClick={handleSubmit}
+          disabled
         >
-          {submitting ? (
-            <>
-              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              {t.donate.processing}
-            </>
-          ) : (
-            t.donate.confirmAmount.replace("{amount}", formatCurrency(state.amount, locale))
-          )}
+          {t.donate.unavailableTitle}
         </Button>
       </div>
     </div>

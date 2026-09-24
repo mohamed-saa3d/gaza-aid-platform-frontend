@@ -66,7 +66,8 @@ function ProjectsGridInner() {
       // including the uncategorized ones. A specific category filters server-side,
       // which keeps pagination correct.
       const categoryId = filter === "all" || filter === "urgent" ? undefined : filter
-      const res = await getPublicProjects({ page, limit: PAGE_SIZE, categoryId })
+      const urgent = filter === "urgent" ? true : undefined
+      const res = await getPublicProjects({ page, limit: PAGE_SIZE, categoryId, urgent })
 
       setProjects(Array.isArray(res?.data) ? res.data : [])
       setTotal(res?.meta?.total ?? 0)

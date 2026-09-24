@@ -23,6 +23,7 @@ export interface Project {
   collectedAmount: number
   beneficiariesCount: number
   status: ProjectStatus
+  isUrgent?: boolean
   /**
    * Populated by the API as an object when the project is categorized, and
    * `null` when the project is uncategorized (e.g. after its category was
@@ -77,6 +78,7 @@ export interface ProjectFormData {
   descriptionEn: string
   categoryId: string
   status: ProjectStatus | string
+  isUrgent?: boolean
   targetAmount: number
   beneficiariesCount?: number
   location?: string

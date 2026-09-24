@@ -123,6 +123,7 @@ const logAuthTrace = (event: string, config: Partial<InternalAxiosRequestConfig>
 export const http = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
+  timeout: 20000,
   headers: {
     "Content-Type": "application/json",
   },

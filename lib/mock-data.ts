@@ -395,47 +395,6 @@ export interface NewsArticle {
   urgent: boolean
 }
 
-export const featuredNewsArticle: NewsArticle = {
-  id: "n1",
-  slug: "hamlat-alshataa-aldafi-3",
-  title: "انطلاق المرحلة الثالثة من حملة الشتاء الدافئ في مراكز الإيواء بغزة",
-  excerpt:
-    "أطلقت مؤسسة قدس إغاثة المرحلة الثالثة من حملة الشتاء الدافئ لتوفير الملابس والبطانيات ومواد التدفئة للأسر النازحة في مراكز الإيواء بقطاع غزة، في ظل استمرار الأوضاع الإنسانية الصعبة والانخفاض الحاد في درجات الحرارة.",
-  image: "/images/news-featured-winter.png",
-  date: "15 أكتوبر 2026",
-  urgent: true,
-}
-
-export const newsArticles: NewsArticle[] = [
-  {
-    id: "n2",
-    slug: "tawzi-500-sala-khanyounis",
-    title: "توزيع 500 سلة غذائية في مواصي خانيونس",
-    excerpt: "بدعم من أهل الخير، تم توزيع 500 سلة غذائية على الأسر المتعففة والنازحة في مواصي خانيونس.",
-    image: "/images/news-food-distribution.png",
-    date: "10 أكتوبر 2026",
-    urgent: false,
-  },
-  {
-    id: "n3",
-    slug: "eiyada-mutanaqila-rafah",
-    title: "عيادة متنقلة تقدم خدماتها في رفح",
-    excerpt: "واصلت العيادة المتنقلة تقديم الخدمات الطبية المجانية للأسر النازحة في مدينة رفح والمناطق المجاورة.",
-    image: "/images/news-mobile-clinic.png",
-    date: "10 أكتوبر 2026",
-    urgent: false,
-  },
-  {
-    id: "n4",
-    slug: "iftitah-bir-mya-deir-albalah",
-    title: "افتتاح بئر مياه جديد في دير البلح",
-    excerpt: "تم بحمد الله افتتاح بئر مياه ارتوازي جديد في منطقة دير البلح، وسيخدم أكثر من 3,000 نسمة من الأهالي والنازحين.",
-    image: "/images/news-water-well.png",
-    date: "10 أكتوبر 2026",
-    urgent: false,
-  },
-]
-
 // Live stream page
 export interface LiveChatMessage {
   id: string

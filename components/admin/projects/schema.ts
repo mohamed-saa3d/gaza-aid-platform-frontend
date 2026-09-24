@@ -9,6 +9,7 @@ export const createProjectSchema = z.object({
   targetAmount: z.coerce.number().positive("Target amount must be positive"),
   beneficiariesCount: z.coerce.number().int().nonnegative().optional(),
   status: z.enum(["ACTIVE", "COMPLETED", "PAUSED"]),
+  isUrgent: z.boolean().optional(),
   categoryId: z.string().trim().min(1, "Category ID is required"),
 })
 

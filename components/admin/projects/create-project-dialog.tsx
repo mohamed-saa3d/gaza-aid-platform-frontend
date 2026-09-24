@@ -28,6 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { Checkbox } from "@/components/ui/checkbox"
+import { useLocale } from "@/components/locale-provider"
 import { createProject } from "./api"
 import { projectFormSchema } from "./schema"
 import { getCategories } from "@/components/admin/categories/api"
@@ -41,6 +43,7 @@ interface CreateProjectDialogProps {
 
 export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogProps) {
   const router = useRouter()
+  const { t } = useLocale()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -54,6 +57,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
   const [beneficiariesCount, setBeneficiariesCount] = useState<number | "">("")
   const [categoryId, setCategoryId] = useState("")
   const [status, setStatus] = useState<"ACTIVE" | "COMPLETED" | "PAUSED">("ACTIVE")
+  const [isUrgent, setIsUrgent] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
 
   const [categories, setCategories] = useState<Category[]>([])
@@ -92,6 +96,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
     setBeneficiariesCount("")
     setCategoryId("")
     setStatus("ACTIVE")
+    setIsUrgent(false)
     setImageFile(null)
     setErrors({})
   }
@@ -108,6 +113,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
       targetAmount: targetAmount === "" ? 0 : Number(targetAmount),
       beneficiariesCount: beneficiariesCount === "" ? 0 : Number(beneficiariesCount),
       status,
+      isUrgent,
       categoryId,
       imageUrl: "",
     }
@@ -141,6 +147,7 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
           targetAmount: validData.targetAmount,
           beneficiariesCount: validData.beneficiariesCount,
           status: validData.status,
+          isUrgent: validData.isUrgent,
           categoryId: validData.categoryId,
         },
         imageFile || undefined
@@ -347,6 +354,19 @@ export function CreateProjectDialog({ onSuccess, trigger }: CreateProjectDialogP
               </Select>
               {errors.status && <span className="text-xs text-destructive">{errors.status}</span>}
             </div>
+          </div>
+
+          {/* Urgent Relief Checkbox */}
+          <div className="flex items-center gap-2 rounded-lg border border-border p-3 bg-card">
+            <Checkbox
+              id="isUrgent"
+              checked={isUrgent}
+              onCheckedChange={(checked) => setIsUrgent(!!checked)}
+              disabled={isSubmitting}
+            />
+            <Label htmlFor="isUrgent" className="cursor-pointer text-sm font-medium">
+              {t.projectsFilter.urgent}
+            </Label>
           </div>
 
           {/* 9: Image File Upload Dropzone Only */}

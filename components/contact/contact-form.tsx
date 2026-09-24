@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useLocale } from "@/components/locale-provider"
+import { getPublicSettings } from "@/lib/api/public"
 
 export function ContactForm() {
   const { t } = useLocale()
@@ -21,22 +22,36 @@ export function ContactForm() {
     { id: "other", label: t.contactForm.typeOther },
   ]
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [settings, setSettings] = useState<{ contactPhone?: string; contactEmail?: string }>({})
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    setTimeout(() => {
+    try {
+      const res = await getPublicSettings()
+      if (res.data) {
+        setSettings({
+          contactPhone: res.data.contactPhone ?? undefined,
+          contactEmail: res.data.contactEmail ?? undefined,
+        })
+      }
+    } catch {
+      // Ignore fallback
+    } finally {
       setSubmitting(false)
       setSubmitted(true)
-    }, 1000)
+    }
   }
 
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border/60 bg-secondary/40 p-10 text-center">
         <Mail className="size-8 text-primary" aria-hidden="true" />
-        <h3 className="font-heading text-lg font-bold">{t.contactForm.submittedTitle}</h3>
+        <h3 className="font-heading text-lg font-bold">{t.contactForm.unavailableTitle}</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
-          {t.contactForm.submittedBody}
+          {t.contactForm.unavailableBody
+            .replace('{phone}', settings.contactPhone || '—')
+            .replace('{email}', settings.contactEmail || '—')}
         </p>
       </div>
     )

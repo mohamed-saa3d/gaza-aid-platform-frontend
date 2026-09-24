@@ -40,18 +40,8 @@ export function TrackDonationWidget() {
     }
 
     setError(null)
-    setStatusMessage(t.home.trackPending)
+    setStatusMessage(t.home.trackUnavailable)
     setDonationNumber("")
-
-    // Clear any existing timer
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-
-    // Auto disappear after exactly 3 seconds (3000ms)
-    timerRef.current = setTimeout(() => {
-      setStatusMessage(null)
-    }, 3000)
   }
 
   return (

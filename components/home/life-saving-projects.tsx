@@ -12,7 +12,7 @@ import { useLocale } from "@/components/locale-provider"
 import type { Project } from "@/components/admin/projects/types"
 
 export function LifeSavingProjects() {
-  const { t } = useLocale()
+  const { locale, t } = useLocale()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -29,7 +29,7 @@ export function LifeSavingProjects() {
       }
     }
     fetchProjects()
-  }, [])
+  }, [locale])
 
   const featured = projects.slice(0, 3)
   const secondary = projects.slice(3, 6)
@@ -54,19 +54,31 @@ export function LifeSavingProjects() {
       ) : (
         <>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_1fr]">
-            <DonationWaysCard />
-            <FeaturedProjectCarousel projects={featured} />
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-            <PlatformRatingCard />
-            {secondary.length > 0 && (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {secondary.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
+            {/* Left Column on Desktop */}
+            <div className="contents lg:flex lg:flex-col lg:gap-8">
+              <div className="order-1 lg:order-none">
+                <DonationWaysCard />
               </div>
-            )}
+              <div className="order-3 lg:order-none">
+                <PlatformRatingCard />
+              </div>
+            </div>
+
+            {/* Right Column on Desktop */}
+            <div className="contents lg:flex lg:flex-col lg:gap-8">
+              <div className="order-2 lg:order-none">
+                <FeaturedProjectCarousel projects={featured} />
+              </div>
+              {secondary.length > 0 && (
+                <div className="order-4 lg:order-none">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {secondary.map((project) => (
+                      <ProjectCard key={project.id} project={project} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}

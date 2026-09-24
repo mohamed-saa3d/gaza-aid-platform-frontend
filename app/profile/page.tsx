@@ -5,7 +5,6 @@ import { Breadcrumb } from "@/components/breadcrumb"
 import { useLocale } from "@/components/locale-provider"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { NotificationsCard } from "@/components/profile/notifications-card"
-import { WalletCard } from "@/components/profile/wallet-card"
 import { MonthlyDonationCard } from "@/components/profile/monthly-donation-card"
 import { DonationHistoryList } from "@/components/profile/donation-history-list"
 import { MyProjectsGrid } from "@/components/profile/my-projects-grid"
@@ -57,9 +56,8 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="settings" className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <NotificationsCard />
-            <WalletCard />
             <MonthlyDonationCard />
           </div>
           <SecurityCard />

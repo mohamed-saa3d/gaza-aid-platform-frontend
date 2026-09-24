@@ -41,7 +41,7 @@ function keysForSection(sectionName) {
   return keys;
 }
 
-const SECTIONS = ['nav', 'footer', 'common', 'rating', 'home', 'hero', 'quickDonate', 'why', 'live', 'branding', 'breadcrumb', 'pages', 'profile', 'updates', 'faq', 'donate', 'donateNoBank', 'about', 'news', 'contact', 'currency', 'projectsFilter', 'projectDetail', 'newsDetail', 'aboutPage', 'contactForm', 'auth', 'validation', 'profilePage', 'privacyPage', 'termsPage', 'httpErrors'];
+const SECTIONS = ['nav', 'footer', 'common', 'rating', 'home', 'hero', 'quickDonate', 'why', 'live', 'branding', 'breadcrumb', 'pages', 'profile', 'updates', 'faq', 'donate', 'donateNoBank', 'about', 'news', 'contact', 'currency', 'projectsFilter', 'projectDetail', 'newsDetail', 'aboutPage', 'contactForm', 'auth', 'validation', 'profilePage', 'privacyPage', 'termsPage', 'httpErrors', 'websiteProfile'];
 const SECTION_RE_SOURCE = SECTIONS.join('|');
 const defined = Object.fromEntries(SECTIONS.map((s) => [s, keysForSection(s)]));
 

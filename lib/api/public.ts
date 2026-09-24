@@ -39,6 +39,7 @@ export async function getPublicProjects(params?: {
   page?: number
   limit?: number
   status?: string
+  urgent?: boolean
   /**
    * Filters by category. Omit it entirely for "All" so uncategorized projects
    * (those whose category was deleted) are still returned.
