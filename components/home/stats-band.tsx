@@ -39,7 +39,7 @@ interface StatItem {
  *
  * There is deliberately NO mock fallback. Previously this component silently
  * substituted a hardcoded `heroStats` array whenever the settings were empty,
- * which meant a fresh or misconfigured platform displayed invented impact numbers
+ * which meant a fresh or misconfigured platform displayed invented أثر عطائكم في أرقام
  * as if they were real. A missing value now shows an honest dash instead.
  */
 export function StatsBand() {

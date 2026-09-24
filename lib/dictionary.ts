@@ -539,6 +539,14 @@ const ar = {
     settingsButton: "إعدادات الحساب",
     logoutButton: "تسجيل الخروج",
   },
+  websiteProfile: {
+    impactStatsTitle: "أرقام الأثر",
+    foodBaskets: "وجبة غذائية موزعة",
+    totalBeneficiaries: "مستفيد من خدماتنا",
+    yearsOfGiving: "سنوات العطاء",
+    saveButton: "حفظ التحديثات",
+    invalidNonNegativeInteger: "يرجى إدخال عدد صحيح غير سالب",
+  },
   privacyPage: {
     badge: "سياسة الخصوصية",
     title: "سياسة الخصوصية",
@@ -1139,6 +1147,14 @@ const en: LocaleDictionary = {
     avatarFailed: "Failed to update the profile picture",
     settingsButton: "Account settings",
     logoutButton: "Log out",
+  },
+  websiteProfile: {
+    impactStatsTitle: "أثر عطائكم في أرقام",
+    foodBaskets: "وجبة غذائية موزعة",
+    totalBeneficiaries: "مستفيد من خدماتنا",
+    yearsOfGiving: "سنوات العطاء",
+    saveButton: "حفظ التحديثات",
+    invalidNonNegativeInteger: "يرجى إدخال عدد صحيح غير سالب",
   },
   privacyPage: {
     badge: "Privacy Policy",

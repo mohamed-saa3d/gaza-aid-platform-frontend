@@ -90,7 +90,7 @@ export function SettingsSection() {
                 disabled={loading}
               />
             </div>
-            <Button className="mt-2 w-full" disabled={loading || saving}>
+            <Button type="submit" className="mt-2 w-full" disabled={loading || saving}>
               {saving ? <Loader2 className="ml-2 size-4 animate-spin" /> : <Save className="ml-2 size-4" />}
               حفظ التحديثات
             </Button>
