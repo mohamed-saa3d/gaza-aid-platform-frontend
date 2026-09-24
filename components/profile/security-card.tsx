@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/locale-provider"
 
 export function SecurityCard() {
+  const { t } = useLocale()
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
 
@@ -18,7 +20,7 @@ export function SecurityCard() {
           <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <KeyRound className="size-4" />
           </div>
-          <CardTitle className="font-heading text-lg">تغيير كلمة المرور</CardTitle>
+          <CardTitle className="font-heading text-lg">{t.profilePage.securityTitle}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
@@ -27,7 +29,7 @@ export function SecurityCard() {
           onSubmit={(e) => e.preventDefault()}
         >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="current-password">كلمة المرور الحالية</Label>
+            <Label htmlFor="current-password">{t.profilePage.securityCurrent}</Label>
             <Input
               id="current-password"
               type="password"
@@ -38,7 +40,7 @@ export function SecurityCard() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="new-password">كلمة المرور الجديدة</Label>
+            <Label htmlFor="new-password">{t.profilePage.securityNew}</Label>
             <Input
               id="new-password"
               type="password"
@@ -50,7 +52,7 @@ export function SecurityCard() {
           </div>
           <div className="sm:col-span-2">
             <Button type="submit" className="rounded-full">
-              حفظ التغييرات
+              {t.profilePage.securitySave}
             </Button>
           </div>
         </form>

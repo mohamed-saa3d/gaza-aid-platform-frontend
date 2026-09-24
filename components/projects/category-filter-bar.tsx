@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { resolveCategoryIcon } from "@/lib/category-icons"
+import { useLocale } from "@/components/locale-provider"
 import type { ProjectCategory } from "@/components/admin/projects/types"
 
 export type FilterValue = string | "all" | "urgent"
@@ -15,6 +16,7 @@ export function CategoryFilterBar({
   onChange: (value: FilterValue) => void
   categories?: ProjectCategory[]
 }) {
+  const { t } = useLocale()
   return (
     <div className="-mx-4 px-4 md:-mx-8 md:px-8">
       <div className="flex w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-2 pb-2 md:overflow-visible md:flex-wrap md:justify-center md:gap-3">
@@ -28,9 +30,9 @@ export function CategoryFilterBar({
               : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary",
           )}
         >
-          الكل
+          {t.projectsFilter.all}
         </button>
-        
+
         <button
           type="button"
           onClick={() => onChange("urgent")}
@@ -41,7 +43,7 @@ export function CategoryFilterBar({
               : "border-border bg-card text-muted-foreground hover:border-destructive/40 hover:text-destructive",
           )}
         >
-          إغاثة عاجلة
+          {t.projectsFilter.urgent}
         </button>
 
         {categories.map((item) => {

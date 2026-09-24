@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { http as apiClient, getErrorMessage } from "@/lib/http"
 import { useLocale } from "@/components/locale-provider"
-import { otpSchema, type OtpInput } from "@/lib/validations/auth"
+import { createOtpSchema, type OtpInput } from "@/lib/validations/auth"
 
 export function VerifyOtpForm() {
   const router = useRouter()
@@ -22,8 +22,7 @@ export function VerifyOtpForm() {
   const phoneParam = searchParams.get("phone") || ""
   const identifier = emailParam || phoneParam
 
-  const { locale } = useLocale()
-  const isAr = locale === "ar"
+  const { t } = useLocale()
 
   const [apiError, setApiError] = useState<string | null>(null)
   const [isResending, setIsResending] = useState(false)
@@ -49,7 +48,7 @@ export function VerifyOtpForm() {
     watch,
     formState: { isSubmitting, errors },
   } = useForm<OtpInput>({
-    resolver: zodResolver(otpSchema),
+    resolver: zodResolver(createOtpSchema(t.validation)),
     defaultValues: {
       code: "",
     },
@@ -65,16 +64,12 @@ export function VerifyOtpForm() {
         email: emailParam,
         otp: data.code,
       })
-      toast.success(isAr ? "تم تأكيد الحساب وإنشاؤه بنجاح" : "Account verified and created successfully!")
+      toast.success(t.auth.otpConfirm)
       router.push("/profile")
     } catch (err: any) {
       // Clear OTP input for immediate error recovery and re-entry
       setValue("code", "")
-      const msg =
-        getErrorMessage(err) ||
-        (isAr
-          ? "حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى."
-          : "An error occurred during verification. Please try again.")
+      const msg = getErrorMessage(err) || t.common.error
       setApiError(msg)
       toast.error(msg)
     }
@@ -82,20 +77,13 @@ export function VerifyOtpForm() {
 
   async function handleResend() {
     if (cooldown > 0) {
-      toast.error(
-        isAr
-          ? "يرجى الانتظار حتى انتهاء العداد قبل طلب رمز جديد"
-          : "Please wait for the timer to finish before requesting a new code"
-      )
+      toast.error(t.auth.otpResendIn.replace("{seconds}", String(cooldown)))
       return
     }
 
     const payload = emailParam ? { email: emailParam } : phoneParam ? { phone: phoneParam } : null
-
     if (!payload) {
-      const errorMsg = isAr
-        ? "معلومات التواصل مفقودة. يرجى العودة للتسجيل."
-        : "Contact information is missing. Please return to registration."
+      const errorMsg = t.auth.otpMissingContact
       setResendStatus({ type: "error", message: errorMsg })
       toast.error(errorMsg)
       return
@@ -106,21 +94,12 @@ export function VerifyOtpForm() {
 
     try {
       await apiClient.post("/auth/resend-otp", payload)
-      const successMsg = isAr ? "تم إعادة إرسال رمز التحقق بنجاح." : "Verification code resent successfully."
+      const successMsg = t.auth.otpResend
       setResendStatus({ type: "success", message: successMsg })
       toast.success(successMsg)
       setCooldown(60)
     } catch (err: any) {
-      let errorMsg = ""
-      if (err.response?.status === 429) {
-        errorMsg = isAr
-          ? "لقد تجاوزت عدد المحاولات المسموح بها، يرجى الانتظار قليلاً."
-          : "Too many attempts. Please try again later."
-      } else {
-        errorMsg =
-          getErrorMessage(err) ||
-          (isAr ? "فشل إعادة إرسال الرمز. حاول مرة أخرى." : "Failed to resend verification code. Try again.")
-      }
+      const errorMsg = getErrorMessage(err) || t.common.error
       setResendStatus({ type: "error", message: errorMsg })
       toast.error(errorMsg)
     } finally {
@@ -130,15 +109,11 @@ export function VerifyOtpForm() {
 
   return (
     <AuthCard
-      title={isAr ? "تأكيد الحساب" : "Verify Account"}
+      title={t.auth.otpTitle}
       description={
         identifier
-          ? isAr
-            ? `أدخل رمز التحقق المرسل إلى ${identifier}`
-            : `Enter the verification code sent to ${identifier}`
-          : isAr
-            ? "أدخل رمز التحقق المرسل إلى بريدك/هاتفك"
-            : "Enter the verification code sent to your email/phone"
+          ? t.auth.otpDescriptionWithId.replace("{identifier}", identifier)
+          : t.auth.otpDescription
       }
     >
       <form className="flex flex-col items-center gap-6" onSubmit={handleSubmit(onSubmit)}>
@@ -166,9 +141,7 @@ export function VerifyOtpForm() {
 
         {!identifier && (
           <p className="text-center text-sm font-medium text-destructive">
-            {isAr
-              ? "معلومات التواصل مفقودة أو غير صحيحة. يرجى البدء من جديد من صفحة التسجيل."
-              : "Contact information is missing or invalid. Please restart registration."}
+            {t.auth.otpMissingContact}
           </p>
         )}
 
@@ -190,13 +163,13 @@ export function VerifyOtpForm() {
           ) : (
             <ShieldCheck className="size-4" data-icon="inline-start" />
           )}
-          {isAr ? "تأكيد" : "Confirm"}
+          {t.auth.otpConfirm}
         </Button>
       </form>
 
       <div className="flex flex-col items-center gap-2">
         <p className="text-center text-sm text-muted-foreground">
-          {isAr ? "لم يصلك الرمز؟ " : "Didn't receive code? "}
+          {t.auth.otpNotReceived}{" "}
           <button
             type="button"
             onClick={handleResend}
@@ -205,12 +178,8 @@ export function VerifyOtpForm() {
           >
             {isResending && <Loader2 className="size-3 animate-spin" />}
             {cooldown > 0
-              ? isAr
-                ? `إعادة إرسال الرمز خلال (${cooldown}ث)`
-                : `Resend code in (${cooldown}s)`
-              : isAr
-                ? "إعادة إرسال الرمز"
-                : "Resend"}
+              ? t.auth.otpResendIn.replace("{seconds}", String(cooldown))
+              : t.auth.otpResend}
           </button>
         </p>
 
@@ -228,7 +197,7 @@ export function VerifyOtpForm() {
 
       <p className="text-center text-sm text-muted-foreground">
         <Link href="/register" className="hover:underline">
-          {isAr ? "العودة إلى التسجيل" : "Back to Registration"}
+          {t.auth.otpBackToRegister}
         </Link>
       </p>
     </AuthCard>

@@ -11,11 +11,13 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { registerSchema, formatRegisterPayload } from "@/lib/validations/auth"
+import { createRegisterSchema, formatRegisterPayload } from "@/lib/validations/auth"
 import { http, getErrorMessage, extractFieldErrors } from "@/lib/http"
+import { useLocale } from "@/components/locale-provider"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { t } = useLocale()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -28,7 +30,7 @@ export default function RegisterPage() {
     e.preventDefault()
     setErrors({})
 
-    const validation = registerSchema.safeParse({
+    const validation = createRegisterSchema(t.validation).safeParse({
       name,
       email,
       password,
@@ -53,14 +55,14 @@ export default function RegisterPage() {
     try {
       const payload = formatRegisterPayload(validation.data)
       await http.post("/auth/register", payload)
-      toast.success("تم إرسال رمز التحقق إلى بريدك الإلكتروني، يرجى إدخاله لإتمام إنشاء الحساب")
+      toast.success(t.auth.registerButton)
       router.push(`/verify-otp?email=${encodeURIComponent(validation.data.email)}`)
     } catch (error: unknown) {
       const fieldErrs = extractFieldErrors(error)
       if (Object.keys(fieldErrs).length > 0) {
         setErrors(fieldErrs)
       } else {
-        const errorMsg = getErrorMessage(error) || "فشل إنشاء الحساب، يرجى المحاولة مرة أخرى"
+        const errorMsg = getErrorMessage(error) || t.common.error
         toast.error(errorMsg)
       }
     } finally {
@@ -69,14 +71,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthCard title="تسجيل جديد" description="أنشئ حسابك لمتابعة تبرعاتك ومشاريعك">
+    <AuthCard title={t.auth.registerTitle} description={t.auth.registerDescription}>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">الاسم الكامل</Label>
+          <Label htmlFor="name">{t.auth.fullNameLabel}</Label>
           <Input
             id="name"
             type="text"
-            placeholder="محمد سعد"
+            placeholder={t.auth.fullNamePlaceholder}
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -86,7 +88,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">البريد الإلكتروني</Label>
+          <Label htmlFor="email">{t.auth.emailLabel}</Label>
           <Input
             id="email"
             type="email"
@@ -100,7 +102,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">كلمة المرور</Label>
+          <Label htmlFor="password">{t.auth.passwordLabel}</Label>
           <Input
             id="password"
             type="password"
@@ -114,7 +116,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+          <Label htmlFor="confirmPassword">{t.auth.confirmPasswordLabel}</Label>
           <Input
             id="confirmPassword"
             type="password"
@@ -135,7 +137,7 @@ export default function RegisterPage() {
             className="mt-0.5"
           />
           <Label htmlFor="terms" className="text-xs font-normal leading-relaxed text-muted-foreground">
-            أوافق على الشروط والأحكام وسياسة الخصوصية الخاصة بالمؤسسة
+            {t.auth.agreeTerms}
           </Label>
         </div>
         {errors.agreed && <p className="text-xs text-destructive">{errors.agreed}</p>}
@@ -146,14 +148,14 @@ export default function RegisterPage() {
           ) : (
             <UserPlus className="size-4" data-icon="inline-start" />
           )}
-          إنشاء الحساب
+          {t.auth.registerButton}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        لديك حساب بالفعل؟{" "}
+        {t.auth.haveAccount}{" "}
         <Link href="/login" className="font-semibold text-primary hover:underline">
-          تسجيل الدخول
+          {t.auth.loginButton}
         </Link>
       </p>
     </AuthCard>

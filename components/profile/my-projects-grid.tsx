@@ -4,15 +4,17 @@ import Link from "next/link"
 import { FolderOpen } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/locale-provider"
 
 export function MyProjectsGrid() {
+  const { t } = useLocale()
   const projects: never[] = []
 
   if (projects.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="font-heading text-lg">مشاريعي</CardTitle>
+          <CardTitle className="font-heading text-lg">{t.profilePage.myProjectsTitle}</CardTitle>
         </CardHeader>
         <CardContent className="flex min-h-[220px] items-center justify-center">
           <div className="flex max-w-md flex-col items-center gap-4 text-center">
@@ -20,11 +22,11 @@ export function MyProjectsGrid() {
               <FolderOpen className="size-7" aria-hidden="true" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-heading text-xl font-bold text-foreground">لا توجد مشاريع مرتبطة بحسابك بعد</h3>
-              <p className="text-sm text-muted-foreground">بمجرد دعم المشاريع النشطة، ستظهر تفاصيلها هنا.</p>
+              <h3 className="font-heading text-xl font-bold text-foreground">{t.profilePage.myProjectsEmptyTitle}</h3>
+              <p className="text-sm text-muted-foreground">{t.profilePage.myProjectsEmptyBody}</p>
             </div>
             <Button asChild className="rounded-full">
-              <Link href="/projects">استكشاف المشاريع</Link>
+              <Link href="/projects">{t.profilePage.myProjectsExplore}</Link>
             </Button>
           </div>
         </CardContent>

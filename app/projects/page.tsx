@@ -8,7 +8,7 @@ export default function ProjectsPage() {
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <Breadcrumb label="projects" />
 
-      <LocalizedHeading section="pages" titleKey="projectsTitle" subtitleKey="projectsSubtitle" icon={Sprout} />
+      <LocalizedHeading section="pages" titleKey="projectsTitle" subtitleKey="projectsSubtitle" icon={<Sprout className="size-7 text-primary" aria-hidden="true" />} />
 
       <ProjectsGrid />
     </main>

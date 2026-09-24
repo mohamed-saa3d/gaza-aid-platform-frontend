@@ -1,13 +1,18 @@
-import { Clock, HeartHandshake, ShieldCheck, Users2 } from "lucide-react"
+"use client"
 
-const trustPoints = [
-  { icon: Clock, title: "نستجيب بسرعة", description: "نرد على استفساراتك في أسرع وقت" },
-  { icon: Users2, title: "فريق متخصص", description: "فريقنا جاهز للإجابة" },
-  { icon: ShieldCheck, title: "ثقة وشفافية", description: "نلتزم بالشفافية والمصداقية" },
-  { icon: HeartHandshake, title: "خدمة إنسانية", description: "نعمل من أجل الإنسان أينما كان" },
-]
+import { Clock, HeartHandshake, ShieldCheck, Users2 } from "lucide-react"
+import { useLocale } from "@/components/locale-provider"
 
 export function ContactTrustStrip() {
+  const { t } = useLocale()
+
+  const trustPoints = [
+    { icon: Clock, title: t.contactForm.trustSpeedTitle, description: t.contactForm.trustSpeedBody },
+    { icon: Users2, title: t.contactForm.trustTeamTitle, description: t.contactForm.trustTeamBody },
+    { icon: ShieldCheck, title: t.contactForm.trustTransparencyTitle, description: t.contactForm.trustTransparencyBody },
+    { icon: HeartHandshake, title: t.contactForm.trustHumanTitle, description: t.contactForm.trustHumanBody },
+  ]
+
   return (
     <div className="grid grid-cols-2 gap-6 border-t border-border/60 pt-8 sm:grid-cols-4">
       {trustPoints.map((item) => (

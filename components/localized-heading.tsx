@@ -1,42 +1,49 @@
 "use client"
 
-import type { LucideIcon } from "lucide-react"
 import { useLocale } from "@/components/locale-provider"
 import type { LocaleDictionary } from "@/lib/dictionary"
+import type { ReactNode } from "react"
 
 type Section = keyof LocaleDictionary
+
+type StringKeys<T> = {
+  [K in keyof T]: T[K] extends string ? K : never
+}[keyof T]
 
 /**
  * Localized page heading + optional subtitle.
  *
  * Server pages cannot read the client locale, so this tiny client component owns
  * the translated title/subtitle while the page keeps its server-rendered layout.
- * `titleKey`/`subtitleKey` are dictionary keys, which is what makes the heading
- * switch with the locale instead of staying Arabic.
+ * `titleKey`/`subtitleKey` are constrained to the STRING keys of the section, so a
+ * typo is a compile error instead of a silently missing translation.
+ *
+ * `icon` is a pre-rendered node (e.g. `<Sprout />`) rather than a component
+ * reference: a bare function cannot cross the server -> client boundary.
  */
-export function LocalizedHeading({
+export function LocalizedHeading<S extends Section>({
   section,
   titleKey,
   subtitleKey,
-  icon: Icon,
+  icon,
 }: {
-  section: Section
-  titleKey: string
-  subtitleKey?: string
-  icon?: LucideIcon
+  section: S
+  titleKey: StringKeys<LocaleDictionary[S]>
+  subtitleKey?: StringKeys<LocaleDictionary[S]>
+  icon?: ReactNode
 }) {
   const { t } = useLocale()
-  const sectionDict = t[section] as Record<string, string>
+  const sectionDict = t[section]
 
   return (
     <div className="mb-10 text-center">
       <h1 className="flex items-center justify-center gap-2 font-heading text-3xl font-bold text-balance sm:text-4xl">
-        {sectionDict[titleKey]}
-        {Icon ? <Icon className="size-7 text-primary" aria-hidden="true" /> : null}
+        {sectionDict[titleKey as keyof typeof sectionDict]}
+        {icon}
       </h1>
       {subtitleKey ? (
         <p className="mx-auto mt-3 max-w-xl text-pretty text-muted-foreground">
-          {sectionDict[subtitleKey]}
+          {sectionDict[subtitleKey as keyof typeof sectionDict]}
         </p>
       ) : null}
     </div>

@@ -9,7 +9,7 @@ import { useLocale } from "@/components/locale-provider"
 import { useSiteBranding } from "@/hooks/use-site-branding"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
-import { FacebookIcon, InstagramIcon, XIcon, YoutubeIcon } from "@/components/social-icons"
+import { FacebookIcon } from "@/components/social-icons"
 import { getPublicSettings } from "@/lib/api/public"
 
 export function SiteFooter() {
@@ -76,16 +76,15 @@ export function SiteFooter() {
               {t.footer.description}
             </p>
             <div className="flex items-center gap-2">
-              {[YoutubeIcon, InstagramIcon, FacebookIcon, XIcon].map((Icon, i) => (
-                <Link
-                  key={`social-${i}`}
-                  href="#"
-                  className="flex size-9 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20"
-                  aria-label={t.footer.socialMedia}
-                >
-                  <Icon className="size-4" />
-                </Link>
-              ))}
+              <Link
+                href="https://www.facebook.com/elqudsorg"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="flex size-9 items-center justify-center rounded-full bg-primary-foreground/10 transition-colors hover:bg-primary-foreground/20"
+              >
+                <FacebookIcon className="size-4" />
+              </Link>
             </div>
           </div>
 

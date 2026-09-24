@@ -17,7 +17,7 @@ export default function ContactPage() {
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
       <Breadcrumb label="contact" />
 
-      <LocalizedHeading section="contact" titleKey="title" subtitleKey="subtitle" icon={MessageCircle} />
+      <LocalizedHeading section="contact" titleKey="title" subtitleKey="subtitle" icon={<MessageCircle className="size-7 text-primary" aria-hidden="true" />} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
         <ContactInfoCards />

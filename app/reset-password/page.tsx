@@ -10,17 +10,19 @@ import { AuthCard } from "@/components/auth/auth-card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { resetPasswordSchema } from "@/lib/validations/auth"
+import { createResetPasswordSchema } from "@/lib/validations/auth"
 import { http, getErrorMessage } from "@/lib/http"
+import { useLocale } from "@/components/locale-provider"
 
 export default function ResetPasswordPage() {
+  const { t } = useLocale()
   return (
     <Suspense
       fallback={
-        <AuthCard title="إعادة تعيين كلمة المرور" description="جاري تجهيز رابط إعادة التعيين...">
+        <AuthCard title={t.auth.resetTitle} description={t.auth.resetPreparing}>
           <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
-            جاري التحميل...
+            {t.common.loading}
           </div>
         </AuthCard>
       }
@@ -33,6 +35,7 @@ export default function ResetPasswordPage() {
 function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useLocale()
   const tokenParam = searchParams.get("token") || ""
 
   const [password, setPassword] = useState("")
@@ -44,7 +47,7 @@ function ResetPasswordForm() {
     e.preventDefault()
     setErrors({})
 
-    const validation = resetPasswordSchema.safeParse({
+    const validation = createResetPasswordSchema(t.validation).safeParse({
       token: tokenParam,
       password,
       confirmPassword,
@@ -69,10 +72,10 @@ function ResetPasswordForm() {
         otp: validation.data.token,
         newPassword: validation.data.password,
       })
-      toast.success("تم إعادة تعيين كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.")
+      toast.success(t.auth.resetSaveButton)
       router.push("/login")
     } catch (error: unknown) {
-      const errorMsg = getErrorMessage(error) || "فشل إعادة تعيين كلمة المرور، قد يكون الرابط منتهي الصلاحية"
+      const errorMsg = getErrorMessage(error) || t.common.error
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)
@@ -80,16 +83,16 @@ function ResetPasswordForm() {
   }
 
   return (
-    <AuthCard title="إعادة تعيين كلمة المرور" description="أدخل كلمة المرور الجديدة للحساب.">
+    <AuthCard title={t.auth.resetTitle} description={t.auth.resetDescription}>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         {!tokenParam && (
           <p className="text-xs font-semibold text-destructive text-center">
-            رمز إرجاع كلمة المرور غير موجود في الرابط.
+            {t.auth.resetMissingToken}
           </p>
         )}
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">كلمة المرور الجديدة</Label>
+          <Label htmlFor="password">{t.auth.resetNewPassword}</Label>
           <Input
             id="password"
             type="password"
@@ -103,7 +106,7 @@ function ResetPasswordForm() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+          <Label htmlFor="confirmPassword">{t.auth.confirmPasswordLabel}</Label>
           <Input
             id="confirmPassword"
             type="password"
@@ -122,13 +125,13 @@ function ResetPasswordForm() {
           ) : (
             <LockKeyhole className="size-4" data-icon="inline-start" />
           )}
-          حفظ كلمة المرور الجديدة
+          {t.auth.resetSaveButton}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground mt-2">
         <Link href="/login" className="font-semibold text-primary hover:underline">
-          العودة لتسجيل الدخول
+          {t.auth.resetBackToLogin}
         </Link>
       </p>
     </AuthCard>

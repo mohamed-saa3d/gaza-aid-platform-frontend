@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
 import { toast } from "sonner"
+import { dictionary } from "@/lib/dictionary"
 
 const RAW_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "").replace(/\/api$/, "/api/v1")
@@ -212,16 +213,17 @@ http.interceptors.response.use(
       PUBLIC_ROUTES.some((path) => window.location.pathname.startsWith(path))
 
     if (!error.response) {
+      const errors = dictionary[getActiveLocale()].httpErrors
       if (typeof window !== "undefined" && !window.navigator.onLine) {
-        toast.error("لا يوجد اتصال بالإنترنت، يرجى التحقق من الشبكة", {
+        toast.error(errors.offline, {
           id: "offline-error",
         })
       } else if (error.code === "ECONNABORTED") {
-        toast.error("انتهت مهلة الاتصال بالسيرفر، يرجى المحاولة لاحقاً", {
+        toast.error(errors.timeout, {
           id: "timeout-error",
         })
       } else {
-        toast.error("تعذر الاتصال بالسيرفر، تأكد من تشغيل الباك إند", {
+        toast.error(errors.network, {
           id: "network-error",
         })
       }
@@ -263,14 +265,14 @@ http.interceptors.response.use(
     }
 
     if (status === 429) {
-      toast.warning(responseData?.message || "تجاوزت عدد المحاولات المسموح بها، يرجى الانتظار", {
+      toast.warning(responseData?.message || dictionary[getActiveLocale()].httpErrors.rateLimited, {
         id: "rate-limit-warning",
       })
     } else if (status === 400) {
       if (originalRequest.silentStatuses?.includes(400)) {
         return Promise.reject(error)
       }
-      toast.error(responseData?.message || "يرجى مراجعة البيانات المدخلة", {
+      toast.error(responseData?.message || dictionary[getActiveLocale()].httpErrors.badRequest, {
         id: "validation-error",
       })
     } else if (status === 403 || status === 404 || status === 409 || status >= 500) {
@@ -279,7 +281,7 @@ http.interceptors.response.use(
       }
       const isSilentProfileError = requestUrl.includes("/users/profile") && (status === 401 || status === 403)
       if (!isSilentProfileError) {
-        toast.error(responseData?.message || "حدث خطأ غير متوقع", {
+        toast.error(responseData?.message || dictionary[getActiveLocale()].httpErrors.unexpected, {
           id: `http-error-${status}`,
         })
       }

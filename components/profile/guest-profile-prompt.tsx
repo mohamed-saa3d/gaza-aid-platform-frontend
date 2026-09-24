@@ -4,8 +4,10 @@ import Link from "next/link"
 import { LogIn, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useLocale } from "@/components/locale-provider"
 
 export function GuestProfilePrompt() {
+  const { t } = useLocale()
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center py-20 text-center">
       <Card className="w-full max-w-md bg-card shadow-lg border border-border">
@@ -14,20 +16,20 @@ export function GuestProfilePrompt() {
             <UserPlus className="size-8" />
           </div>
           <div className="space-y-2 text-center">
-            <h2 className="font-heading text-2xl font-bold">مرحباً بك في ملفك الشخصي</h2>
+            <h2 className="font-heading text-2xl font-bold">{t.profilePage.guestTitle}</h2>
             <p className="text-muted-foreground text-pretty">
-              أنشئ حسابك الآن لتتمكن من متابعة سجل تبرعاتك، إدارة مشاريعك المدعومة، والتحكم في إعدادات حسابك.
+              {t.profilePage.guestBody}
             </p>
           </div>
           <div className="flex flex-col w-full gap-3 mt-2">
             <Button asChild size="lg" className="w-full rounded-full">
               <Link href="/register">
-                إنشاء حساب جديد
+                {t.profilePage.guestRegister}
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="w-full rounded-full group">
               <Link href="/login">
-                تسجيل الدخول
+                {t.profilePage.guestLogin}
                 <LogIn className="size-4 ms-2 transition-transform group-hover:-translate-x-1" />
               </Link>
             </Button>

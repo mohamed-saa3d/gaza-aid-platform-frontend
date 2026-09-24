@@ -24,7 +24,7 @@ const PAGE_SIZE = 6
  * deep-links straight into a filtered project list.
  */
 function ProjectsGridInner() {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const searchParams = useSearchParams()
   const categoryParam = searchParams.get("category")
 
@@ -104,7 +104,7 @@ function ProjectsGridInner() {
           ))}
         </div>
       ) : (
-        <p className="py-12 text-center text-muted-foreground">لا توجد مشاريع في هذا التصنيف حالياً.</p>
+        <p className="py-12 text-center text-muted-foreground">{t.projectsFilter.emptyCategory}</p>
       )}
 
       {totalPages > 1 && (

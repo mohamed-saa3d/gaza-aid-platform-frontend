@@ -9,10 +9,12 @@ import { AuthCard } from "@/components/auth/auth-card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { forgotPasswordSchema } from "@/lib/validations/auth"
+import { createForgotPasswordSchema } from "@/lib/validations/auth"
 import { http, getErrorMessage } from "@/lib/http"
+import { useLocale } from "@/components/locale-provider"
 
 export default function ForgotPasswordPage() {
+  const { t } = useLocale()
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSent, setIsSent] = useState(false)
@@ -22,7 +24,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setErrors({})
 
-    const validation = forgotPasswordSchema.safeParse({ email })
+    const validation = createForgotPasswordSchema(t.validation).safeParse({ email })
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {}
       validation.error.issues.forEach((issue) => {
@@ -40,9 +42,9 @@ export default function ForgotPasswordPage() {
     try {
       await http.post("/auth/forgot-password", validation.data)
       setIsSent(true)
-      toast.success("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني!")
+      toast.success(t.auth.forgotSendButton)
     } catch (error: unknown) {
-      const errorMsg = getErrorMessage(error) || "فشل إرسال الطلب، يرجى المحاولة لاحقاً"
+      const errorMsg = getErrorMessage(error) || t.common.error
       toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)
@@ -51,8 +53,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthCard
-      title="استعادة كلمة المرور"
-      description="أدخل بريدك الإلكتروني وسيصلك رابط لإعادة تعيين كلمة المرور الخاص بك."
+      title={t.auth.forgotTitle}
+      description={t.auth.forgotDescription}
     >
       {isSent ? (
         <div className="flex flex-col items-center gap-4 text-center py-4">
@@ -60,19 +62,19 @@ export default function ForgotPasswordPage() {
             <KeyRound className="size-8" />
           </div>
           <p className="text-sm font-medium text-foreground">
-            تم إرسال التعليمات إلى <span className="font-bold dir-ltr">{email}</span>
+            {t.auth.forgotSentTo} <span className="font-bold dir-ltr">{email}</span>
           </p>
           <p className="text-xs text-muted-foreground">
-            تفقّد صندوق الوارد أو البريد العشوائي (Junk/Spam) لإكمال الاستعادة.
+            {t.auth.forgotCheckInbox}
           </p>
           <Link href="/login" className="mt-2 text-sm font-semibold text-primary hover:underline">
-            العودة لتسجيل الدخول
+            {t.auth.resetBackToLogin}
           </Link>
         </div>
       ) : (
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">البريد الإلكتروني</Label>
+            <Label htmlFor="email">{t.auth.emailLabel}</Label>
             <Input
               id="email"
               type="email"
@@ -91,13 +93,13 @@ export default function ForgotPasswordPage() {
             ) : (
               <KeyRound className="size-4" data-icon="inline-start" />
             )}
-            إرسال رابط الاستعادة
+            {t.auth.forgotSendButton}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground mt-2">
-            تذكرت كلمة المرور؟{" "}
+            {t.auth.forgotRemembered}{" "}
             <Link href="/login" className="font-semibold text-primary hover:underline inline-flex items-center gap-1">
-              تسجيل الدخول <ArrowRight className="size-3" />
+              {t.auth.loginButton} <ArrowRight className="size-3" />
             </Link>
           </p>
         </form>

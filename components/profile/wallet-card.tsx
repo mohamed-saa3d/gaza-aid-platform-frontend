@@ -3,8 +3,10 @@
 import { CreditCard, Link2Off, Plus, Wallet } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/locale-provider"
 
 export function WalletCard() {
+  const { t } = useLocale()
   return (
     <Card>
       <CardHeader>
@@ -13,11 +15,11 @@ export function WalletCard() {
             <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Wallet className="size-4" />
             </div>
-            <CardTitle className="font-heading text-lg">المحفظة الإلكترونية</CardTitle>
+            <CardTitle className="font-heading text-lg">{t.profilePage.walletTitle}</CardTitle>
           </div>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" />
-            محفظة مرتبطة
+            {t.profilePage.walletLinked}
           </span>
         </div>
       </CardHeader>
@@ -29,10 +31,10 @@ export function WalletCard() {
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-mono text-sm font-semibold tracking-wide">•••• •••• •••• 4242</span>
-              <span className="text-xs text-muted-foreground">Apple Pay مرتبطة منذ 12 2024</span>
+              <span className="text-xs text-muted-foreground">{t.profilePage.walletLinkedOn}</span>
               <button className="flex items-center gap-1 text-xs text-destructive">
                 <Link2Off className="size-3" />
-                إلغاء الربط
+                {t.profilePage.walletUnlink}
               </button>
             </div>
           </div>
@@ -45,8 +47,8 @@ export function WalletCard() {
           <span className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Plus className="size-5" />
           </span>
-          <span className="text-sm font-semibold text-foreground">إضافة محفظة جديدة</span>
-          <span className="text-xs text-muted-foreground">يمكنك ربط محفظة أخرى للتبرع بسهولة وأمان</span>
+          <span className="text-sm font-semibold text-foreground">{t.profilePage.walletAddTitle}</span>
+          <span className="text-xs text-muted-foreground">{t.profilePage.walletAddBody}</span>
         </button>
       </CardContent>
     </Card>

@@ -4,15 +4,17 @@ import Link from "next/link"
 import { HeartHandshake } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/components/locale-provider"
 
 export function DonationHistoryList() {
+  const { t } = useLocale()
   const donations: never[] = []
 
   if (donations.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="font-heading text-lg">سجل التبرعات</CardTitle>
+          <CardTitle className="font-heading text-lg">{t.profilePage.historyTitle}</CardTitle>
         </CardHeader>
         <CardContent className="flex min-h-[220px] items-center justify-center">
           <div className="flex max-w-md flex-col items-center gap-4 text-center">
@@ -20,11 +22,11 @@ export function DonationHistoryList() {
               <HeartHandshake className="size-7" aria-hidden="true" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-heading text-xl font-bold text-foreground">لم تقم بأي تبرعات حتى الآن</h3>
-              <p className="text-sm text-muted-foreground">ابدأ اليوم في دعم مشاريعنا وكن جزءاً من أثر إيجابي مستمر.</p>
+              <h3 className="font-heading text-xl font-bold text-foreground">{t.profilePage.historyEmptyTitle}</h3>
+              <p className="text-sm text-muted-foreground">{t.profilePage.historyEmptyBody}</p>
             </div>
             <Button asChild className="rounded-full">
-              <Link href="/">العودة إلى الرئيسية</Link>
+              <Link href="/">{t.profilePage.historyBackHome}</Link>
             </Button>
           </div>
         </CardContent>

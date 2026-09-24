@@ -1,6 +1,9 @@
+"use client"
+
 import Image from "next/image"
 import type { ReactNode } from "react"
 import { Card, CardContent } from "@/components/ui/card"
+import { useLocale } from "@/components/locale-provider"
 
 export function AuthCard({
   title,
@@ -11,9 +14,11 @@ export function AuthCard({
   description: string
   children: ReactNode
 }) {
+  const { t } = useLocale()
+
   return (
     <div className="mx-auto flex min-h-[calc(100vh-72px-1px)] w-full max-w-xs sm:max-w-md flex-col items-center justify-center px-4 py-12">
-      <Image src="/images/logo-mark.png" alt="شعار المؤسسة" width={48} height={48} className="mb-4 size-12 object-contain" />
+      <Image src="/images/logo-mark.png" alt={t.auth.brandAlt} width={48} height={48} className="mb-4 size-12 object-contain" />
       <Card className="w-full">
         <CardContent className="flex flex-col gap-6 py-4">
           <div className="text-center">

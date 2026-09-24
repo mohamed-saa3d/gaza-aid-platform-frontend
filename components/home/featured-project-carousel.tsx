@@ -7,15 +7,17 @@ import { Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProjectProgress } from "@/components/project-progress"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/components/locale-provider"
 import type { Project } from "@/components/admin/projects/types"
 
 export function FeaturedProjectCarousel({ projects }: { projects: Project[] }) {
+  const { t } = useLocale()
   const [active, setActive] = useState(0)
-  
+
   if (!projects || projects.length === 0) {
     return (
       <div className="flex h-full min-h-[300px] flex-col items-center justify-center rounded-3xl border border-border bg-card p-6 text-center shadow-sm">
-        <p className="text-muted-foreground">لا توجد مشاريع مميزة حالياً</p>
+        <p className="text-muted-foreground">{t.home.noFeatured}</p>
       </div>
     )
   }
@@ -47,11 +49,11 @@ export function FeaturedProjectCarousel({ projects }: { projects: Project[] }) {
 
         <div className="flex items-center gap-3">
           <Button asChild className="flex-1 rounded-full">
-            <Link href={`/donate?project=${project.id}`}>ساهم الآن</Link>
+            <Link href={`/donate?project=${project.id}`}>{t.common.contributeNow}</Link>
           </Button>
           <Button variant="outline" className="rounded-full">
             <Share2 className="size-4" data-icon="inline-start" />
-            مشاركة
+            {t.common.shareAction}
           </Button>
         </div>
 
@@ -63,7 +65,7 @@ export function FeaturedProjectCarousel({ projects }: { projects: Project[] }) {
                 <button
                   key={p.id}
                   type="button"
-                  aria-label={`عرض ${pTitle}`}
+                  aria-label={`${t.home.viewItemAria} ${pTitle}`}
                   onClick={() => setActive(i)}
                   className={cn(
                     "h-2 rounded-full transition-all",

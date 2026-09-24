@@ -14,7 +14,7 @@ import type { NewsItemData } from "@/components/admin/news/types"
 
 export default function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [news, setNews] = useState<NewsItemData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,20 +28,20 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
         const data = res?.data || null
         setNews(data)
       } catch {
-        setError("لم يتم العثور على الخبر المطلوب أو حدث خطأ أثناء التحميل.")
+        setError(t.newsDetail.loadFailed)
       } finally {
         setLoading(false)
       }
     }
     fetchNews()
-  }, [id])
+  }, [id, t.newsDetail.loadFailed])
 
   if (loading) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center gap-3">
           <Loader2 className="size-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">جاري تحميل تفاصيل الخبر...</p>
+          <p className="text-sm text-muted-foreground">{t.newsDetail.loading}</p>
         </div>
       </main>
     )
@@ -52,10 +52,10 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
       <main className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-destructive/20 bg-destructive/5 p-12 text-center">
           <AlertCircle className="size-10 text-destructive" />
-          <h1 className="font-heading text-xl font-bold text-foreground">الخبر غير موجود</h1>
+          <h1 className="font-heading text-xl font-bold text-foreground">{t.newsDetail.notFoundTitle}</h1>
           <p className="max-w-md text-sm text-muted-foreground">{error}</p>
           <Button asChild variant="outline" className="rounded-full mt-2">
-            <Link href="/news">العودة إلى المركز الإعلامي</Link>
+            <Link href="/news">{t.newsDetail.backToNews}</Link>
           </Button>
         </div>
       </main>
@@ -77,7 +77,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
             <div className="flex items-center gap-3">
               {news.isUrgent && (
                 <Badge className="rounded-full bg-destructive/10 text-destructive border-0 px-3 py-1 text-xs font-bold">
-                  عاجل
+                  {t.news.urgent}
                 </Badge>
               )}
               {news.createdAt && (
@@ -119,7 +119,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
               >
-                <span>المصدر والتفاصيل الإضافية</span>
+                <span>{t.newsDetail.source}</span>
                 <ExternalLink className="size-4" />
               </a>
             </div>
@@ -129,7 +129,7 @@ export default function NewsDetailPage({ params }: { params: Promise<{ id: strin
             <Button asChild variant="outline" className="rounded-full gap-2">
               <Link href="/news">
                 <Newspaper className="size-4" />
-                العودة لجميع الأخبار
+                {t.newsDetail.backToAllNews}
               </Link>
             </Button>
           </div>

@@ -20,20 +20,29 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   // already made in the visitor's language. Server render always uses the Arabic
   // default to avoid a hydration mismatch; the effect below corrects it.
   const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE)
+  // Tracks whether we have applied the persisted preference. Until then, the sync
+  // effect must NOT publish the initial Arabic default to localStorage: doing so
+  // overwrote a stored "en" with "ar" for one commit, so requests fired in that
+  // window went out as `locale=ar` and their error toasts came back in Arabic even
+  // though the visitor had chosen English.
+  const [preferenceApplied, setPreferenceApplied] = useState(false)
   const dir: "rtl" | "ltr" = locale === "ar" ? "rtl" : "ltr"
 
   useEffect(() => {
     setLocale(getActiveLocale())
+    setPreferenceApplied(true)
   }, [])
 
   useEffect(() => {
     // Sync locale to document element
     document.documentElement.lang = locale
     document.documentElement.dir = dir
-    // Persist to localStorage for future visits AND publish it to the HTTP client,
-    // so requests whose responses contain localized database content carry it.
-    setActiveLocale(locale)
-  }, [locale, dir])
+    if (preferenceApplied) {
+      // Persist to localStorage for future visits AND publish it to the HTTP client,
+      // so requests whose responses contain localized database content carry it.
+      setActiveLocale(locale)
+    }
+  }, [locale, dir, preferenceApplied])
 
   // Only render context after hydration to avoid mismatch
   if (!isMounted) {

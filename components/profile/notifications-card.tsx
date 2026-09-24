@@ -3,37 +3,40 @@
 import { Bell } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-
-const notifications = [
-  {
-    id: "n1",
-    time: "الآن",
-    highlighted: true,
-    title: "تذكير:",
-    text: "غداً، شكراً لعطائك المستمر.",
-    extra: "سيتم تجديد تبرعك الشهري بقيمة 200 دولار",
-  },
-  {
-    id: "n2",
-    time: "يوم أمس",
-    highlighted: false,
-    text: "تم بنجاح التبرع الشهري بقيمة 200 دولار لمشروع سقيا الماء.",
-  },
-  {
-    id: "n3",
-    time: "منذ 3 أيام",
-    highlighted: false,
-    text: "شكراً لك! لقد ساهم تبرعك في إحداث فرق في حياة مستفيد.",
-  },
-  {
-    id: "n4",
-    time: "منذ 7 أيام",
-    highlighted: false,
-    text: "تم تحديث مشروع بناء المساجد. اضغط لمشاهدة التفاصيل.",
-  },
-]
+import { useLocale } from "@/components/locale-provider"
 
 export function NotificationsCard() {
+  const { t } = useLocale()
+
+  const notifications = [
+    {
+      id: "n1",
+      time: t.profilePage.notifNow,
+      highlighted: true,
+      title: t.profilePage.notif1Title,
+      text: t.profilePage.notif1Text,
+      extra: t.profilePage.notif1Extra,
+    },
+    {
+      id: "n2",
+      time: t.profilePage.notifYesterday,
+      highlighted: false,
+      text: t.profilePage.notif2Text,
+    },
+    {
+      id: "n3",
+      time: t.profilePage.notif3Days,
+      highlighted: false,
+      text: t.profilePage.notif3Text,
+    },
+    {
+      id: "n4",
+      time: t.profilePage.notif7Days,
+      highlighted: false,
+      text: t.profilePage.notif4Text,
+    },
+  ]
+
   return (
     <Card>
       <CardHeader>
@@ -41,7 +44,7 @@ export function NotificationsCard() {
           <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Bell className="size-4" />
           </div>
-          <CardTitle className="font-heading text-lg">أحدث الإشعارات</CardTitle>
+          <CardTitle className="font-heading text-lg">{t.profilePage.notificationsTitle}</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -65,7 +68,7 @@ export function NotificationsCard() {
           </div>
         ))}
         <button className="self-center text-sm font-medium text-primary hover:underline">
-          عرض كل الإشعارات
+          {t.profilePage.notificationsViewAll}
         </button>
       </CardContent>
     </Card>

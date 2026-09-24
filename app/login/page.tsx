@@ -11,12 +11,14 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { http, getErrorMessage, extractFieldErrors } from "@/lib/http"
-import { loginSchema } from "@/lib/validations/auth"
+import { createLoginSchema } from "@/lib/validations/auth"
 import { useAuth, type UserProfile } from "@/context/auth-context"
+import { useLocale } from "@/components/locale-provider"
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
+  const { t } = useLocale()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -27,7 +29,7 @@ export default function LoginPage() {
     e.preventDefault()
     setErrors({})
 
-    const validation = loginSchema.safeParse({ email, password })
+    const validation = createLoginSchema(t.validation).safeParse({ email, password })
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {}
       validation.error.issues.forEach((issue) => {
@@ -54,7 +56,7 @@ export default function LoginPage() {
       }
 
       login(user, "user")
-      toast.success("تم تسجيل الدخول بنجاح!")
+      toast.success(t.auth.loginButton)
 
       if (user.role === "ADMIN") {
         router.push("/admin/content")
@@ -66,7 +68,7 @@ export default function LoginPage() {
       if (Object.keys(fieldErrs).length > 0) {
         setErrors(fieldErrs)
       } else {
-        const errorMsg = getErrorMessage(error) || "فشل تسجيل الدخول، يرجى التأكد من البيانات"
+        const errorMsg = getErrorMessage(error) || t.validation.passwordRequired
         toast.error(errorMsg)
       }
     } finally {
@@ -75,10 +77,10 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthCard title="تسجيل الدخول" description="أدخل بيانات حسابك للوصول إلى ملفك الشخصي">
+    <AuthCard title={t.auth.loginTitle} description={t.auth.loginDescription}>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">البريد الإلكتروني</Label>
+          <Label htmlFor="email">{t.auth.emailLabel}</Label>
           <Input
             id="email"
             type="email"
@@ -93,9 +95,9 @@ export default function LoginPage() {
 
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">كلمة المرور</Label>
+            <Label htmlFor="password">{t.auth.passwordLabel}</Label>
             <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-              نسيت كلمة المرور؟
+              {t.auth.forgotPasswordLink}
             </Link>
           </div>
           <Input
@@ -116,14 +118,14 @@ export default function LoginPage() {
           ) : (
             <LogIn className="size-4" data-icon="inline-start" />
           )}
-          تسجيل الدخول
+          {t.auth.loginButton}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        ليس لديك حساب؟{" "}
+        {t.auth.noAccount}{" "}
         <Link href="/register" className="font-semibold text-primary hover:underline">
-          سجل الآن
+          {t.auth.registerNow}
         </Link>
       </p>
     </AuthCard>

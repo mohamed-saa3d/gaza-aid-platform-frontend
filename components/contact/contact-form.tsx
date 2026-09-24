@@ -7,17 +7,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-
-const inquiryTypes = [
-  { id: "donation", label: "استفسار عن التبرعات" },
-  { id: "project", label: "استفسار عن مشروع" },
-  { id: "partnership", label: "شراكات وتعاون" },
-  { id: "other", label: "أخرى" },
-]
+import { useLocale } from "@/components/locale-provider"
 
 export function ContactForm() {
+  const { t } = useLocale()
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+
+  const inquiryTypes = [
+    { id: "donation", label: t.contactForm.typeDonation },
+    { id: "project", label: t.contactForm.typeProject },
+    { id: "partnership", label: t.contactForm.typePartnership },
+    { id: "other", label: t.contactForm.typeOther },
+  ]
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,9 +34,9 @@ export function ContactForm() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border/60 bg-secondary/40 p-10 text-center">
         <Mail className="size-8 text-primary" aria-hidden="true" />
-        <h3 className="font-heading text-lg font-bold">تم إرسال رسالتك بنجاح</h3>
+        <h3 className="font-heading text-lg font-bold">{t.contactForm.submittedTitle}</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
-          شكراً لتواصلك معنا، سيقوم فريقنا بالرد عليك في أقرب وقت ممكن.
+          {t.contactForm.submittedBody}
         </p>
       </div>
     )
@@ -42,35 +44,35 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <h2 className="font-heading text-xl font-bold">نموذج التواصل</h2>
+      <h2 className="font-heading text-xl font-bold">{t.contactForm.title}</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="contact-name">الاسم بالكامل</Label>
+          <Label htmlFor="contact-name">{t.contactForm.nameLabel}</Label>
           <div className="relative">
             <User className="absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" aria-hidden="true" />
-            <Input id="contact-name" placeholder="أدخل اسمك الكامل" required className="ps-9" />
+            <Input id="contact-name" placeholder={t.contactForm.namePlaceholder} required className="ps-9" />
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="contact-email">البريد الإلكتروني</Label>
+          <Label htmlFor="contact-email">{t.contactForm.emailLabel}</Label>
           <div className="relative">
             <Mail className="absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" aria-hidden="true" />
-            <Input id="contact-email" type="email" placeholder="أدخل بريدك الإلكتروني" required className="ps-9" />
+            <Input id="contact-email" type="email" placeholder={t.contactForm.emailPlaceholder} required className="ps-9" />
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="contact-phone">رقم الجوال</Label>
-        <Input id="contact-phone" type="tel" placeholder="أدخل رقم جوالك" />
+        <Label htmlFor="contact-phone">{t.contactForm.phoneLabel}</Label>
+        <Input id="contact-phone" type="tel" placeholder={t.contactForm.phonePlaceholder} />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="contact-type">نوع الاستفسار</Label>
+        <Label htmlFor="contact-type">{t.contactForm.typeLabel}</Label>
         <Select defaultValue="">
           <SelectTrigger id="contact-type" className="w-full">
-            <SelectValue placeholder="اختر نوع الاستفسار" />
+            <SelectValue placeholder={t.contactForm.typePlaceholder} />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -85,8 +87,8 @@ export function ContactForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="contact-message">نص الرسالة</Label>
-        <Textarea id="contact-message" placeholder="اكتب رسالتك هنا..." rows={5} required />
+        <Label htmlFor="contact-message">{t.contactForm.messageLabel}</Label>
+        <Textarea id="contact-message" placeholder={t.contactForm.messagePlaceholder} rows={5} required />
       </div>
 
       <Button type="submit" size="lg" className="w-full gap-2 rounded-full" disabled={submitting}>
@@ -95,7 +97,7 @@ export function ContactForm() {
         ) : (
           <Send className="size-4" data-icon="inline-start" aria-hidden="true" />
         )}
-        إرسال الرسالة
+        {t.contactForm.submit}
       </Button>
     </form>
   )
