@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 import { CalendarDays } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import type { News } from "@/components/admin/news/types"
@@ -6,6 +7,7 @@ import { useLocale } from "@/components/locale-provider"
 
 export function NewsArticleCard({ article }: { article: News }) {
   const { t } = useLocale()
+  const detailsUrl = article.detailsUrl?.trim()
 
   return (
     <Card className="overflow-hidden">
@@ -28,7 +30,23 @@ export function NewsArticleCard({ article }: { article: News }) {
         <p className="line-clamp-2 text-pretty text-sm leading-relaxed text-muted-foreground">
           {article.description || article.descriptionAr || article.descriptionEn}
         </p>
-        <button className="mt-1 self-start text-sm font-semibold text-primary hover:underline">{t.news.readMore}</button>
+        {detailsUrl ? (
+          <a
+            href={detailsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 self-start text-sm font-semibold text-primary hover:underline"
+          >
+            {t.news.readMore}
+          </a>
+        ) : (
+          <Link
+            href={`/news/${article.id}`}
+            className="mt-1 self-start text-sm font-semibold text-primary hover:underline"
+          >
+            {t.news.readMore}
+          </Link>
+        )}
       </CardContent>
     </Card>
   )

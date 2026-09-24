@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 import { CalendarDays } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,7 @@ import { useLocale } from "@/components/locale-provider"
 
 export function FeaturedArticleCard({ article }: { article: News }) {
   const { t } = useLocale()
+  const detailsUrl = article.detailsUrl?.trim()
 
   return (
     <Card className="overflow-hidden">
@@ -24,7 +26,17 @@ export function FeaturedArticleCard({ article }: { article: News }) {
           <p className="text-pretty leading-relaxed text-muted-foreground">
             {article.description || article.descriptionAr || article.descriptionEn}
           </p>
-          <Button className="w-fit rounded-full">{t.news.readDetails}</Button>
+          {detailsUrl ? (
+            <Button asChild className="w-fit rounded-full">
+              <a href={detailsUrl} target="_blank" rel="noopener noreferrer">
+                {t.news.readDetails}
+              </a>
+            </Button>
+          ) : (
+            <Button asChild className="w-fit rounded-full">
+              <Link href={`/news/${article.id}`}>{t.news.readDetails}</Link>
+            </Button>
+          )}
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-xl lg:aspect-auto lg:h-full lg:min-h-[280px]">
           <Image

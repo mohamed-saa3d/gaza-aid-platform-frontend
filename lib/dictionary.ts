@@ -167,6 +167,10 @@ const ar = {
     unavailableBody:
       "يوجد بث مباشر مجدول حالياً لكن الرابط غير قابل للتشغيل. يرجى المحاولة لاحقاً أو متابعة صفحاتنا على وسائل التواصل الاجتماعي.",
     backHome: "العودة إلى الرئيسية",
+    loadMore: "عرض المزيد من البثوث",
+    loadingMore: "جاري التحميل...",
+    noMore: "لا توجد بثوث أخرى",
+    noMoreHint: "وصلت إلى نهاية البثوث المباشرة المتاحة حالياً. تابعنا لمعرفة المواعيد القادمة.",
   },
   // Static, localized brand name. Intentionally NOT database-driven: the site
   // name is fixed branding that ships with the app, so it can never be left
@@ -308,6 +312,9 @@ const ar = {
     empty: "لا توجد أخبار حالياً.",
     latestTitle: "آخر الأخبار",
     loadMore: "عرض المزيد من الأخبار",
+    loadingMore: "جاري التحميل...",
+    noMore: "لقد وصلت إلى نهاية الأخبار",
+    noMoreHint: "لا توجد أخبار أخرى لعرضها حالياً. تابعنا للاطلاع على كل جديد.",
     readMore: "اقرأ المزيد",
     readDetails: "اقرأ التفاصيل",
     urgent: "عاجل",
@@ -764,6 +771,10 @@ const en: LocaleDictionary = {
     unavailableBody:
       "A live stream is scheduled but its link cannot be played right now. Please try again later or follow our social media pages.",
     backHome: "Back to home",
+    loadMore: "Load more streams",
+    loadingMore: "Loading...",
+    noMore: "No more streams",
+    noMoreHint: "You've reached the end of the available live streams. Follow us to hear about upcoming broadcasts.",
   },
   branding: {
     siteName: "Quds Relief Foundation",
@@ -902,6 +913,9 @@ const en: LocaleDictionary = {
     empty: "There is no news right now.",
     latestTitle: "Latest news",
     loadMore: "Load more news",
+    loadingMore: "Loading...",
+    noMore: "You've reached the end of the news",
+    noMoreHint: "There is nothing else to show right now. Check back soon for updates.",
     readMore: "Read more",
     readDetails: "Read details",
     urgent: "Urgent",
