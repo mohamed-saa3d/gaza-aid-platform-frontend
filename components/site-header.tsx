@@ -121,7 +121,7 @@ export function SiteHeader() {
               <div className="mt-2 flex flex-col gap-2 px-4">
                 <Button variant="outline" onClick={toggleLocale} className="justify-center rounded-sm">
                   <Languages className="size-3.5" data-icon="inline-start" />
-                  {locale === "ar" ? "English" : t.common.language}
+                  {locale === "ar" ? "English" : "العربية"}
                 </Button>
                 <Button asChild className="justify-center rounded-sm">
                   <Link href="/donate" className="flex items-center justify-center gap-2">
