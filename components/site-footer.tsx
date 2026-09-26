@@ -15,7 +15,7 @@ import { getPublicSettings } from "@/lib/api/public"
 export function SiteFooter() {
   const { t } = useLocale()
   const pathname = usePathname()
-  // Site name is static, localized branding (never DB-driven); logo is DB-backed.
+  // Site name and logo are both static frontend branding, never DB-driven.
   const { logoUrl } = useSiteBranding()
   const siteName = t.branding.siteName
   const [contact, setContact] = useState<{ phone: string | null; email: string | null }>({

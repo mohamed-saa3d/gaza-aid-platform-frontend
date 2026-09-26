@@ -15,7 +15,7 @@ export function SiteHeader() {
   const { t, locale, toggleLocale } = useLocale()
   const pathname = usePathname()
   const { user, isAuthenticated } = useAuth()
-  // Site name is static, localized branding (never DB-driven); logo is DB-backed.
+  // Site name and logo are both static frontend branding, never DB-driven.
   const { logoUrl } = useSiteBranding()
   const siteName = t.branding.siteName
   if (pathname.startsWith('/admin')) return null
