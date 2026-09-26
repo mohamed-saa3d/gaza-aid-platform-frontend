@@ -4,6 +4,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: 'https://gaza-aid-platform-backend-five.vercel.app/api/v1/:path*',
+      },
+    ];
+  },
 }
 
 export default nextConfig
