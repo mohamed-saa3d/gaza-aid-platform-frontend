@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dialog"
 
 import { newsFormSchema, updateNewsSchema } from "./schema"
+import { updateNews } from "./api"
+import { getErrorMessage } from "@/lib/http"
 import type { NewsItemData } from "./types"
 
 interface UpdateNewsDialogProps {
@@ -54,7 +56,7 @@ export function UpdateNewsDialog({ item, onSuccess, trigger }: UpdateNewsDialogP
     }
   }, [open, item])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
 
@@ -83,23 +85,40 @@ export function UpdateNewsDialog({ item, onSuccess, trigger }: UpdateNewsDialogP
     }
 
     setIsSubmitting(true)
-    setTimeout(() => {
+
+    try {
+      const res = await updateNews(
+        item.id,
+        {
+          titleAr: validation.data.titleAr,
+          titleEn: validation.data.titleEn,
+          descriptionAr: validation.data.descriptionAr,
+          descriptionEn: validation.data.descriptionEn,
+          detailsUrl: validation.data.detailsUrl,
+          isUrgent: validation.data.isUrgent ?? isUrgent,
+        },
+        imageFile ?? undefined
+      )
+
       const updatedItem: NewsItemData = {
-        ...item,
-        titleAr: validation.data.titleAr,
-        titleEn: validation.data.titleEn,
-        descriptionAr: validation.data.descriptionAr,
-        descriptionEn: validation.data.descriptionEn,
-        detailsUrl: validation.data.detailsUrl || "",
-        isUrgent: validation.data.isUrgent ?? isUrgent,
-        imageUrl: imageFile ? URL.createObjectURL(imageFile) : item.imageUrl,
+        id: res.data.id,
+        titleAr: res.data.titleAr,
+        titleEn: res.data.titleEn,
+        descriptionAr: res.data.descriptionAr,
+        descriptionEn: res.data.descriptionEn,
+        detailsUrl: res.data.detailsUrl ?? "",
+        isUrgent: res.data.isUrgent ?? false,
+        imageUrl: res.data.imageUrl,
       }
 
       onSuccess(updatedItem)
       toast.success("تم تحديث الخبر بنجاح!")
       setOpen(false)
+    } catch (error) {
+      toast.error(getErrorMessage(error) || "فشل في تحديث الخبر")
+    } finally {
       setIsSubmitting(false)
-    }, 300)
+    }
   }
 
   return (

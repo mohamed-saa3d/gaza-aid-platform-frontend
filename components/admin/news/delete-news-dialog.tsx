@@ -15,6 +15,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { deleteNews } from "./api"
+import { getErrorMessage } from "@/lib/http"
 
 interface DeleteNewsDialogProps {
   newsId: string
@@ -32,14 +34,19 @@ export function DeleteNewsDialog({
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setIsDeleting(true)
-    setTimeout(() => {
+
+    try {
+      await deleteNews(newsId)
       onSuccess(newsId)
       toast.success("تم حذف الخبر بنجاح")
       setOpen(false)
+    } catch (error) {
+      toast.error(getErrorMessage(error) || "فشل في حذف الخبر")
+    } finally {
       setIsDeleting(false)
-    }, 200)
+    }
   }
 
   return (
