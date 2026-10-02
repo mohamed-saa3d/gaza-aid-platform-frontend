@@ -190,7 +190,7 @@ export function ProjectsSection() {
               const calcProgress =
                 item.progressPercentage ?? item.progress ?? (targetVal > 0 ? Math.round((fundedVal / targetVal) * 100) : 0)
               const itemTitle = item.titleAr || item.title || item.titleEn || "مشروع بدون عنوان"
-              const itemImage = item.imgUrl || item.imageUrl || item.image || "/images/placeholder.jpg"
+              const itemImage = item.imgUrl || item.imageUrl || item.image || "/placeholder.jpg"
 
               return (
                 <article

@@ -646,7 +646,7 @@ Before proceeding to code changes, please confirm:
 ### Medium Priority
 1. **Touch Targets:** Mobile testing essential before deployment
 2. **Import Refactoring:** High risk of breaking imports - need systematic approach
-3. **API Mocking:** May need to keep mock-data for development/testing
+3. **API Mocking:** mock-data.ts retained for local dev fallback (quickAmounts, monthlyDonationSettings).
 
 ### Low Priority
 1. **File Uploads:** Only if admin panel needs it
