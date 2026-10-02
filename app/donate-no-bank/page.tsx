@@ -47,7 +47,7 @@ export default function DonateNoBankPage() {
           imageAlt={t.donateNoBank.walletAlt}
           fieldLabel={t.donateNoBank.phoneLabel}
           fieldIcon="phone"
-          fieldValue="010XXXXXXX"
+          fieldValue="01080874523 "
         />
       </div>
 
