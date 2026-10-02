@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2, Mail, Send, User } from "lucide-react"
+import { Loader2, Mail, Phone, Send, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -80,7 +80,10 @@ export function ContactForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="contact-phone">{t.contactForm.phoneLabel}</Label>
-        <Input id="contact-phone" type="tel" placeholder={t.contactForm.phonePlaceholder} />
+        <div className="relative">
+          <Phone className="absolute inset-y-0 start-3 my-auto size-4 text-muted-foreground" aria-hidden="true" />
+          <Input id="contact-phone" type="tel" placeholder={t.contactForm.phonePlaceholder} className="ps-9" />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">

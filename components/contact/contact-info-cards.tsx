@@ -70,11 +70,14 @@ export function ContactInfoCards() {
         </p>
       )}
       {infoItems.map((item) => (
-        <Card key={item.title} className="flex-row items-center justify-between gap-4 border-border/60 p-5">
-          <div className="flex flex-col gap-1 text-end">
+        <Card key={item.title} className="h-full flex-row items-center justify-start gap-3 border-border/60 px-5 py-5">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <item.icon className="size-5" aria-hidden="true" />
+          </span>
+          <div className="flex flex-col gap-1 text-start">
             <span className="font-heading text-sm font-bold">{item.title}</span>
             {loading ? (
-              <div className="flex items-center justify-end gap-2 py-1 text-muted-foreground">
+              <div className="flex items-center justify-start gap-2 py-1 text-muted-foreground">
                 <Loader2 className="size-3 animate-spin text-primary" />
               </div>
             ) : item.lines.length === 0 ? (
@@ -87,9 +90,6 @@ export function ContactInfoCards() {
               ))
             )}
           </div>
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <item.icon className="size-5" aria-hidden="true" />
-          </span>
         </Card>
       ))}
     </div>
