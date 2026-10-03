@@ -121,18 +121,18 @@ export function PaymentStep({ state, onChange, onBack, onSubmit }: PaymentStepPr
         </section>
       )}
 
-      <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-xs font-medium text-amber-800 dark:text-amber-300">
+      <div className="w-full min-w-0 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-xs font-medium text-amber-800 dark:text-amber-300 break-words">
         {t.donate.unavailableTitle}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <Button variant="outline" size="lg" className="rounded-full" onClick={onBack}>
           <ChevronRight className="size-4 rotate-180 rtl:rotate-0" aria-hidden="true" />
           {t.donate.back}
         </Button>
         <Button
           size="lg"
-          className="flex-1 rounded-full"
+          className="flex-1 min-w-0 h-auto md:h-auto py-2.5 sm:py-3 md:py-3.5 lg:py-4 xl:py-5 rounded-full whitespace-normal break-words text-center leading-snug"
           disabled
         >
           {t.donate.unavailableTitle}
